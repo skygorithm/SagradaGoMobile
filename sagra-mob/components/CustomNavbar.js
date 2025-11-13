@@ -4,15 +4,16 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import styles from '../styles/NavbarStyle';
 
 export default function CustomNavbar({ currentScreen, onNavigate }) {
   const navItems = [
-    { id: 'home', label: 'Home', screen: 'HomePageScreen' },
-    { id: 'events', label: 'Events', screen: 'EventsScreen' },
-    { id: 'booking', label: 'Booking', screen: 'BookingScreen' },
-    { id: 'virtualtour', label: 'Virtual Tour', screen: 'VirtualTourScreen' },
-    { id: 'profile', label: 'Profile', screen: 'ProfileScreen' },
+    { id: 'home', label: 'Home', screen: 'HomePageScreen', icon: 'home' },
+    { id: 'events', label: 'Events', screen: 'EventsScreen', icon: 'calendar' },
+    { id: 'booking', label: 'Booking', screen: 'BookingScreen', icon: 'book' },
+    { id: 'virtualtour', label: 'Virtual Tour', screen: 'VirtualTourScreen', icon: 'globe' },
+    { id: 'profile', label: 'Profile', screen: 'ProfileScreen', icon: 'person' },
   ];
 
   return (
@@ -26,6 +27,11 @@ export default function CustomNavbar({ currentScreen, onNavigate }) {
           ]}
           onPress={() => onNavigate(item.screen)}
         >
+          <Ionicons
+            name={currentScreen === item.screen ? item.icon : `${item.icon}-outline`}
+            size={24}
+            color={currentScreen === item.screen ? '#007AFF' : '#666'}
+          />
           <Text
             style={[
               styles.navText,

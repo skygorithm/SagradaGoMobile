@@ -24,15 +24,17 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 5,
     borderRadius: 8,
+    gap: 4,
   },
   navItemActive: {
     backgroundColor: '#f0f7ff',
   },
   navText: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#666',
     fontWeight: '500',
     textAlign: 'center',
+    marginTop: 2,
   },
   navTextActive: {
     color: '#007AFF',
