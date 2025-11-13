@@ -1,10 +1,42 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import LoginScreen from './components/LoginScreen';
+import SignUpScreen from './components/SignUpScreen';
 
 export default function App() {
+  const [showSignUp, setShowSignUp] = useState(false);
+
+  const handleLoginSuccess = (user) => {
+    console.log('User logged in:', user);
+  };
+
+  const handleSignUpSuccess = (user) => {
+    console.log('User signed up:', user);
+    setShowSignUp(false);
+  };
+
+  const handleSwitchToSignUp = () => {
+    setShowSignUp(true);
+  };
+
+  const handleSwitchToLogin = () => {
+    setShowSignUp(false);
+  };
+
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+      {showSignUp ? (
+        <SignUpScreen 
+          onSignUpSuccess={handleSignUpSuccess}
+          onSwitchToLogin={handleSwitchToLogin}
+        />
+      ) : (
+        <LoginScreen 
+          onLoginSuccess={handleLoginSuccess}
+          onSwitchToSignUp={handleSwitchToSignUp}
+        />
+      )}
       <StatusBar style="auto" />
     </View>
   );
@@ -13,8 +45,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#f5f5f5',
   },
 });
