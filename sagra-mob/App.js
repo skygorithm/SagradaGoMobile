@@ -3,12 +3,17 @@ import { StyleSheet, View } from 'react-native';
 import { useState } from 'react';
 import LoginScreen from './components/LoginScreen';
 import SignUpScreen from './components/SignUpScreen';
+import HomePageScreen from './components/HomePageScreen';
 
 export default function App() {
   const [showSignUp, setShowSignUp] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   const handleLoginSuccess = (user) => {
     console.log('User logged in:', user);
+    setCurrentUser(user);
+    setIsLoggedIn(true);
   };
 
   const handleSignUpSuccess = (user) => {
@@ -24,9 +29,16 @@ export default function App() {
     setShowSignUp(false);
   };
 
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setCurrentUser(null);
+  };
+
   return (
     <View style={styles.container}>
-      {showSignUp ? (
+      {isLoggedIn ? (
+        <HomePageScreen user={currentUser} onLogout={handleLogout} />
+      ) : showSignUp ? (
         <SignUpScreen 
           onSignUpSuccess={handleSignUpSuccess}
           onSwitchToLogin={handleSwitchToLogin}

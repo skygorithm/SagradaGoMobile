@@ -22,45 +22,56 @@ export default function LoginScreen({ onLoginSuccess, onSwitchToSignUp }) {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Please enter both email and password');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email.trim(),
-          password: password,
-        }),
+    // COMMENTED OUT FOR TESTING - Just navigate to homepage
+    if (onLoginSuccess) {
+      onLoginSuccess({
+        uid: 'test-uid',
+        email: email.trim() || 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
       });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        Alert.alert('Success', data.message);
-        if (onLoginSuccess) {
-          onLoginSuccess(data.user);
-        }
- 
-        setEmail('');
-        setPassword('');
-
-      } else {
-        Alert.alert('Login Failed', data.message || 'Invalid email or password');
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      Alert.alert('Error', 'Network error. Please check your connection and try again.');
-
-    } finally {
-      setLoading(false);
     }
+    return;
+
+    // ORIGINAL LOGIN LOGIC - COMMENTED OUT
+    // if (!email.trim() || !password.trim()) {
+    //   Alert.alert('Error', 'Please enter both email and password');
+    //   return;
+    // }
+
+    // setLoading(true);
+    // try {
+    //   const response = await fetch(`${API_BASE_URL}/login`, {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({
+    //       email: email.trim(),
+    //       password: password,
+    //     }),
+    //   });
+
+    //   const data = await response.json();
+
+    //   if (response.ok) {
+    //     Alert.alert('Success', data.message);
+    //     if (onLoginSuccess) {
+    //       onLoginSuccess(data.user);
+    //     }
+    //     setEmail('');
+    //     setPassword('');
+
+    //   } else {
+    //     Alert.alert('Login Failed', data.message || 'Invalid email or password');
+    //   }
+    // } catch (error) {
+    //   console.error('Login error:', error);
+    //   Alert.alert('Error', 'Network error. Please check your connection and try again.');
+
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   return (
