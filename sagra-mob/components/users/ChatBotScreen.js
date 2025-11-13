@@ -4,27 +4,27 @@ import {
   Text,
   ScrollView,
 } from 'react-native';
-import styles from '../styles/EventsStyle';
-import CustomNavbar from '../customs/CustomNavbar';
+import styles from '../../styles/ChatBotStyle';
+import CustomNavbar from '../../customs/CustomNavbar';
 
-export default function EventsScreen({ user, onNavigate }) {
+export default function ChatBotScreen({ user, onNavigate }) {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
-          <Text style={styles.title}>Events</Text>
-          <Text style={styles.subtitle}>Upcoming events and activities</Text>
+          <Text style={styles.title}>Chat Bot</Text>
+          <Text style={styles.subtitle}>Ask me anything!</Text>
         </View>
 
         <View style={styles.content}>
           <Text style={styles.contentText}>
-            Events will be displayed here.
+            Chat bot functionality will be displayed here.
           </Text>
         </View>
       </ScrollView>
 
       <CustomNavbar
-        currentScreen="EventsScreen"
+        currentScreen="ChatBotScreen"
         onNavigate={onNavigate}
       />
     </View>

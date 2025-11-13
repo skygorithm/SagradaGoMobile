@@ -4,27 +4,27 @@ import {
   Text,
   ScrollView,
 } from 'react-native';
-import styles from '../styles/AnnouncementsStyle';
-import CustomNavbar from '../customs/CustomNavbar';
+import styles from '../../styles/VirtualTourStyle';
+import CustomNavbar from '../../customs/CustomNavbar';
 
-export default function AnnouncementsScreen({ user, onNavigate }) {
+export default function VirtualTourScreen({ user, onNavigate }) {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
-          <Text style={styles.title}>Announcements</Text>
-          <Text style={styles.subtitle}>Stay updated with our latest news</Text>
+          <Text style={styles.title}>Virtual Tour</Text>
+          <Text style={styles.subtitle}>Explore our virtual experience</Text>
         </View>
 
         <View style={styles.content}>
           <Text style={styles.contentText}>
-            Announcements will be displayed here.
+            Virtual tour content will be displayed here.
           </Text>
         </View>
       </ScrollView>
 
       <CustomNavbar
-        currentScreen="AnnouncementsScreen"
+        currentScreen="VirtualTourScreen"
         onNavigate={onNavigate}
       />
     </View>
