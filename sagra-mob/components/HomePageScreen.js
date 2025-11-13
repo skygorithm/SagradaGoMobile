@@ -3,88 +3,91 @@ import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
+  ScrollView,
 } from 'react-native';
+import styles from '../styles/HomePageStyle';
+import CustomNavbar from './CustomNavbar';
 
-export default function HomePageScreen({ user, onLogout }) {
+export default function HomePageScreen({ user, onLogout, onNavigate }) {
+  const shortcuts = [
+    {
+      id: 'donation',
+      title: 'Donation',
+      description: 'Make a donation',
+      screen: 'DonationsScreen',
+      color: '#FF6B6B',
+    },
+    {
+      id: 'announcement',
+      title: 'Announcement',
+      description: 'View announcements',
+      screen: 'AnnouncementsScreen',
+      color: '#4ECDC4',
+    },
+    {
+      id: 'virtualtour',
+      title: 'Virtual Tour',
+      description: 'Explore virtually',
+      screen: 'VirtualTourScreen',
+      color: '#95E1D3',
+    },
+  ];
+
+  const handleShortcutPress = (screen) => {
+    if (onNavigate) {
+      onNavigate(screen);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Welcome!</Text>
-        {user && (
-          <Text style={styles.userName}>
-            {user.first_name} {user.last_name}
-          </Text>
-        )}
-        {user && user.email && (
-          <Text style={styles.userEmail}>{user.email}</Text>
-        )}
-      </View>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Welcome!</Text>
+          {user && (
+            <Text style={styles.userName}>
+              {user.first_name} {user.last_name}
+            </Text>
+          )}
+          {user && user.email && (
+            <Text style={styles.userEmail}>{user.email}</Text>
+          )}
+        </View>
 
-      <View style={styles.content}>
-        <Text style={styles.welcomeText}>You are successfully logged in!</Text>
-      </View>
+        <View style={styles.shortcutsContainer}>
+          <Text style={styles.sectionTitle}>Quick Access</Text>
+          <View style={styles.shortcutsGrid}>
+            {shortcuts.map((shortcut) => (
+              <TouchableOpacity
+                key={shortcut.id}
+                style={[styles.shortcutCard, { borderLeftColor: shortcut.color }]}
+                onPress={() => handleShortcutPress(shortcut.screen)}
+              >
+                <View style={[styles.shortcutIcon, { backgroundColor: shortcut.color }]}>
+                  <Text style={styles.shortcutIconText}>
+                    {shortcut.title.charAt(0)}
+                  </Text>
+                </View>
+                <Text style={styles.shortcutTitle}>{shortcut.title}</Text>
+                <Text style={styles.shortcutDescription}>{shortcut.description}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
 
-      <TouchableOpacity
-        style={styles.logoutButton}
-        onPress={onLogout}
-      >
-        <Text style={styles.logoutButtonText}>Logout</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={onLogout}
+        >
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </TouchableOpacity>
+      </ScrollView>
+
+      <CustomNavbar
+        currentScreen="HomePageScreen"
+        onNavigate={onNavigate}
+      />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    padding: 20,
-  },
-  header: {
-    alignItems: 'center',
-    marginTop: 60,
-    marginBottom: 40,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
-  },
-  userName: {
-    fontSize: 24,
-    color: '#007AFF',
-    fontWeight: '600',
-    marginTop: 10,
-  },
-  userEmail: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 5,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  welcomeText: {
-    fontSize: 18,
-    color: '#333',
-    textAlign: 'center',
-  },
-  logoutButton: {
-    backgroundColor: '#007AFF',
-    height: 50,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  logoutButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-});
 
