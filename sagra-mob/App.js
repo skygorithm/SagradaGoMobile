@@ -4,13 +4,13 @@ import { useState } from 'react';
 import LoginScreen from './components/LoginScreen';
 import SignUpScreen from './components/SignUpScreen';
 import HomePageScreen from './components/HomePageScreen';
-import DonationsScreen from './components/DonationsScreen';
-import AnnouncementsScreen from './components/AnnouncementsScreen';
-import VirtualTourScreen from './components/VirtualTourScreen';
+import DonationsScreen from './components/users/DonationsScreen';
+import AnnouncementsScreen from './components/users/AnnouncementsScreen';
+import VirtualTourScreen from './components/users/VirtualTourScreen';
 import Profile from './components/Profile';
-import ChatBotScreen from './components/ChatBotScreen';
-import EventsScreen from './components/EventsScreen';
-import BookingScreen from './components/BookingScreen';
+import ChatBotScreen from './components/users/ChatBotScreen';
+import EventsScreen from './components/users/EventsScreen';
+import BookingScreen from './components/users/BookingScreen';
 
 export default function App() {
   const [showSignUp, setShowSignUp] = useState(false);
