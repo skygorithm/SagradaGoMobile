@@ -58,6 +58,7 @@ export default function ForgotPasswordModal({ visible, onClose, apiBaseUrl }) {
     } catch (error) {
       console.error('Forgot password error:', error);
       Alert.alert('Error', 'Network error. Please check your connection and try again.');
+      
     } finally {
       setLoading(false);
     }

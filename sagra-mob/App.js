@@ -58,6 +58,7 @@ export default function App() {
           />
         );
       }
+
       return (
         <LoginScreen 
           onLoginSuccess={handleLoginSuccess}
@@ -74,6 +75,7 @@ export default function App() {
             onNavigate={handleNavigate}
           />
         );
+
       case 'AnnouncementsScreen':
         return (
           <AnnouncementsScreen 
@@ -81,6 +83,7 @@ export default function App() {
             onNavigate={handleNavigate}
           />
         );
+
       case 'EventsScreen':
         return (
           <EventsScreen 
@@ -88,6 +91,7 @@ export default function App() {
             onNavigate={handleNavigate}
           />
         );
+
       case 'BookingScreen':
         return (
           <BookingScreen 
@@ -95,6 +99,7 @@ export default function App() {
             onNavigate={handleNavigate}
           />
         );
+
       case 'VirtualTourScreen':
         return (
           <VirtualTourScreen 
@@ -102,6 +107,7 @@ export default function App() {
             onNavigate={handleNavigate}
           />
         );
+
       case 'ProfileScreen':
         return (
           <Profile 
@@ -110,6 +116,7 @@ export default function App() {
             onLogout={handleLogout}
           />
         );
+
       case 'ChatBotScreen':
         return (
           <ChatBotScreen 
@@ -117,6 +124,7 @@ export default function App() {
             onNavigate={handleNavigate}
           />
         );
+        
       default:
         return (
           <HomePageScreen 

@@ -41,47 +41,38 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin }) {
   };
 
   const validateForm = () => {
-    if (!formData.first_name.trim()) {
-      Alert.alert('Error', 'First name is required');
-      return false;
+    const fields = [
+      { key: 'first_name', label: 'First name' },
+      { key: 'last_name', label: 'Last name' },
+      { key: 'gender', label: 'Gender' },
+      { key: 'contact_number', label: 'Contact number' },
+      { key: 'birthday', label: 'Birthday' },
+      { key: 'email', label: 'Email' },
+      { key: 'password', label: 'Password' },
+    ];
+
+    for (let { key, label } of fields) {
+      if (!formData[key]?.trim()) {
+        Alert.alert('Error', `${label} is required`);
+        return false;
+      }
     }
-    if (!formData.last_name.trim()) {
-      Alert.alert('Error', 'Last name is required');
-      return false;
-    }
-    if (!formData.gender.trim()) {
-      Alert.alert('Error', 'Gender is required');
-      return false;
-    }
-    if (!formData.contact_number.trim()) {
-      Alert.alert('Error', 'Contact number is required');
-      return false;
-    }
-    if (!formData.birthday.trim()) {
-      Alert.alert('Error', 'Birthday is required');
-      return false;
-    }
-    if (!formData.email.trim()) {
-      Alert.alert('Error', 'Email is required');
-      return false;
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email.trim())) {
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
       Alert.alert('Error', 'Please enter a valid email address');
       return false;
     }
-    if (!formData.password.trim()) {
-      Alert.alert('Error', 'Password is required');
-      return false;
-    }
+
     if (formData.password.length < 6) {
       Alert.alert('Error', 'Password must be at least 6 characters long');
       return false;
     }
+
     if (formData.password !== formData.confirmPassword) {
       Alert.alert('Error', 'Passwords do not match');
       return false;
     }
+
     return true;
   };
 
@@ -131,6 +122,7 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin }) {
             },
           },
         ]);
+        
       } else {
         Alert.alert('Sign Up Failed', data.message || 'Failed to create account. Please try again.');
       }
