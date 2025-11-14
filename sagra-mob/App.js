@@ -52,7 +52,7 @@ export default function App() {
     if (!isLoggedIn) {
       if (showSignUp) {
         return (
-          <SignUpScreen 
+          <SignUpScreen
             onSignUpSuccess={handleSignUpSuccess}
             onSwitchToLogin={handleSwitchToLogin}
           />
@@ -60,7 +60,7 @@ export default function App() {
       }
 
       return (
-        <LoginScreen 
+        <LoginScreen
           onLoginSuccess={handleLoginSuccess}
           onSwitchToSignUp={handleSwitchToSignUp}
         />
@@ -70,48 +70,48 @@ export default function App() {
     switch (currentScreen) {
       case 'DonationsScreen':
         return (
-          <DonationsScreen 
-            user={currentUser} 
+          <DonationsScreen
+            user={currentUser}
             onNavigate={handleNavigate}
           />
         );
 
       case 'AnnouncementsScreen':
         return (
-          <AnnouncementsScreen 
-            user={currentUser} 
+          <AnnouncementsScreen
+            user={currentUser}
             onNavigate={handleNavigate}
           />
         );
 
       case 'EventsScreen':
         return (
-          <EventsScreen 
-            user={currentUser} 
+          <EventsScreen
+            user={currentUser}
             onNavigate={handleNavigate}
           />
         );
 
       case 'BookingScreen':
         return (
-          <BookingScreen 
-            user={currentUser} 
+          <BookingScreen
+            user={currentUser}
             onNavigate={handleNavigate}
           />
         );
 
       case 'VirtualTourScreen':
         return (
-          <VirtualTourScreen 
-            user={currentUser} 
+          <VirtualTourScreen
+            user={currentUser}
             onNavigate={handleNavigate}
           />
         );
 
       case 'ProfileScreen':
         return (
-          <Profile 
-            user={currentUser} 
+          <Profile
+            user={currentUser}
             onNavigate={handleNavigate}
             onLogout={handleLogout}
           />
@@ -119,16 +119,16 @@ export default function App() {
 
       case 'ChatBotScreen':
         return (
-          <ChatBotScreen 
-            user={currentUser} 
+          <ChatBotScreen
+            user={currentUser}
             onNavigate={handleNavigate}
           />
         );
-        
+
       default:
         return (
-          <HomePageScreen 
-            user={currentUser} 
+          <HomePageScreen
+            user={currentUser}
             onNavigate={handleNavigate}
           />
         );
@@ -146,6 +146,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f9f9f9',
   },
 });
