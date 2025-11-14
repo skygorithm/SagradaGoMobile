@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -27,12 +27,13 @@ export default function ChatBotScreen({ user, onNavigate }) {
   const sendMessage = () => {
     if (!inputText.trim()) return;
 
-    const userMsg = { id: Date.now(), text: inputText, sender: 'user' };
+    const messageText = inputText.trim();
+    const userMsg = { id: Date.now(), text: messageText, sender: 'user' };
     setMessages(prev => [...prev, userMsg]);
     setInputText('');
 
     setTimeout(() => {
-      const botMsg = { id: Date.now() + 1, text: getBotResponse(inputText), sender: 'bot' };
+      const botMsg = { id: Date.now() + 1, text: getBotResponse(messageText), sender: 'bot' };
       setMessages(prev => [...prev, botMsg]);
     }, 500);
   };
@@ -40,47 +41,51 @@ export default function ChatBotScreen({ user, onNavigate }) {
   return (
     <>
       <KeyboardAvoidingView
-        style={styles.container}
+        style={styles.chatbotMainContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
       >
         <ScrollView
-          style={styles.scrollView}
+          style={styles.chatbotScrollView}
           ref={scrollViewRef}
           onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.header}>
-            <Text style={styles.title}>Chat Bot</Text>
-            <Text style={styles.subtitle}>Ask me anything!</Text>
+          <View style={styles.chatbotHeaderContainer}>
+            <Text style={styles.chatbotTitleText}>Chat Bot</Text>
+            <Text style={styles.chatbotSubtitleText}>Ask me anything!</Text>
           </View>
 
-          <View style={styles.chatContainer}>
+          <View style={styles.chatbotMessagesContainer}>
             {messages.map(msg => (
               <View
                 key={msg.id}
                 style={[
-                  styles.messageBubble,
-                  msg.sender === 'user' ? styles.userBubble : styles.botBubble,
+                  styles.chatbotMessageBubble,
+                  msg.sender === 'user' ? styles.chatbotUserMessageBubble : styles.chatbotBotMessageBubble,
                 ]}
               >
-                <Text style={styles.messageText}>{msg.text}</Text>
+                <Text style={msg.sender === 'user' ? styles.chatbotUserMessageText : styles.chatbotBotMessageText}>
+                  {msg.text}
+                </Text>
               </View>
             ))}
           </View>
         </ScrollView>
 
-        <View style={styles.inputContainer}>
+        <View style={styles.chatbotInputWrapper}>
           <TextInput
-            style={styles.input}
+            style={styles.chatbotTextInput}
             placeholder="Type a message..."
+            placeholderTextColor="#999"
             value={inputText}
             onChangeText={setInputText}
             onSubmitEditing={sendMessage}
             returnKeyType="send"
+            multiline={false}
           />
-          <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-            <Text style={styles.sendButtonText}>Send</Text>
+          <TouchableOpacity style={styles.chatbotSendButton} onPress={sendMessage}>
+            <Text style={styles.chatbotSendButtonText}>Send</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
