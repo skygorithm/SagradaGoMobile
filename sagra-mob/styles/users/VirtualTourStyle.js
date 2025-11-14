@@ -1,6 +1,6 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
@@ -34,12 +34,25 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
 
+  locationHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+
   locationName: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
+    flex: 1,
     textAlign: 'center',
-    marginBottom: 15,
+  },
+
+  fullscreenButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#f0f0f0',
   },
 
   imageContainer: {
@@ -73,6 +86,24 @@ const styles = StyleSheet.create({
     height: 250,
   },
 
+  loadingContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    zIndex: 10,
+  },
+
+  loadingText: {
+    color: '#fff',
+    marginTop: 10,
+    fontSize: 14,
+  },
+
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -83,6 +114,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: '#fff',
     fontSize: 16,
+    marginTop: 10,
   },
 
   descriptionContainer: {
@@ -114,11 +146,47 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
 
+  progressContainer: {
+    position: 'absolute',
+    bottom: 10,
+    left: 10,
+    right: 10,
+    zIndex: 5,
+  },
+
+  progressBar: {
+    height: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 2,
+    overflow: 'hidden',
+    marginBottom: 4,
+  },
+
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#007AFF',
+    borderRadius: 2,
+  },
+
+  progressLabels: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+
+  progressLabel: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+
   navButton: {
     backgroundColor: '#007AFF',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
 
   navButtonText: {
@@ -148,11 +216,84 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   
+  instructionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 10,
+  },
+
   instructionText: {
     fontSize: 14,
     color: '#666',
     textAlign: 'center',
     fontStyle: 'italic',
+  },
+
+  fullscreenContainer: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+
+  closeFullscreenButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    zIndex: 100,
+    padding: 10,
+    borderRadius: 25,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+
+  fullscreenImageContainer: {
+    flex: 1,
+    width: '100%',
+    backgroundColor: '#000',
+  },
+
+  fullscreenPanoramaWrapper: {
+    width: SCREEN_WIDTH * 3,
+    height: SCREEN_HEIGHT,
+    position: 'absolute',
+    left: 0,
+    top: 0,
+  },
+
+  fullscreenPanoramaImage: {
+    width: SCREEN_WIDTH * 3,
+    height: SCREEN_HEIGHT,
+  },
+
+  fullscreenErrorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
+  },
+
+  fullscreenErrorText: {
+    color: '#fff',
+    fontSize: 18,
+    marginTop: 15,
+  },
+
+  fullscreenControls: {
+    position: 'absolute',
+    bottom: 40,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+
+  fullscreenLocationName: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
   },
 });
 

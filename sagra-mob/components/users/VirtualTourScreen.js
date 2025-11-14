@@ -8,7 +8,11 @@ import {
   Dimensions,
   TouchableOpacity,
   Animated,
+  ActivityIndicator,
+  Modal,
+  StatusBar,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import styles from '../../styles/users/VirtualTourStyle';
 import CustomNavbar from '../../customs/CustomNavbar';
 
@@ -19,11 +23,15 @@ export default function VirtualTourScreen({ user, onNavigate }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [panProgress, setPanProgress] = useState(50); // 0-100% progress indicator
   const initialOffset = -SCREEN_WIDTH;
   const translateX = useRef(new Animated.Value(initialOffset)).current;
   const currentPosition = useRef(initialOffset);
-  const panStartPosition = useRef(initialOffset); 
+  const panStartPosition = useRef(initialOffset);
   const panResponderRef = useRef(null);
+  const progressAnimation = useRef(new Animated.Value(50)).current;
 
   const tourImages = [
     {
@@ -67,6 +75,10 @@ export default function VirtualTourScreen({ user, onNavigate }) {
       const clampedPosition = Math.max(minTranslate, Math.min(maxTranslate, newPosition));
 
       translateX.setValue(clampedPosition - panStartPosition.current);
+
+      const progress = ((clampedPosition - minTranslate) / (maxTranslate - minTranslate)) * 100;
+      setPanProgress(progress);
+      progressAnimation.setValue(progress);
     },
 
     onPanResponderRelease: (evt, gestureState) => {
@@ -79,6 +91,14 @@ export default function VirtualTourScreen({ user, onNavigate }) {
       translateX.flattenOffset();
       currentPosition.current = clampedFinal;
       translateX.setValue(clampedFinal);
+ 
+      const progress = ((clampedFinal - minTranslate) / (maxTranslate - minTranslate)) * 100;
+      setPanProgress(progress);
+      Animated.timing(progressAnimation, {
+        toValue: progress,
+        duration: 100,
+        useNativeDriver: false,
+      }).start();
     },
   });
 
@@ -89,10 +109,15 @@ export default function VirtualTourScreen({ user, onNavigate }) {
   const handleNextImage = () => {
     setCurrentImageIndex((prev) => {
       const nextIndex = (prev + 1) % tourImages.length;
+      setIsLoading(true);
+      setImageLoaded(false);
       currentPosition.current = initialOffset;
+      setPanProgress(50);
+      progressAnimation.setValue(50);
+      
       Animated.timing(translateX, {
         toValue: initialOffset,
-        duration: 200,
+        duration: 300,
         useNativeDriver: true,
       }).start();
 
@@ -104,16 +129,25 @@ export default function VirtualTourScreen({ user, onNavigate }) {
   const handlePrevImage = () => {
     setCurrentImageIndex((prev) => {
       const prevIndex = (prev - 1 + tourImages.length) % tourImages.length;
+      setIsLoading(true);
+      setImageLoaded(false);
       currentPosition.current = initialOffset;
+      setPanProgress(50);
+      progressAnimation.setValue(50);
+      
       Animated.timing(translateX, {
         toValue: initialOffset,
-        duration: 200,
+        duration: 300,
         useNativeDriver: true,
       }).start();
       
       setImageError(false);
       return prevIndex;
     });
+  };
+
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
   };
 
   const currentImage = tourImages[currentImageIndex];
@@ -127,10 +161,27 @@ export default function VirtualTourScreen({ user, onNavigate }) {
         </View>
 
         <View style={styles.tourContainer}>
-          <Text style={styles.locationName}>{currentImage.name}</Text>
+          <View style={styles.locationHeader}>
+            <Text style={styles.locationName}>{currentImage.name}</Text>
+            <TouchableOpacity
+              style={styles.fullscreenButton}
+              onPress={toggleFullscreen}
+            >
+              <Ionicons name="expand" size={24} color="#007AFF" />
+            </TouchableOpacity>
+          </View>
+          
           <View style={styles.imageContainer} {...panResponderRef.current.panHandlers}>
+            {isLoading && !imageError && (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#fff" />
+                <Text style={styles.loadingText}>Loading...</Text>
+              </View>
+            )}
+            
             {imageError ? (
               <View style={styles.errorContainer}>
+                <Ionicons name="alert-circle" size={48} color="#fff" />
                 <Text style={styles.errorText}>Failed to load image</Text>
               </View>
             ) : (
@@ -149,6 +200,7 @@ export default function VirtualTourScreen({ user, onNavigate }) {
                   onError={() => {
                     console.error('Image load error:', currentImage.name);
                     setImageError(true);
+                    setIsLoading(false);
                   }}
                   onLoad={(event) => {
                     console.log('Image loaded:', currentImage.name);
@@ -156,6 +208,7 @@ export default function VirtualTourScreen({ user, onNavigate }) {
                     console.log('Image dimensions:', width, 'x', height);
                     setImageError(false);
                     setImageLoaded(true);
+                    setIsLoading(false);
                   }}
                 />
               </Animated.View>
@@ -170,33 +223,58 @@ export default function VirtualTourScreen({ user, onNavigate }) {
             <TouchableOpacity
               style={styles.navButton}
               onPress={handlePrevImage}
+              disabled={isLoading}
             >
-              <Text style={styles.navButtonText}>← Previous</Text>
+              <Ionicons name="chevron-back" size={20} color="#fff" />
+              <Text style={styles.navButtonText}>Previous</Text>
             </TouchableOpacity>
 
             <View style={styles.dotsContainer}>
               {tourImages.map((_, index) => (
-                <View
+                <TouchableOpacity
                   key={index}
-                  style={[
-                    styles.dot,
-                    index === currentImageIndex && styles.dotActive,
-                  ]}
-                />
+                  onPress={() => {
+                    if (index !== currentImageIndex) {
+                      setCurrentImageIndex(index);
+                      setIsLoading(true);
+                      setImageLoaded(false);
+                      currentPosition.current = initialOffset;
+                      setPanProgress(50);
+                      progressAnimation.setValue(50);
+                      Animated.timing(translateX, {
+                        toValue: initialOffset,
+                        duration: 300,
+                        useNativeDriver: true,
+                      }).start();
+                    }
+                  }}
+                >
+                  <View
+                    style={[
+                      styles.dot,
+                      index === currentImageIndex && styles.dotActive,
+                    ]}
+                  />
+                </TouchableOpacity>
               ))}
             </View>
 
             <TouchableOpacity
               style={styles.navButton}
               onPress={handleNextImage}
+              disabled={isLoading}
             >
-              <Text style={styles.navButtonText}>Next →</Text>
+              <Text style={styles.navButtonText}>Next</Text>
+              <Ionicons name="chevron-forward" size={20} color="#fff" />
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.instructionText}>
-            Drag left or right to rotate the 360° view
-          </Text>
+          <View style={styles.instructionContainer}>
+            <Ionicons name="hand-left-outline" size={20} color="#666" />
+            <Text style={styles.instructionText}>
+              Drag left or right to explore the 360° view
+            </Text>
+          </View>
         </View>
       </ScrollView>
 
@@ -204,6 +282,49 @@ export default function VirtualTourScreen({ user, onNavigate }) {
         currentScreen="VirtualTourScreen"
         onNavigate={onNavigate}
       />
+
+      <Modal
+        visible={isFullscreen}
+        animationType="fade"
+        transparent={false}
+        onRequestClose={toggleFullscreen}
+      >
+        <StatusBar hidden={isFullscreen} />
+        <View style={styles.fullscreenContainer}>
+          <TouchableOpacity
+            style={styles.closeFullscreenButton}
+            onPress={toggleFullscreen}
+          >
+            <Ionicons name="close" size={32} color="#fff" />
+          </TouchableOpacity>
+          <View style={styles.fullscreenImageContainer} {...panResponderRef.current.panHandlers}>
+            {imageError ? (
+              <View style={styles.fullscreenErrorContainer}>
+                <Ionicons name="alert-circle" size={64} color="#fff" />
+                <Text style={styles.fullscreenErrorText}>Failed to load image</Text>
+              </View>
+            ) : (
+              <Animated.View
+                style={[
+                  styles.fullscreenPanoramaWrapper,
+                  {
+                    transform: [{ translateX }],
+                  },
+                ]}
+              >
+                <Image
+                  source={currentImage.image}
+                  style={styles.fullscreenPanoramaImage}
+                  resizeMode="stretch"
+                />
+              </Animated.View>
+            )}
+          </View>
+          <View style={styles.fullscreenControls}>
+            <Text style={styles.fullscreenLocationName}>{currentImage.name}</Text>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
