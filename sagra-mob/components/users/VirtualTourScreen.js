@@ -9,11 +9,11 @@ import {
   TouchableOpacity,
   Animated,
 } from 'react-native';
-import styles from '../styles/VirtualTourStyle';
-import CustomNavbar from './CustomNavbar';
+import styles from '../../styles/VirtualTourStyle';
+import CustomNavbar from '../../customs/CustomNavbar';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const IMAGE_WIDTH = SCREEN_WIDTH * 2; // Make image 2x screen width for 360 effect
+const IMAGE_WIDTH = SCREEN_WIDTH * 2; 
 
 export default function VirtualTourScreen({ user, onNavigate }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -29,17 +29,17 @@ export default function VirtualTourScreen({ user, onNavigate }) {
     {
       id: 'facade',
       name: 'Facade',
-      image: require('../assets/360facade.jpg'),
+      image: require('../../assets/360facade.jpg'),
     },
     {
       id: 'altar',
       name: 'Altar',
-      image: require('../assets/360altar.jpg'),
+      image: require('../../assets/360altar.jpg'),
     },
     {
       id: 'pews',
       name: 'Pews',
-      image: require('../assets/360pews.jpg'),
+      image: require('../../assets/360pews.jpg'),
     },
   ];
 
