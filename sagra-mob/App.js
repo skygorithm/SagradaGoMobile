@@ -85,7 +85,8 @@ export default function App() {
       if (currentScreen === 'GetStarted') {
         return (
           <GetStartedScreen
-            onGetStarted={() => setCurrentScreen('LoginScreen')}
+            onLoginPress={() => setCurrentScreen('LoginScreen')}
+            onSignUpPress={() => setCurrentScreen('SignUpScreen')}
           />
         );
       }

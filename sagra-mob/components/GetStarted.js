@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
     View,
     Text,
-    TextInput,
     TouchableOpacity,
     Alert,
     ActivityIndicator,
@@ -12,23 +11,24 @@ import {
 import styles from '../styles/GetStartedStyle';
 import { Ionicons } from "@expo/vector-icons";
 
-export default function GetStartedScreen({ onGetStarted }) {
+export default function GetStartedScreen({ onLoginPress, onSignUpPress }) {
 
     return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.container}
-        >
-            <View style={styles.container}>
+        <View style={styles.container}>
+            <Text style={styles.title}>Hello!</Text>
+            <Text style={styles.subtitle}>Your digital guide to connection, events, and the church.</Text>
 
-                <Text style={styles.title}>Welcome to SagradaGo</Text>
-                <Text style={styles.subtitle}>Your digital guide to connection, events, and the church.</Text>
+            <View style={styles.buttonContainer}>
+    <TouchableOpacity style={styles.yellowButton} onPress={onLoginPress}>
+        <Text style={styles.yellowButtonText}>Log In with Account</Text>
+    </TouchableOpacity>
 
-                <TouchableOpacity style={styles.button} onPress={onGetStarted}>
-                    <Text style={styles.buttonText}>Get Started</Text>
-                </TouchableOpacity>
-            </View>
-        </KeyboardAvoidingView>
+    <TouchableOpacity style={styles.darkButton} onPress={onSignUpPress}>
+        <Text style={styles.darkButtonText}>Sign Up</Text>
+    </TouchableOpacity>
+</View>
+
+        </View>
     );
 }
 
