@@ -9,6 +9,7 @@ import {
 import styles from '../styles/HomePageStyle';
 import CustomNavbar from '../customs/CustomNavbar';
 import { Ionicons } from '@expo/vector-icons';
+import dayjs from 'dayjs';
 
 export default function HomePageScreen({ user, onLogout, onNavigate }) {
   const [selectedSection, setSelectedSection] = useState('Quick Access');
@@ -43,25 +44,28 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
     },
   ];
 
-
   const upcomingEvents = [
     {
       id: 'event1',
       title: 'Community Cleanup',
-      date: 'Nov 20, 2025',
+      date: dayjs().add(1, 'day').format('YYYY-MM-DD'), // dummy for layout event card
       description: 'Join us for a community cleanup event.',
-    },
-    {
-      id: 'event2',
-      title: 'Fundraising Gala',
-      date: 'Dec 5, 2025',
-      description: 'Attend our annual fundraising gala.',
     },
   ];
 
   const handleShortcutPress = (screen) => {
     if (onNavigate) onNavigate(screen);
   };
+
+  const last7Days = Array.from({ length: 7 }, (_, i) =>
+    dayjs().add(i, 'day')
+  );
+
+  const [selectedDate, setSelectedDate] = useState(last7Days[0].format('YYYY-MM-DD'));
+
+  const eventsForSelectedDate = upcomingEvents.filter(
+    (event) => dayjs(event.date).format('YYYY-MM-DD') === selectedDate
+  );
 
   return (
     <View style={styles.container}>
@@ -120,17 +124,17 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.sectionButton, selectedSection === 'Upcoming Events' && styles.activeSectionButton]}
+            style={[styles.sectionButton, selectedSection === 'Emerlyn' && styles.activeSectionButton]}
             onPress={() => setSelectedSection('Upcoming Events')}
           >
             <Ionicons
-              name="calendar-outline"
+              name="person-outline"
               size={20}
-              color={selectedSection === 'Upcoming Events' ? '#fff' : '#424242'}
+              color={selectedSection === 'Emerlyn' ? '#fff' : '#424242'}
               style={{ marginRight: 8 }}
             />
-            <Text style={[styles.sectionButtonText, selectedSection === 'Upcoming Events' && { color: '#fff' }]}>
-              Upcoming Events
+            <Text style={[styles.sectionButtonText, selectedSection === 'Emerlyn' && { color: '#fff' }]}>
+              Emerlyn
             </Text>
           </TouchableOpacity>
         </ScrollView>
@@ -179,15 +183,63 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
         )}
 
         {selectedSection === 'Upcoming Events' && (
-          <View style={styles.shortcutsContainer}>
-            <Text style={styles.sectionTitle}>Upcoming Events</Text>
-            {upcomingEvents.map((event) => (
-              <View key={event.id} style={styles.eventCard}>
-                <Text style={styles.eventTitle}>{event.title}</Text>
-                <Text style={styles.eventDate}>{event.date}</Text>
-                <Text style={styles.eventDescription}>{event.description}</Text>
-              </View>
-            ))}
+          <View>
+            <Text style={[styles.title, { paddingLeft: 20 }]}>Upcoming Events</Text>
+
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 20, gap: 10, marginVertical: 10 }}
+            >
+              {last7Days.map((dateObj) => {
+                const dateStr = dateObj.format('YYYY-MM-DD');
+                const dayLabel = dateObj.format('ddd');
+                const dateLabel = dateObj.format('DD');
+                const isSelected = dateStr === selectedDate;
+
+                return (
+                  <TouchableOpacity
+                    key={dateStr}
+                    onPress={() => setSelectedDate(dateStr)}
+                    style={[
+                      styles.dateButton,
+                      isSelected && styles.activeDateButton
+                    ]}
+                  >
+                    <Text style={[styles.dateButtonText]}>
+                      {dayLabel}
+                    </Text>
+                    <Text style={[styles.dateButtonText]}>
+                      {dateLabel}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+
+            {eventsForSelectedDate.length > 0 ? (
+              eventsForSelectedDate.map((event) => (
+                <View key={event.id} style={styles.eventCard}>
+                  <Image
+                    source={{ uri: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=400&q=80' }}
+                    style={{ width: '100%', height: 130, borderTopLeftRadius: 10, borderTopRightRadius: 10 }}
+                    resizeMode="cover"
+                  />
+
+                  <View style={{ padding: 15 }}>
+                    <Text style={styles.eventTitle}>{event.title}</Text>
+                    <Text style={styles.eventDate}>{dayjs(event.date).format('MMMM D, YYYY')}</Text>
+                    <Text style={{ fontSize: 14, fontFamily: 'Poppins_400Regular', color: '#555' }}>
+                      {event.description}
+                    </Text>
+                  </View>
+                </View>
+              ))
+            ) : (
+              <Text style={{ textAlign: 'center', marginTop: 20, color: '#666', fontFamily: 'Poppins_500Medium' }}>
+                No events on this day.
+              </Text>
+            )}
           </View>
         )}
 

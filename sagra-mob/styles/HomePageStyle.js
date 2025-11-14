@@ -70,7 +70,6 @@ const styles = StyleSheet.create({
     elevation: 3,
     position: 'relative',
   },
-
   shortcutArrowContainer: {
     position: 'absolute',
     bottom: 20,
@@ -91,7 +90,6 @@ const styles = StyleSheet.create({
     elevation: 5,
     zIndex: 1,
   },
-
   shortcutIcon: {
     width: 50,
     height: 50,
@@ -100,13 +98,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
-
   shortcutIconText: {
     fontSize: 24,
     color: '#fff',
     fontFamily: 'Poppins_600SemiBold',
   },
-
   shortcutHint: {
     fontSize: 12,
     color: '#636363ff',
@@ -119,21 +115,18 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignSelf: 'flex-start',
   },
-
   shortcutTitle: {
     fontSize: 18,
     fontFamily: 'Poppins_700Bold',
     color: '#333',
     marginLeft: 5,
   },
-
   shortcutDescription: {
     fontSize: 14,
     color: '#666',
     fontFamily: 'Poppins_500Medium',
     marginLeft: 5,
   },
-
   logoutButton: {
     backgroundColor: '#007AFF',
     height: 50,
@@ -168,6 +161,51 @@ const styles = StyleSheet.create({
   },
   floatingButtonText: {
     fontSize: 28,
+  },
+  dateButton: {
+    width: 60,
+    height: 80,
+    borderRadius: 10,
+    backgroundColor: '#f0f0f0',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  activeDateButton: {
+    backgroundColor: '#FFC942',
+  },
+  dateButtonText: {
+    fontSize: 12,
+    fontFamily: 'Poppins_700Bold',
+    color: '#333',
+  },
+  eventCard: {
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    marginVertical: 10,
+    marginHorizontal: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  eventTitle: {
+    fontSize: 16,
+    fontFamily: 'Poppins_700Bold',
+    color: '#333',
+  },
+  eventDate: {
+    fontSize: 12,
+    fontFamily: 'Poppins_500Medium',
+    color: '#666',
+    marginBottom: 15,
+  },
+  eventDescription: {
+    fontSize: 14,
+    fontFamily: 'Poppins_500Medium',
+    color: '#444',
+    lineHeight: 20,
   },
 });
 
