@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,8 +9,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Modal,
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker'; 
+import { Picker } from '@react-native-picker/picker';
 import styles from '../styles/SignUpStyle';
 
 const API_BASE_URL = 'http://localhost:8080/api';
@@ -32,6 +33,10 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin }) {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [loading, setLoading] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedDay, setSelectedDay] = useState(new Date().getDate());
 
   const validateField = (field, value) => {
     let error = '';
@@ -83,6 +88,7 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin }) {
         } else {
           const date = new Date(value);
           const today = new Date();
+
           if (isNaN(date.getTime())) {
             error = 'Please enter a valid date';
 
@@ -141,6 +147,75 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin }) {
     setErrors(prev => ({ ...prev, [field]: error }));
   };
 
+  const formatDate = (year, month, day) => {
+    const monthStr = String(month).padStart(2, '0');
+    const dayStr = String(day).padStart(2, '0');
+    return `${year}-${monthStr}-${dayStr}`;
+  };
+
+  const getDaysInMonth = (year, month) => {
+    return new Date(year, month, 0).getDate();
+  };
+
+  const generateYears = () => {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let i = currentYear; i >= 1900; i--) {
+      years.push(i);
+    }
+    return years;
+  };
+
+  const generateMonths = () => {
+    return Array.from({ length: 12 }, (_, i) => i + 1);
+  };
+
+  const generateDays = (year, month) => {
+    const daysInMonth = getDaysInMonth(year, month);
+    return Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  };
+
+  useEffect(() => {
+    if (formData.birthday) {
+      const date = new Date(formData.birthday);
+      if (!isNaN(date.getTime())) {
+        setSelectedYear(date.getFullYear());
+        setSelectedMonth(date.getMonth() + 1);
+        setSelectedDay(date.getDate());
+      }
+    }
+  }, [formData.birthday]);
+
+  useEffect(() => {
+    const daysInMonth = getDaysInMonth(selectedYear, selectedMonth);
+    if (selectedDay > daysInMonth) {
+      setSelectedDay(daysInMonth);
+    }
+  }, [selectedYear, selectedMonth]);
+
+  const handleDateConfirm = () => {
+    const formattedDate = formatDate(selectedYear, selectedMonth, selectedDay);
+    handleInputChange('birthday', formattedDate);
+    setTouched(prev => ({ ...prev, birthday: true }));
+    setShowDatePicker(false);
+  };
+
+  const openDatePicker = () => {
+    if (!loading) {
+      if (formData.birthday) {
+        const date = new Date(formData.birthday);
+        if (!isNaN(date.getTime())) {
+          setSelectedYear(date.getFullYear());
+          setSelectedMonth(date.getMonth() + 1);
+          setSelectedDay(date.getDate());
+        }
+      }
+
+      setShowDatePicker(true);
+      setTouched(prev => ({ ...prev, birthday: true }));
+    }
+  };
+
   const generateUID = () => {
     return 'UID' + Date.now() + Math.random().toString(36).substr(2, 9);
   };
@@ -154,6 +229,7 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin }) {
     fields.forEach(field => {
       newTouched[field] = true;
     });
+    
     setTouched(newTouched);
 
     fields.forEach(field => {
@@ -312,16 +388,89 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin }) {
             </Picker>
           </View>
 
-          <TextInput
-            style={[styles.input, errors.birthday && styles.inputError]}
-            placeholder="Birthday * (YYYY-MM-DD)"
-            placeholderTextColor="#999"
-            value={formData.birthday}
-            onChangeText={(value) => handleInputChange('birthday', value)}
-            onBlur={() => handleBlur('birthday')}
-            editable={!loading}
-          />
+          <TouchableOpacity
+            onPress={openDatePicker}
+            disabled={loading}
+            style={[styles.datePickerButton, errors.birthday && styles.inputError]}
+          >
+            <Text style={[styles.datePickerText, !formData.birthday && styles.datePickerPlaceholder]}>
+              {formData.birthday || 'Birthday * (Tap to select)'}
+            </Text>
+          </TouchableOpacity>
           {errors.birthday && <Text style={styles.errorText}>{errors.birthday}</Text>}
+          
+          <Modal
+            visible={showDatePicker}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={() => setShowDatePicker(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Select Birthday</Text>
+                
+                <View style={styles.datePickerContainer}>
+                  <View style={styles.pickerColumn}>
+                    <Text style={styles.pickerLabel}>Year</Text>
+                    <Picker
+                      selectedValue={selectedYear}
+                      onValueChange={(itemValue) => setSelectedYear(itemValue)}
+                      style={styles.datePicker}
+                    >
+                      {generateYears().map(year => (
+                        <Picker.Item key={year} label={String(year)} value={year} />
+                      ))}
+                    </Picker>
+                  </View>
+
+                  <View style={styles.pickerColumn}>
+                    <Text style={styles.pickerLabel}>Month</Text>
+                    <Picker
+                      selectedValue={selectedMonth}
+                      onValueChange={(itemValue) => setSelectedMonth(itemValue)}
+                      style={styles.datePicker}
+                    >
+                      {generateMonths().map(month => (
+                        <Picker.Item 
+                          key={month} 
+                          label={new Date(2000, month - 1).toLocaleString('default', { month: 'long' })} 
+                          value={month} 
+                        />
+                      ))}
+                    </Picker>
+                  </View>
+
+                  <View style={styles.pickerColumn}>
+                    <Text style={styles.pickerLabel}>Day</Text>
+                    <Picker
+                      selectedValue={selectedDay}
+                      onValueChange={(itemValue) => setSelectedDay(itemValue)}
+                      style={styles.datePicker}
+                    >
+                      {generateDays(selectedYear, selectedMonth).map(day => (
+                        <Picker.Item key={day} label={String(day)} value={day} />
+                      ))}
+                    </Picker>
+                  </View>
+                </View>
+
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.modalButtonCancel]}
+                    onPress={() => setShowDatePicker(false)}
+                  >
+                    <Text style={styles.modalButtonTextCancel}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.modalButtonConfirm]}
+                    onPress={handleDateConfirm}
+                  >
+                    <Text style={styles.modalButtonText}>Confirm</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
 
           <TextInput
             style={[styles.input, errors.email && styles.inputError]}
@@ -348,6 +497,7 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin }) {
 
                 if (touched.confirmPassword || errors.confirmPassword) {
                   let confirmError = '';
+                  
                   if (!newData.confirmPassword) {
                     confirmError = 'Please confirm your password';
 
