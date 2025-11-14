@@ -21,7 +21,8 @@ export default function VirtualTourScreen({ user, onNavigate }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const initialOffset = -SCREEN_WIDTH;
   const translateX = useRef(new Animated.Value(initialOffset)).current;
-  const currentPosition = useRef(initialOffset); 
+  const currentPosition = useRef(initialOffset);
+  const panStartPosition = useRef(initialOffset); 
   const panResponderRef = useRef(null);
 
   const tourImages = [
@@ -47,25 +48,32 @@ export default function VirtualTourScreen({ user, onNavigate }) {
     onMoveShouldSetPanResponder: () => true,
     onPanResponderGrant: (evt, gestureState) => {
       translateX.stopAnimation((value) => {
+        panStartPosition.current = value;
         currentPosition.current = value;
+        
+        translateX.setOffset(value);
+        translateX.setValue(0);
       });
     },
+
     onPanResponderMove: (evt, gestureState) => {
       const maxTranslate = 0;
-      const minTranslate = -SCREEN_WIDTH * 2; 
+      const minTranslate = -SCREEN_WIDTH * 2;
       
-      const newPosition = currentPosition.current - gestureState.dx;
+      const newPosition = panStartPosition.current - gestureState.dx;
       const clampedPosition = Math.max(minTranslate, Math.min(maxTranslate, newPosition));
-      
-      translateX.setValue(clampedPosition);
+
+      translateX.setValue(clampedPosition - panStartPosition.current);
     },
 
     onPanResponderRelease: (evt, gestureState) => {
       const maxTranslate = 0;
       const minTranslate = -SCREEN_WIDTH * 2;
-      const finalPosition = currentPosition.current - gestureState.dx;
+  
+      const finalPosition = panStartPosition.current - gestureState.dx;
       const clampedFinal = Math.max(minTranslate, Math.min(maxTranslate, finalPosition));
       
+      translateX.flattenOffset();
       currentPosition.current = clampedFinal;
       translateX.setValue(clampedFinal);
     },
