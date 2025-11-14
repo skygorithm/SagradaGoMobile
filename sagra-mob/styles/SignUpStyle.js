@@ -3,58 +3,78 @@ import { StyleSheet } from 'react-native';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
-  
+
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    paddingHorizontal: 5,
+    paddingVertical: 30,
+  },
+
+  backButton: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    padding: 6,
+    zIndex: 10,
   },
 
   formContainer: {
     width: '100%',
     maxWidth: 400,
-    backgroundColor: '#fff',
     borderRadius: 10,
     padding: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
 
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 30,
+    fontSize: 30,
+    fontFamily: 'Poppins_700Bold',
     textAlign: 'center',
     color: '#333',
+    marginBottom: -5,
   },
 
-  input: {
-    height: 50,
+  subtitle: {
+    fontSize: 16,
+    fontFamily: 'Poppins_400Regular',
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#666',
+  },
+
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 8,
     paddingHorizontal: 15,
-    marginBottom: 5,
-    fontSize: 16,
-    backgroundColor: '#fff',
+    marginBottom: 15,
   },
 
-  inputError: {
+  inputContainerError: {
     borderColor: '#ff3b30',
     borderWidth: 1.5,
   },
 
+  inputIcon: {
+    marginRight: 10,
+  },
+
+  input: {
+    flex: 1,
+    height: 45,
+    fontSize: 16,
+    fontFamily: 'Poppins_400Regular',
+    color: '#333',
+  },
+
   errorText: {
     color: '#ff3b30',
+    fontFamily: 'Poppins_400Regular',
+    textAlign: 'right',
     fontSize: 12,
     marginBottom: 10,
     marginTop: -5,
@@ -62,13 +82,15 @@ const styles = StyleSheet.create({
   },
 
   pickerContainer: {
-    marginBottom: 5,
+    marginBottom: 15,
   },
 
   label: {
     fontSize: 14,
     color: '#333',
     marginBottom: 5,
+    marginLeft: 3,
+    fontWeight: '500',
   },
 
   picker: {
@@ -76,7 +98,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 8,
-    marginBottom: 5,
+    paddingHorizontal: 15,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    marginBottom: 0,
+  },
+
+  pickerText: {
+    flex: 1,
+    fontSize: 16,
+    fontFamily: 'Poppins_400Regular',
+    color: '#333',
+    height: 50,
+    justifyContent: 'center',
   },
 
   pickerError: {
@@ -90,11 +124,10 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 8,
     paddingHorizontal: 15,
-    marginBottom: 5,
+    marginBottom: 15,
     justifyContent: 'center',
-    backgroundColor: '#fff',
   },
-  
+
   datePickerText: {
     fontSize: 16,
     color: '#333',
@@ -117,7 +150,6 @@ const styles = StyleSheet.create({
     padding: 20,
     width: '90%',
     maxWidth: 400,
-    maxHeight: '80%',
   },
 
   modalTitle: {
@@ -146,7 +178,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#666',
   },
-  
+
   datePicker: {
     height: 150,
   },
@@ -188,38 +220,72 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  button: {
-    backgroundColor: '#007AFF',
-    height: 50,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 10,
+  yellowButton: {
+    backgroundColor: '#FFC942',
+    paddingVertical: 9,
+    borderRadius: 20,
+    marginVertical: 5,
+    width: '100%'
+  },
+
+  darkButton: {
+    backgroundColor: '#424242',
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginVertical: 5,
+    width: '100%'
+  },
+
+  yellowButtonText: {
+    fontSize: 16,
+    fontFamily: 'Poppins_700Bold',
+    color: '#424242',
+    textAlign: 'center',
+  },
+
+  darkButtonText: {
+    fontSize: 16,
+    fontFamily: 'Poppins_700Bold',
+    color: '#fff',
+    textAlign: 'center',
   },
 
   buttonDisabled: {
     opacity: 0.6,
   },
 
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+  separatorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 15,
+  },
+
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#999',
+  },
+
+  separatorText: {
+    marginHorizontal: 10,
+    fontFamily: 'Poppins_500Medium',
+    color: '#999',
+    fontSize: 14,
   },
 
   switchButton: {
-    marginTop: 15,
     alignItems: 'center',
   },
 
   switchText: {
     color: '#666',
     fontSize: 14,
+    fontFamily: 'Poppins_500Medium',
   },
 
   switchTextBold: {
-    color: '#007AFF',
-    fontWeight: 'bold',
+    color: '#424242',
+    fontFamily: 'Poppins_700Bold',
   },
 });
 

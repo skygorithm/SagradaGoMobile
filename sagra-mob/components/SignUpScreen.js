@@ -10,13 +10,16 @@ import {
   Platform,
   ScrollView,
   Modal,
+  Image
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import styles from '../styles/SignUpStyle';
+import { Ionicons } from "@expo/vector-icons";
+import CustomPicker from './CustomPicker';
 
 const API_BASE_URL = 'http://localhost:8080/api';
 
-export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin }) {
+export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin, onBack }) {
   const [formData, setFormData] = useState({
     first_name: '',
     middle_name: '',
@@ -59,7 +62,7 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin }) {
           error = 'Last name must be at least 2 characters';
         }
         break;
-        
+
       case 'gender':
         if (!value.trim()) {
           error = 'Gender is required';
@@ -69,7 +72,7 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin }) {
       case 'contact_number':
         if (!value.trim()) {
           error = 'Contact number is required';
-          
+
         } else if (!/^[0-9+\-\s()]+$/.test(value)) {
           error = 'Please enter a valid contact number';
 
@@ -229,7 +232,7 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin }) {
     fields.forEach(field => {
       newTouched[field] = true;
     });
-    
+
     setTouched(newTouched);
 
     fields.forEach(field => {
@@ -291,7 +294,7 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin }) {
       } else {
         Alert.alert('Sign Up Failed', data.message || 'Failed to create account. Please try again.');
       }
-      
+
     } catch (error) {
       console.error('Sign up error:', error);
       Alert.alert('Error', 'Network error. Please check your connection and try again.');
@@ -301,104 +304,129 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin }) {
     }
   };
 
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <TouchableOpacity style={styles.backButton} onPress={onBack}>
+          <Ionicons name="chevron-back" size={28} color="#333" />
+        </TouchableOpacity>
+
         <View style={styles.formContainer}>
+          <Image
+            source={require('../assets/sagrada.png')}
+            style={{ width: 100, height: 100, marginBottom: 10, marginTop: 40, alignSelf: 'center' }}
+            resizeMode="contain"
+          />
           <Text style={styles.title}>Sign Up</Text>
+          <Text style={styles.subtitle}>Create a new account</Text>
 
-          <TextInput
-            style={[styles.input, errors.first_name && styles.inputError]}
-            placeholder="First Name *"
-            placeholderTextColor="#999"
-            value={formData.first_name}
-            onChangeText={(value) => handleInputChange('first_name', value)}
-            onBlur={() => handleBlur('first_name')}
-            editable={!loading}
-          />
-          {errors.first_name && <Text style={styles.errorText}>{errors.first_name}</Text>}
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            {/* FIRST NAME */}
+            <View style={[styles.inputContainer, { flex: 1, marginRight: 10 }, errors.first_name && styles.inputContainerError]}>
+              <Ionicons name="person-outline" size={20} color="#999" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="First Name *"
+                placeholderTextColor="#999"
+                value={formData.first_name}
+                onChangeText={(value) => handleInputChange('first_name', value)}
+                onBlur={() => handleBlur('first_name')}
+                editable={!loading}
+              />
+            </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Middle Name"
-            placeholderTextColor="#999"
-            value={formData.middle_name}
-            onChangeText={(value) => handleInputChange('middle_name', value)}
-            editable={!loading}
-          />
-
-          <TextInput
-            style={[styles.input, errors.last_name && styles.inputError]}
-            placeholder="Last Name *"
-            placeholderTextColor="#999"
-            value={formData.last_name}
-            onChangeText={(value) => handleInputChange('last_name', value)}
-            onBlur={() => handleBlur('last_name')}
-            editable={!loading}
-          />
-          {errors.last_name && <Text style={styles.errorText}>{errors.last_name}</Text>}
-
-          <View style={styles.pickerContainer}>
-            <Text style={styles.label}>Gender *</Text>
-            <Picker
-              selectedValue={formData.gender}
-              onValueChange={(value) => {
-                handleInputChange('gender', value);
-                setTouched(prev => ({ ...prev, gender: true }));
-              }}
-              enabled={!loading}
-              style={[styles.picker, errors.gender && styles.pickerError]}
-            >
-              <Picker.Item label="Select Gender" value="" />
-              <Picker.Item label="Male" value="Male" />
-              <Picker.Item label="Female" value="Female" />
-              <Picker.Item label="Other" value="Other" />
-            </Picker>
+            {/* LAST NAME */}
+            <View style={[styles.inputContainer, { flex: 1, marginLeft: 10 }, errors.last_name && styles.inputContainerError]}>
+              <Ionicons name="person-outline" size={20} color="#999" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Last Name *"
+                placeholderTextColor="#999"
+                value={formData.last_name}
+                onChangeText={(value) => handleInputChange('last_name', value)}
+                onBlur={() => handleBlur('last_name')}
+                editable={!loading}
+              />
+            </View>
           </View>
-          {errors.gender && <Text style={styles.errorText}>{errors.gender}</Text>}
 
-          <TextInput
-            style={[styles.input, errors.contact_number && styles.inputError]}
-            placeholder="Contact Number *"
-            placeholderTextColor="#999"
-            value={formData.contact_number}
-            onChangeText={(value) => handleInputChange('contact_number', value)}
-            onBlur={() => handleBlur('contact_number')}
-            keyboardType="phone-pad"
-            editable={!loading}
-          />
+          {errors.first_name && <Text style={[styles.errorText, { marginLeft: 0 }]}>{errors.first_name}</Text>}
+          {errors.last_name && <Text style={[styles.errorText, { marginLeft: 0 }]}>{errors.last_name}</Text>}
+
+          <View style={[styles.inputContainer, errors.contact_number && styles.inputContainerError]}>
+            <Ionicons name="call-outline" size={20} color="#999" style={styles.inputIcon} />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Contact Number *"
+              placeholderTextColor="#999"
+              value={formData.contact_number}
+              onChangeText={(value) => handleInputChange('contact_number', value)}
+              onBlur={() => handleBlur('contact_number')}
+              keyboardType="phone-pad"
+              editable={!loading}
+            />
+          </View>
           {errors.contact_number && <Text style={styles.errorText}>{errors.contact_number}</Text>}
 
-          <View style={styles.pickerContainer}>
-            <Text style={styles.label}>Civil Status</Text>
-            <Picker
-              selectedValue={formData.civil_status}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <CustomPicker
+              value={formData.gender}
+              onValueChange={(value) => handleInputChange('gender', value)}
+              options={[
+                { label: 'Male', value: 'Male' },
+                { label: 'Female', value: 'Female' },
+                { label: 'Other', value: 'Other' },
+              ]}
+              iconName="male-outline"
+              error={errors.gender}
+              placeholder="Gender"
+              style={{ flex: 1, marginRight: 10 }}
+            />
+
+            <CustomPicker
+              value={formData.civil_status}
               onValueChange={(value) => handleInputChange('civil_status', value)}
-              enabled={!loading}
-              style={styles.picker}
-            >
-              <Picker.Item label="Select Civil Status" value="" />
-              <Picker.Item label="Single" value="Single" />
-              <Picker.Item label="Married" value="Married" />
-              <Picker.Item label="Widowed" value="Widowed" />
-              <Picker.Item label="Divorced" value="Divorced" />
-            </Picker>
+              options={[
+                { label: 'Single', value: 'Single' },
+                { label: 'Married', value: 'Married' },
+                { label: 'Widowed', value: 'Widowed' },
+                { label: 'Divorced', value: 'Divorced' },
+              ]}
+              iconName="business-outline"
+              error={errors.civil_status}
+              placeholder="Civil Status"
+              style={{ flex: 1, marginLeft: 10 }}
+            />
           </View>
 
           <TouchableOpacity
             onPress={openDatePicker}
             disabled={loading}
-            style={[styles.datePickerButton, errors.birthday && styles.inputError]}
+            style={[
+              styles.datePickerButton,
+              errors.birthday && styles.inputContainerError,
+              { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+            ]}
           >
-            <Text style={[styles.datePickerText, !formData.birthday && styles.datePickerPlaceholder]}>
+            <Text
+              style={[
+                styles.datePickerText,
+                !formData.birthday && styles.datePickerPlaceholder,
+                { flex: 1, fontFamily: 'Poppins_500Medium', textAlignVertical: 'center' },
+              ]}
+            >
               {formData.birthday || 'Birthday * (Tap to select)'}
             </Text>
+            <Ionicons name="calendar-outline" size={20} color="#999" />
           </TouchableOpacity>
           {errors.birthday && <Text style={styles.errorText}>{errors.birthday}</Text>}
-          
+
           <Modal
             visible={showDatePicker}
             transparent={true}
@@ -408,7 +436,7 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin }) {
             <View style={styles.modalOverlay}>
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>Select Birthday</Text>
-                
+
                 <View style={styles.datePickerContainer}>
                   <View style={styles.pickerColumn}>
                     <Text style={styles.pickerLabel}>Year</Text>
@@ -431,10 +459,10 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin }) {
                       style={styles.datePicker}
                     >
                       {generateMonths().map(month => (
-                        <Picker.Item 
-                          key={month} 
-                          label={new Date(2000, month - 1).toLocaleString('default', { month: 'long' })} 
-                          value={month} 
+                        <Picker.Item
+                          key={month}
+                          label={new Date(2000, month - 1).toLocaleString('default', { month: 'long' })}
+                          value={month}
                         />
                       ))}
                     </Picker>
@@ -472,80 +500,119 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin }) {
             </View>
           </Modal>
 
-          <TextInput
-            style={[styles.input, errors.email && styles.inputError]}
-            placeholder="Email *"
-            placeholderTextColor="#999"
-            value={formData.email}
-            onChangeText={(value) => handleInputChange('email', value)}
-            onBlur={() => handleBlur('email')}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!loading}
-          />
+          {/* EMAIL */}
+          <View style={[styles.inputContainer, errors.email && styles.inputContainerError]}>
+            <Ionicons name="mail-outline" size={20} color="#999" style={styles.inputIcon} />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Email *"
+              placeholderTextColor="#999"
+              value={formData.email}
+              onChangeText={(value) => handleInputChange('email', value)}
+              onBlur={() => handleBlur('email')}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!loading}
+            />
+          </View>
           {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
-          <TextInput
-            style={[styles.input, errors.password && styles.inputError]}
-            placeholder="Password *"
-            placeholderTextColor="#999"
-            value={formData.password}
-            onChangeText={(value) => {
-              setFormData(prev => {
-                const newData = { ...prev, password: value };
+          {/* PASSWORD */}
+          <View style={[styles.inputContainer, errors.password && styles.inputContainerError]}>
+            <Ionicons name="lock-closed-outline" size={20} color="#999" style={styles.inputIcon} />
 
-                if (touched.confirmPassword || errors.confirmPassword) {
-                  let confirmError = '';
-                  
-                  if (!newData.confirmPassword) {
-                    confirmError = 'Please confirm your password';
+            <TextInput
+              style={styles.input}
+              placeholder="Password *"
+              placeholderTextColor="#999"
+              value={formData.password}
+              onChangeText={(value) => {
+                setFormData(prev => {
+                  const newData = { ...prev, password: value };
 
-                  } else if (value !== newData.confirmPassword) {
-                    confirmError = 'Passwords do not match';
+                  if (touched.confirmPassword || errors.confirmPassword) {
+                    let confirmError = '';
+
+                    if (!newData.confirmPassword) {
+                      confirmError = 'Please confirm your password';
+
+                    } else if (value !== newData.confirmPassword) {
+                      confirmError = 'Passwords do not match';
+                    }
+
+                    setErrors(prev => ({ ...prev, confirmPassword: confirmError }));
                   }
-                  
-                  setErrors(prev => ({ ...prev, confirmPassword: confirmError }));
-                }
-                return newData;
-              });
+                  return newData;
+                });
 
-              if (touched.password || errors.password) {
-                const error = validateField('password', value);
-                setErrors(prev => ({ ...prev, password: error }));
-              }
-            }}
-            onBlur={() => handleBlur('password')}
-            secureTextEntry
-            autoCapitalize="none"
-            editable={!loading}
-          />
+                if (touched.password || errors.password) {
+                  const error = validateField('password', value);
+                  setErrors(prev => ({ ...prev, password: error }));
+                }
+              }}
+              onBlur={() => handleBlur('password')}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              editable={!loading}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Ionicons
+                name={showPassword ? "eye-outline" : "eye-off-outline"}
+                size={22}
+                color="#999"
+                style={{ paddingHorizontal: 4 }}
+              />
+            </TouchableOpacity>
+          </View>
           {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
 
-          <TextInput
-            style={[styles.input, errors.confirmPassword && styles.inputError]}
-            placeholder="Confirm Password *"
-            placeholderTextColor="#999"
-            value={formData.confirmPassword}
-            onChangeText={(value) => handleInputChange('confirmPassword', value)}
-            onBlur={() => handleBlur('confirmPassword')}
-            secureTextEntry
-            autoCapitalize="none"
-            editable={!loading}
-          />
+          {/* CONFIRM PASSWORD */}
+          <View style={[styles.inputContainer, errors.confirmPassword && styles.inputContainerError]}>
+            <Ionicons name="lock-closed-outline" size={20} color="#999" style={styles.inputIcon} />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Confirm Password *"
+              placeholderTextColor="#999"
+              value={formData.confirmPassword}
+              onChangeText={(value) => handleInputChange('confirmPassword', value)}
+              onBlur={() => handleBlur('confirmPassword')}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              editable={!loading}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Ionicons
+                name={showPassword ? "eye-outline" : "eye-off-outline"}
+                size={22}
+                color="#999"
+                style={{ paddingHorizontal: 4 }}
+              />
+            </TouchableOpacity>
+          </View>
           {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
 
           <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
+            style={[styles.yellowButton, loading && styles.buttonDisabled]}
             onPress={handleSignUp}
             disabled={loading}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.buttonText}>Sign Up</Text>
+              <Text style={styles.yellowButtonText}>Sign Up</Text>
             )}
           </TouchableOpacity>
+
+          <View style={styles.separatorContainer}>
+            <View style={styles.line} />
+            <View>
+              <Text style={styles.separatorText}>OR</Text>
+            </View>
+            <View style={styles.line} />
+          </View>
 
           <TouchableOpacity
             style={styles.switchButton}

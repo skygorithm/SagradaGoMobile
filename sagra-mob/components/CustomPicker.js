@@ -10,7 +10,7 @@ const CustomPicker = ({
     iconName,
     error,
     placeholder,
-    style, // allow outer style to be passed
+    style,
 }) => {
     const [showModal, setShowModal] = useState(false);
 
