@@ -30,16 +30,19 @@ export default function VirtualTourScreen({ user, onNavigate }) {
       id: 'facade',
       name: 'Facade',
       image: require('../../assets/360facade.jpg'),
+      description: 'The magnificent facade of the Sagrada Familia Parish showcases stunning architectural details and intricate designs. This grand entrance welcomes visitors with its beautiful stonework and traditional church architecture.',
     },
     {
       id: 'altar',
       name: 'Altar',
       image: require('../../assets/360altar.jpg'),
+      description: 'The sacred altar is the heart of our parish, where the Holy Eucharist is celebrated. This sacred space is beautifully adorned and serves as the focal point for worship and prayer, creating a reverent atmosphere for all who visit.',
     },
     {
       id: 'pews',
       name: 'Pews',
       image: require('../../assets/360pews.jpg'),
+      description: 'The pews area provides a peaceful space for congregation members to gather for Mass and prayer. The carefully arranged seating creates a sense of community and togetherness during worship services.',
     },
   ];
 
@@ -157,6 +160,10 @@ export default function VirtualTourScreen({ user, onNavigate }) {
                 />
               </Animated.View>
             )}
+          </View>
+
+          <View style={styles.descriptionContainer}>
+            <Text style={styles.descriptionText}>{currentImage.description}</Text>
           </View>
 
           <View style={styles.controlsContainer}>

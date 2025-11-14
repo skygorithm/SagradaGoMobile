@@ -85,6 +85,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
+  descriptionContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+
+  descriptionText: {
+    fontSize: 15,
+    color: '#555',
+    lineHeight: 22,
+    textAlign: 'justify',
+  },
+
   controlsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
