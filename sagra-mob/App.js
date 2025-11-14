@@ -1,9 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import { useState } from 'react';
+
+import GetStartedScreen from './components/GetStarted';
 import LoginScreen from './components/LoginScreen';
 import SignUpScreen from './components/SignUpScreen';
 import HomePageScreen from './components/HomePageScreen';
+
 import DonationsScreen from './components/users/DonationsScreen';
 import AnnouncementsScreen from './components/users/AnnouncementsScreen';
 import VirtualTourScreen from './components/users/VirtualTourScreen';
@@ -29,7 +32,8 @@ export default function App() {
   const [showSignUp, setShowSignUp] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  const [currentScreen, setCurrentScreen] = useState('HomePageScreen');
+
+  const [currentScreen, setCurrentScreen] = useState('GetStarted');
 
   const [fontsLoaded] = useFonts({
     Poppins_100Thin,
@@ -45,36 +49,30 @@ export default function App() {
 
   if (!fontsLoaded) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1A1A2E' }}>
+      <View style={{
+        flex: 1, justifyContent: 'center',
+        alignItems: 'center', backgroundColor: '#1A1A2E'
+      }}>
         <ActivityIndicator size="large" color="#1772FF" />
       </View>
     );
   }
 
   const handleLoginSuccess = (user) => {
-    console.log('User logged in:', user);
     setCurrentUser(user);
     setIsLoggedIn(true);
     setCurrentScreen('HomePageScreen');
   };
 
-  const handleSignUpSuccess = (user) => {
-    console.log('User signed up:', user);
+  const handleSignUpSuccess = () => {
     setShowSignUp(false);
-  };
-
-  const handleSwitchToSignUp = () => {
-    setShowSignUp(true);
-  };
-
-  const handleSwitchToLogin = () => {
-    setShowSignUp(false);
+    setCurrentScreen('LoginScreen');
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     setCurrentUser(null);
-    setCurrentScreen('HomePageScreen');
+    setCurrentScreen('GetStarted');
   };
 
   const handleNavigate = (screen) => {
@@ -83,21 +81,32 @@ export default function App() {
 
   const renderScreen = () => {
     if (!isLoggedIn) {
-      if (showSignUp) {
+
+      if (currentScreen === 'GetStarted') {
         return (
-          <SignUpScreen
-            onSignUpSuccess={handleSignUpSuccess}
-            onSwitchToLogin={handleSwitchToLogin}
+          <GetStartedScreen
+            onGetStarted={() => setCurrentScreen('LoginScreen')}
           />
         );
       }
 
-      return (
-        <LoginScreen
-          onLoginSuccess={handleLoginSuccess}
-          onSwitchToSignUp={handleSwitchToSignUp}
-        />
-      );
+      if (currentScreen === 'LoginScreen') {
+        return (
+          <LoginScreen
+            onLoginSuccess={handleLoginSuccess}
+            onSwitchToSignUp={() => setCurrentScreen('SignUpScreen')}
+          />
+        );
+      }
+
+      if (currentScreen === 'SignUpScreen') {
+        return (
+          <SignUpScreen
+            onSignUpSuccess={handleSignUpSuccess}
+            onSwitchToLogin={() => setCurrentScreen('LoginScreen')}
+          />
+        );
+      }
     }
 
     switch (currentScreen) {
@@ -108,7 +117,6 @@ export default function App() {
             onNavigate={handleNavigate}
           />
         );
-
       case 'AnnouncementsScreen':
         return (
           <AnnouncementsScreen
@@ -116,7 +124,6 @@ export default function App() {
             onNavigate={handleNavigate}
           />
         );
-
       case 'EventsScreen':
         return (
           <EventsScreen
@@ -124,7 +131,6 @@ export default function App() {
             onNavigate={handleNavigate}
           />
         );
-
       case 'BookingScreen':
         return (
           <BookingScreen
@@ -132,7 +138,6 @@ export default function App() {
             onNavigate={handleNavigate}
           />
         );
-
       case 'VirtualTourScreen':
         return (
           <VirtualTourScreen
@@ -140,7 +145,6 @@ export default function App() {
             onNavigate={handleNavigate}
           />
         );
-
       case 'ProfileScreen':
         return (
           <Profile
@@ -149,20 +153,14 @@ export default function App() {
             onLogout={handleLogout}
           />
         );
-
       case 'ChatBotScreen':
         return (
-          <ChatBotScreen
-            user={currentUser}
-            onNavigate={handleNavigate}
+          <ChatBotScreen user={currentUser} onNavigate={handleNavigate}
           />
         );
-
       default:
         return (
-          <HomePageScreen
-            user={currentUser}
-            onNavigate={handleNavigate}
+          <HomePageScreen user={currentUser} onNavigate={handleNavigate}
           />
         );
     }
@@ -177,8 +175,5 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f9f9f9',
-  },
+  container: { flex: 1, backgroundColor: '#f9f9f9' },
 });
