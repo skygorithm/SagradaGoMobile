@@ -8,6 +8,7 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
     padding: 20,
+    paddingBottom: 20,
   },
 
   header: {
