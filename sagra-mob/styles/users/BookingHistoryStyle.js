@@ -12,31 +12,30 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    marginTop: 40,
-    marginBottom: 20,
-  },
-
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    marginTop: 60,
+    marginBottom: -15,
+    alignItems: 'center'
   },
 
   title: {
-    marginBottom: 8,
+    fontSize: 24,
+    color: '#1a1a1a',
+    fontFamily: 'Poppins_700Bold',
   },
 
   subtitle: {
-    marginBottom: 20,
+    fontSize: 16,
+    fontFamily: 'Poppins_400Regular',
+    marginBottom: 30,
+    color: '#666',
+  },
+
+  backButton: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    padding: 6,
+    zIndex: 10,
   },
 
   filterContainer: {
@@ -44,28 +43,37 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
-  filterButton: {
-    flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
+  detailRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 8,
-    backgroundColor: '#fff',
-    borderRadius: 8,
+    marginBottom: 8,
+  },
+
+  detailText: {
+    fontSize: 14,
+    fontFamily: 'Poppins_500Medium',
+    color: '#666',
+  },
+
+  filterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 7,
+    paddingHorizontal: 15,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#424242',
   },
 
   filterButtonActive: {
     backgroundColor: '#424242',
-    borderColor: '#424242',
+    color: '#f9f9f9',
   },
 
   filterButtonText: {
-    fontSize: 14,
-    fontFamily: 'Poppins_600SemiBold',
-    color: '#666',
+    color: '#424242',
+    fontSize: 16,
+    fontFamily: 'Poppins_500Medium',
   },
 
   filterButtonTextActive: {
@@ -101,39 +109,25 @@ const styles = StyleSheet.create({
 
   sacramentName: {
     marginBottom: 4,
-    fontSize: 18,
+    fontSize: 20,
     fontFamily: 'Poppins_700Bold',
     color: '#222',
   },
 
   bookingDate: {
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: 'Poppins_400Regular',
-    color: '#999',
-  },
-
-  statusText: {
-    fontSize: 12,
-    fontFamily: 'Poppins_600SemiBold',
-    color: '#666',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
-    backgroundColor: '#f0f0f0',
+    color: '#777777ff',
   },
 
   cardDivider: {
     height: 1,
-    marginVertical: 12,
-    backgroundColor: '#f0f0f0',
+    marginVertical: 5,
+    backgroundColor: '#ccc',
   },
 
   cardDetails: {
     marginTop: 4,
-  },
-
-  detailRow: {
-    marginBottom: 8,
   },
 
   detailText: {
