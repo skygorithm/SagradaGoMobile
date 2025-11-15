@@ -92,6 +92,86 @@ const styles = StyleSheet.create({
     marginTop: 16,
     textAlign: 'center',
   },
+
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+
+  modalOverlayTouchable: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+
+  modalContent: {
+    width: '90%',
+    maxWidth: 400,
+    maxHeight: '80%',
+    padding: 20,
+    backgroundColor: '#e8e8e8',
+  },
+
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+
+  modalTitle: {
+    flex: 1,
+    marginRight: 16,
+  },
+
+  modalCloseButton: {
+    padding: 4,
+    minWidth: 32,
+    minHeight: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  modalDivider: {
+    height: 1,
+    marginVertical: 12,
+  },
+
+  modalScrollView: {
+    maxHeight: 400,
+  },
+
+  modalDetails: {
+    paddingVertical: 4,
+  },
+
+  modalDetailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+
+  modalLabel: {
+    flex: 1,
+  },
+
+  modalValue: {
+    flex: 1,
+    textAlign: 'right',
+  },
+
+  modalNotesContainer: {
+    paddingVertical: 8,
+  },
+
+  modalNotes: {
+    marginTop: 8,
+  },
 });
 
 export default styles;
