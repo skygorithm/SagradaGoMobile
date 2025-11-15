@@ -1,15 +1,16 @@
 import React, { useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import styles from '../styles/NavbarStyle';
 
 export default function CustomNavbar({ currentScreen, onNavigate }) {
   const navItems = [
     { id: 'home', label: 'Home', screen: 'HomePageScreen', icon: 'home' },
-    { id: 'events', label: 'Events', screen: 'EventsScreen', icon: 'calendar' },
-    { id: 'booking', label: 'Booking', screen: 'BookingScreen', icon: 'book' },
-    { id: 'virtualtour', label: 'Virtual Tour', screen: 'VirtualTourScreen', icon: 'globe' },
-    { id: 'profile', label: 'Profile', screen: 'ProfileScreen', icon: 'person' },
+    { id: 'events', label: 'Events', screen: 'EventsScreen', icon: 'calendar-month' },
+    { id: 'booking', label: 'Booking', screen: 'BookingScreen', icon: 'book-open-page-variant' },
+    { id: 'virtualtour', label: 'Virtual Tour', screen: 'VirtualTourScreen', icon: 'virtual-reality' },
+    { id: 'profile', label: 'Profile', screen: 'ProfileScreen', icon: 'account-circle' },
   ];
 
   const liftAnim = useRef(new Animated.Value(0)).current;
@@ -55,8 +56,8 @@ export default function CustomNavbar({ currentScreen, onNavigate }) {
                 animatedStyle,
               ]}
             >
-              <Ionicons
-                name={isActive ? item.icon : `${item.icon}-outline`}
+              <MaterialCommunityIcons
+                name={item.icon}
                 size={24}
                 color={isActive ? '#a8862fff' : '#666'}
               />
