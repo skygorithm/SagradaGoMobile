@@ -245,29 +245,107 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_600SemiBold',
   },
 
+  /* MODAL OVERLAY */
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+
+  /* MODAL CONTENT */
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    width: '100%',
+    maxWidth: 400,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 5,
+  },
+
+  modalTitle: {
+    fontSize: 18,
+    fontFamily: 'Poppins_600SemiBold',
+    color: '#333',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+
+  modalInput: {
+    height: 45,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+    fontSize: 14,
+    fontFamily: 'Poppins_400Regular',
+    backgroundColor: '#f9f9f9',
+  },
+
+  modalInputMultiline: {
+    height: 70,
+    paddingTop: 8,
+    paddingBottom: 8,
+  },
+
+  paymentMethodContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 12,
+  },
+
+  paymentMethodOption: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: '#eee',
+    alignItems: 'center',
+  },
+
+  paymentMethodOptionSelected: {
+    backgroundColor: '#FFC942',
+  },
+
+  paymentMethodText: {
+    fontSize: 13,
+    fontFamily: 'Poppins_500Medium',
+    color: '#555',
+  },
+
+  paymentMethodTextSelected: {
+    color: '#000',
+    fontFamily: 'Poppins_600SemiBold',
+  },
+
   /* MODAL BUTTONS */
   modalButtonContainer: {
     flexDirection: 'row',
-    gap: 8,
-    marginTop: 10,
+    gap: 10,
+    marginTop: 15,
   },
 
   modalButton: {
     flex: 1,
-    height: 40,
-    borderRadius: 8,
+    height: 45,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
 
   cancelButton: {
-    backgroundColor: '#d9d9d9',
+    backgroundColor: '#e0e0e0',
   },
 
   cancelButtonText: {
-    color: '#000',
-    fontSize: 13,
-    fontFamily: 'Poppins_500Medium',
+    color: '#424242',
+    fontSize: 14,
+    fontFamily: 'Poppins_700Bold',
   },
 
   confirmButton: {
@@ -275,10 +353,11 @@ const styles = StyleSheet.create({
   },
 
   confirmButtonText: {
-    color: '#000',
-    fontSize: 13,
-    fontFamily: 'Poppins_600SemiBold',
+    color: '#424242',
+    fontSize: 14,
+    fontFamily: 'Poppins_700Bold',
   },
+
 });
 
 export default styles;

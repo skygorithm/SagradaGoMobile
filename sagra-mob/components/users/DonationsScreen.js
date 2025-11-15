@@ -134,17 +134,6 @@ export default function DonationsScreen({ user, onNavigate }) {
               keyboardType="numeric"
             />
 
-            <TextInput
-              style={[styles.modalInput, styles.modalInputMultiline]}
-              placeholder="Donation Intercession (Optional)"
-              placeholderTextColor="#999"
-              value={intercession}
-              onChangeText={setIntercession}
-              multiline
-              numberOfLines={2}
-              textAlignVertical="top"
-            />
-
             <View style={styles.paymentMethodContainer}>
               {paymentMethods.map((method) => (
                 <TouchableOpacity
@@ -166,6 +155,19 @@ export default function DonationsScreen({ user, onNavigate }) {
                 </TouchableOpacity>
               ))}
             </View>
+
+            <TextInput
+              style={[styles.modalInput, styles.modalInputMultiline]}
+              placeholder="Donation Intercession (Optional)"
+              placeholderTextColor="#999"
+              value={intercession}
+              onChangeText={setIntercession}
+              multiline
+              numberOfLines={2}
+              textAlignVertical="top"
+            />
+
+
 
             <View style={styles.modalButtonContainer}>
               <TouchableOpacity
