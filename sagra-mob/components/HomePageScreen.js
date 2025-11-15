@@ -73,17 +73,25 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
 
         <View style={styles.header}>
           {user && (
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
-              <Image
-                source={user.profilePicture ? { uri: user.profilePicture } : require('../assets/defaultpfp.jpg')}
-                style={{ width: 35, height: 35, borderRadius: 25, marginRight: 15 }}
-              />
-              <View style={{ flexDirection: 'column' }}>
-                <Text style={styles.userName}>
-                  Welcome back, {user.first_name}!
-                </Text>
-                <Text style={styles.appName}>SagradaGo</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                <Image
+                  source={user.profilePicture ? { uri: user.profilePicture } : require('../assets/defaultpfp.jpg')}
+                  style={{ width: 35, height: 35, borderRadius: 25, marginRight: 15 }}
+                />
+                <View style={{ flexDirection: 'column' }}>
+                  <Text style={styles.userName}>
+                    Welcome back, {user.first_name}!
+                  </Text>
+                  <Text style={styles.appName}>SagradaGo</Text>
+                </View>
               </View>
+              <TouchableOpacity
+                onPress={() => handleShortcutPress('NotificationsScreen')}
+                style={{ padding: 8 }}
+              >
+                <Ionicons name="notifications-outline" size={24} color="#424242" />
+              </TouchableOpacity>
             </View>
           )}
         </View>
