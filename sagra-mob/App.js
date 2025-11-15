@@ -1,7 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import GetStartedScreen from './components/GetStarted';
 import LoginScreen from './components/LoginScreen';
 import SignUpScreen from './components/SignUpScreen';
@@ -31,11 +32,12 @@ import {
   Poppins_900Black,
 } from '@expo-google-fonts/poppins';
 
-export default function App() {
+function AppContent() {
+  const { user, isAuthenticated, logout, loading: authLoading } = useAuth();
+  // Testing
   const [showSignUp, setShowSignUp] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-
   const [currentScreen, setCurrentScreen] = useState('GetStarted');
 
   const [fontsLoaded] = useFonts({
@@ -50,7 +52,13 @@ export default function App() {
     Poppins_900Black,
   });
 
-  if (!fontsLoaded) {
+  useEffect(() => {
+    if (isAuthenticated && (currentScreen === 'LoginScreen' || currentScreen === 'GetStarted' || currentScreen === 'SignUpScreen')) {
+      setCurrentScreen('HomePageScreen');
+    }
+  }, [isAuthenticated]);
+
+  if (!fontsLoaded || authLoading) {
     return (
       <View style={{
         flex: 1, justifyContent: 'center',
@@ -62,20 +70,27 @@ export default function App() {
   }
 
   const handleLoginSuccess = (user) => {
+    setCurrentScreen('HomePageScreen');
+
+    // Testing
     setCurrentUser(user);
     setIsLoggedIn(true);
-    setCurrentScreen('HomePageScreen');
   };
 
   const handleSignUpSuccess = () => {
-    setShowSignUp(false);
     setCurrentScreen('LoginScreen');
+
+    // Testing
+    setShowSignUp(false);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await logout();
+    setCurrentScreen('GetStarted');
+
+    // Testing
     setIsLoggedIn(false);
     setCurrentUser(null);
-    setCurrentScreen('GetStarted');
   };
 
   const handleNavigate = (screen) => {
@@ -83,6 +98,10 @@ export default function App() {
   };
 
   const renderScreen = () => {
+    // With Account
+    // if (!isAuthenticated) {
+
+    // Testing
     if (!isLoggedIn) {
 
       if (currentScreen === 'GetStarted') {
@@ -119,6 +138,9 @@ export default function App() {
       case 'DonationsScreen':
         return (
           <DonationsScreen
+            // user={user}
+
+            // Testing
             user={currentUser}
             onNavigate={handleNavigate}
           />
@@ -126,6 +148,9 @@ export default function App() {
       case 'AnnouncementsScreen':
         return (
           <AnnouncementsScreen
+            // user={user}
+
+            // Testing
             user={currentUser}
             onNavigate={handleNavigate}
           />
@@ -133,6 +158,9 @@ export default function App() {
       case 'EventsScreen':
         return (
           <EventsScreen
+            // user={user}
+
+            // Testing
             user={currentUser}
             onNavigate={handleNavigate}
           />
@@ -140,6 +168,9 @@ export default function App() {
       case 'BookingScreen':
         return (
           <BookingScreen
+            // user={user}
+
+            // Testing
             user={currentUser}
             onNavigate={handleNavigate}
           />
@@ -147,6 +178,9 @@ export default function App() {
       case 'VirtualTourScreen':
         return (
           <VirtualTourScreen
+            // user={user}
+
+            // Testing
             user={currentUser}
             onNavigate={handleNavigate}
           />
@@ -154,6 +188,9 @@ export default function App() {
       case 'ProfileScreen':
         return (
           <Profile
+            // user={user}
+
+            // Testing
             user={currentUser}
             onNavigate={handleNavigate}
             onLogout={handleLogout}
@@ -161,12 +198,17 @@ export default function App() {
         );
       case 'ChatBotScreen':
         return (
-          <ChatBotScreen user={currentUser} onNavigate={handleNavigate}
-          />
+          // <ChatBotScreen user={user} onNavigate={handleNavigate} />
+
+          // Testing
+          <ChatBotScreen user={currentUser} onNavigate={handleNavigate}/>
         );
       case 'BookingHistoryScreen':
         return (
           <BookingHistoryScreen
+            // user={user}
+
+            // Testing
             user={currentUser}
             onNavigate={handleNavigate}
           />
@@ -174,6 +216,9 @@ export default function App() {
       case 'NotificationsScreen':
         return (
           <NotificationsScreen
+            // user={user}
+
+            // Testing
             user={currentUser}
             onNavigate={handleNavigate}
           />
@@ -181,14 +226,17 @@ export default function App() {
       case 'VolunteerScreen':
         return (
           <VolunteerScreen
+            // user={user}
+
+            // Testing
             user={currentUser}
             onNavigate={handleNavigate}
           />
         );
       default:
         return (
-          <HomePageScreen user={currentUser} onNavigate={handleNavigate}
-          />
+          // <HomePageScreen user={user} onNavigate={handleNavigate}/>
+          <HomePageScreen user={currentUser} onNavigate={handleNavigate}/>
         );
     }
   };
@@ -204,3 +252,11 @@ export default function App() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f9f9f9' },
 });
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}

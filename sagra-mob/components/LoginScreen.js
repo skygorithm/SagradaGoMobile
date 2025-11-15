@@ -13,15 +13,38 @@ import {
 import styles from '../styles/LoginStyle';
 import ForgotPasswordModal from './ForgotPasswordModal';
 import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginScreen({ onLoginSuccess, onSwitchToSignUp, onBack }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-
-  const [loading, setLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  
+  const { login, loading } = useAuth();
 
+  // Conntected to MongoDB Atlas - temporarily disabled for testing
+  // const handleLogin = async () => {
+  //   if (!email.trim() || !password.trim()) {
+  //     Alert.alert('Error', 'Please enter both email and password');
+  //     return;
+  //   }
+
+  //   const result = await login(email, password);
+
+  //   if (result.success) {
+  //     setEmail('');
+  //     setPassword('');
+  //     if (onLoginSuccess) {
+  //       onLoginSuccess(result.user);
+  //     }
+
+  //   } else {
+  //     Alert.alert('Login Failed', result.message || 'Invalid email or password');
+  //   }
+  // };
+
+  // Testing
   const handleLogin = async () => {
     if (onLoginSuccess) {
       onLoginSuccess({
@@ -32,45 +55,6 @@ export default function LoginScreen({ onLoginSuccess, onSwitchToSignUp, onBack }
       });
     }
     return;
-
-    // if (!email.trim() || !password.trim()) {
-    //   Alert.alert('Error', 'Please enter both email and password');
-    //   return;
-    // }
-
-    // setLoading(true);
-    // try {
-    //   const response = await fetch(`${API_BASE_URL}/login`, {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //       email: email.trim(),
-    //       password: password,
-    //     }),
-    //   });
-
-    //   const data = await response.json();
-
-    //   if (response.ok) {
-    //     Alert.alert('Success', data.message);
-    //     if (onLoginSuccess) {
-    //       onLoginSuccess(data.user);
-    //     }
-    //     setEmail('');
-    //     setPassword('');
-
-    //   } else {
-    //     Alert.alert('Login Failed', data.message || 'Invalid email or password');
-    //   }
-    // } catch (error) {
-    //   console.error('Login error:', error);
-    //   Alert.alert('Error', 'Network error. Please check your connection and try again.');
-
-    // } finally {
-    //   setLoading(false);
-    // }
   };
 
   return (
