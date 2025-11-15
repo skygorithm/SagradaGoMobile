@@ -91,12 +91,33 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_500Medium',
   },
 
+  actionButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
   requirementsIconButton: {
     backgroundColor: '#424242',
     padding: 10,
     borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+
+  bookNowButton: {
+    backgroundColor: '#FFC942',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+
+  bookNowButtonText: {
+    fontSize: 14,
+    fontFamily: 'Poppins_700Bold',
+    color: '#424242',
   },
 
   divider: {

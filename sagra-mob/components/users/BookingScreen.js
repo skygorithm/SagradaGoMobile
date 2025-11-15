@@ -12,6 +12,7 @@ import styles from '../../styles/users/BookingStyle';
 import CustomNavbar from '../../customs/CustomNavbar';
 import CustomPicker from '../../customs/CustomPicker';
 import { Ionicons } from "@expo/vector-icons";
+import CustomBookingForm from '../../customs/CustomBookingForm';
 
 const sacraments = [
   { name: 'Wedding', minDate: 'October 17, 2025' },
@@ -87,6 +88,8 @@ const months = [
 export default function BookingScreen({ user, onNavigate }) {
   const [selectedSacrament, setSelectedSacrament] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isBookingModalVisible, setIsBookingModalVisible] = useState(false);
+  const [bookingSacrament, setBookingSacrament] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState('All Months');
 
   const handleRequirements = (sacramentName) => {
@@ -97,6 +100,16 @@ export default function BookingScreen({ user, onNavigate }) {
   const closeModal = () => {
     setIsModalVisible(false);
     setSelectedSacrament(null);
+  };
+
+  const handleBookNow = (sacramentName) => {
+    setBookingSacrament(sacramentName);
+    setIsBookingModalVisible(true);
+  };
+
+  const handleCloseBookingModal = () => {
+    setIsBookingModalVisible(false);
+    setBookingSacrament(null);
   };
 
   const filteredSacraments = useMemo(() => {
@@ -151,12 +164,21 @@ export default function BookingScreen({ user, onNavigate }) {
                       Minimum booking: {sacrament.minDate}
                     </Text>
                   </View>
-                  <TouchableOpacity
-                    style={styles.requirementsIconButton}
-                    onPress={() => handleRequirements(sacrament.name)}
-                  >
-                    <Ionicons name="document-text-outline" size={24} color="#fff" />
-                  </TouchableOpacity>
+                  
+                  <View style={styles.actionButtons}>
+                    <TouchableOpacity
+                      style={styles.requirementsIconButton}
+                      onPress={() => handleRequirements(sacrament.name)}
+                    >
+                      <Ionicons name="document-text-outline" size={24} color="#fff" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.bookNowButton}
+                      onPress={() => handleBookNow(sacrament.name)}
+                    >
+                      <Text style={styles.bookNowButtonText}>Book Now</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
                 {index < filteredSacraments.length - 1 && <View style={styles.divider} />}
               </View>
@@ -216,6 +238,12 @@ export default function BookingScreen({ user, onNavigate }) {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      <CustomBookingForm
+        visible={isBookingModalVisible}
+        onClose={handleCloseBookingModal}
+        selectedSacrament={bookingSacrament}
+      />
     </View>
   );
 }
