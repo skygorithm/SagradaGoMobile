@@ -3,7 +3,6 @@ import { StyleSheet } from 'react-native';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fafafa',
   },
 
   scrollView: {
@@ -20,37 +19,6 @@ const styles = StyleSheet.create({
     fontSize: 34,
     fontFamily: 'Poppins_700Bold',
     color: '#222',
-  },
-
-  logoutButtonTop: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    alignSelf: "flex-end",
-    marginTop: 30,
-  },
-
-  logoutButtonTextTop: {
-    color: "#424242",
-    fontSize: 16,
-    fontFamily: 'Poppins_600SemiBold'
-  },
-
-  // PROFILE CARD
-  profileSection: {
-    backgroundColor: '#fff',
-    borderRadius: 18,
-    paddingVertical: 30,
-    paddingHorizontal: 20,
-    marginBottom: 30,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.07,
-    shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 6,
-    elevation: 3,
   },
 
   avatarWrapper: {
@@ -77,53 +45,6 @@ const styles = StyleSheet.create({
     color: "#333",
     fontFamily: 'Poppins_700Bold',
     paddingTop: 10
-  },
-  name: {
-    fontSize: 24,
-    fontFamily: 'Poppins_700Bold',
-    color: '#222',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-
-  email: {
-    fontSize: 15,
-    fontFamily: 'Poppins_400Regular',
-    color: '#444',
-    marginBottom: 6,
-    textAlign: 'center',
-  },
-
-  contact: {
-    fontSize: 15,
-    fontFamily: 'Poppins_400Regular',
-    color: '#444',
-    marginBottom: 6,
-    textAlign: 'center',
-  },
-
-  info: {
-    fontSize: 14,
-    fontFamily: 'Poppins_400Regular',
-    color: '#666',
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-
-  // LOGOUT BUTTON
-  logoutButton: {
-    backgroundColor: '#FF3B30',
-    height: 55,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 110,
-  },
-
-  logoutButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontFamily: 'Poppins_600SemiBold',
   },
 
   // MODAL OVERLAY
@@ -213,10 +134,6 @@ const styles = StyleSheet.create({
     paddingBottom: 60,
   },
 
-  formContainer: {
-    marginTop: 20,
-  },
-
   title: {
     fontFamily: "Poppins_700Bold",
     fontSize: 30,
@@ -284,6 +201,28 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
   },
+
+  topButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    marginTop: 30,
+  },
+
+  circularButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+
 });
 
 export default styles;

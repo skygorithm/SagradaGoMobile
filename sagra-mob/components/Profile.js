@@ -54,130 +54,137 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <TouchableOpacity
-          style={styles.logoutButtonTop}
-          onPress={() => setShowLogoutModal(true)}
-        >
-          <Ionicons name="log-out-outline" size={20} color="#424242" style={{ marginRight: 5 }} />
-          <Text style={styles.logoutButtonTextTop}>Logout</Text>
-        </TouchableOpacity>
+        <View style={styles.topButtonsContainer}>
+          {/* Booking Button */}
+          <TouchableOpacity
+            style={styles.circularButton}
+          >
+            <Ionicons name="calendar" size={24} color="#4242424" />
+          </TouchableOpacity>
 
-        <View style={styles.formContainer}>
-          <View style={styles.avatarWrapper}>
-            <View style={styles.avatarCircle}>
-              <Text style={styles.avatarText}>{getInitials()}</Text>
-            </View>
-          </View>
-
-          <Text style={styles.title}>{fullName}</Text>
-          <Text style={styles.subtitle}>{user.email || ""}</Text>
-
-          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-            <View style={[styles.inputContainer, { flex: 1, marginRight: 10 }]}>
-              <Ionicons name="person-outline" size={20} color="#999" style={styles.inputIcon} />
-              <TextInput
-                style={styles.input}
-                placeholder="First Name"
-                editable={isEditing}
-                value={formData.first_name}
-                onChangeText={(v) => handleInputChange("first_name", v)}
-              />
-            </View>
-
-            <View style={[styles.inputContainer, { flex: 1, marginHorizontal: 5 }]}>
-              <Ionicons name="person-outline" size={20} color="#999" style={styles.inputIcon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Middle"
-                editable={isEditing}
-                value={formData.middle_name}
-                onChangeText={(v) => handleInputChange("middle_name", v)}
-              />
-            </View>
-
-            <View style={[styles.inputContainer, { flex: 1, marginLeft: 10 }]}>
-              <Ionicons name="person-outline" size={20} color="#999" style={styles.inputIcon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Last Name"
-                editable={isEditing}
-                value={formData.last_name}
-                onChangeText={(v) => handleInputChange("last_name", v)}
-              />
-            </View>
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Ionicons name="call-outline" size={20} color="#999" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Contact Number"
-              editable={isEditing}
-              keyboardType="phone-pad"
-              value={formData.contact_number}
-              onChangeText={(v) => handleInputChange("contact_number", v)}
-            />
-          </View>
-
-          <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 15, marginBottom: -10 }}>
-            <CustomPicker
-              value={formData.gender}
-              onValueChange={(v) => handleInputChange("gender", v)}
-              options={[
-                { label: "Male", value: "Male" },
-                { label: "Female", value: "Female" },
-                { label: "Other", value: "Other" },
-              ]}
-              placeholder="Gender"
-              style={{ flex: 1, marginRight: 10 }}
-              disabled={!isEditing}
-            />
-
-            <CustomPicker
-              value={formData.civil_status}
-              onValueChange={(v) => handleInputChange("civil_status", v)}
-              options={[
-                { label: "Single", value: "Single" },
-                { label: "Married", value: "Married" },
-                { label: "Widowed", value: "Widowed" },
-              ]}
-              placeholder="Civil Status"
-              style={{ flex: 1, marginLeft: 10 }}
-              disabled={!isEditing}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Ionicons name="mail-outline" size={20} color="#999" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              autoCapitalize="none"
-              editable={isEditing}
-              value={formData.email}
-              onChangeText={(v) => handleInputChange("email", v)}
-            />
-          </View>
-
-          {!isEditing ? (
-            <TouchableOpacity
-              style={styles.darkButton}
-              onPress={() => setIsEditing(true)}
-            >
-              <Text style={styles.darkButtonText}>Edit Profile</Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              style={styles.yellowButton}
-              onPress={() => {
-                // onSave(formData);
-                setIsEditing(false);
-              }}
-            >
-              <Text style={styles.yellowButtonText}>Save Changes</Text>
-            </TouchableOpacity>
-          )}
+          {/* Logout Button */}
+          <TouchableOpacity
+            style={styles.circularButton}
+            onPress={() => setShowLogoutModal(true)}
+          >
+            <Ionicons name="log-out" size={24} color="#4242424" />
+          </TouchableOpacity>
         </View>
+
+        <View style={styles.avatarWrapper}>
+          <View style={styles.avatarCircle}>
+            <Text style={styles.avatarText}>{getInitials()}</Text>
+          </View>
+        </View>
+
+        <Text style={styles.title}>{fullName}</Text>
+        <Text style={styles.subtitle}>{user.email || ""}</Text>
+
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <View style={[styles.inputContainer, { flex: 1, marginRight: 10 }]}>
+            <Ionicons name="person-outline" size={20} color="#999" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="First Name"
+              editable={isEditing}
+              value={formData.first_name}
+              onChangeText={(v) => handleInputChange("first_name", v)}
+            />
+          </View>
+
+          <View style={[styles.inputContainer, { flex: 1, marginHorizontal: 5 }]}>
+            <Ionicons name="person-outline" size={20} color="#999" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Middle"
+              editable={isEditing}
+              value={formData.middle_name}
+              onChangeText={(v) => handleInputChange("middle_name", v)}
+            />
+          </View>
+
+          <View style={[styles.inputContainer, { flex: 1, marginLeft: 10 }]}>
+            <Ionicons name="person-outline" size={20} color="#999" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Last Name"
+              editable={isEditing}
+              value={formData.last_name}
+              onChangeText={(v) => handleInputChange("last_name", v)}
+            />
+          </View>
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Ionicons name="call-outline" size={20} color="#999" style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Contact Number"
+            editable={isEditing}
+            keyboardType="phone-pad"
+            value={formData.contact_number}
+            onChangeText={(v) => handleInputChange("contact_number", v)}
+          />
+        </View>
+
+        <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 15, marginBottom: -10 }}>
+          <CustomPicker
+            value={formData.gender}
+            onValueChange={(v) => handleInputChange("gender", v)}
+            options={[
+              { label: "Male", value: "Male" },
+              { label: "Female", value: "Female" },
+              { label: "Other", value: "Other" },
+            ]}
+            placeholder="Gender"
+            style={{ flex: 1, marginRight: 10 }}
+            disabled={!isEditing}
+          />
+
+          <CustomPicker
+            value={formData.civil_status}
+            onValueChange={(v) => handleInputChange("civil_status", v)}
+            options={[
+              { label: "Single", value: "Single" },
+              { label: "Married", value: "Married" },
+              { label: "Widowed", value: "Widowed" },
+            ]}
+            placeholder="Civil Status"
+            style={{ flex: 1, marginLeft: 10 }}
+            disabled={!isEditing}
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Ionicons name="mail-outline" size={20} color="#999" style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            autoCapitalize="none"
+            editable={isEditing}
+            value={formData.email}
+            onChangeText={(v) => handleInputChange("email", v)}
+          />
+        </View>
+
+        {!isEditing ? (
+          <TouchableOpacity
+            style={styles.darkButton}
+            onPress={() => setIsEditing(true)}
+          >
+            <Text style={styles.darkButtonText}>Edit Profile</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.yellowButton}
+            onPress={() => {
+              // onSave(formData);
+              setIsEditing(false);
+            }}
+          >
+            <Text style={styles.yellowButtonText}>Save Changes</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
 
       <CustomNavbar
