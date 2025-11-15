@@ -3,7 +3,6 @@ import { StyleSheet } from 'react-native';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fafafa',
   },
 
   scrollView: {
@@ -12,45 +11,41 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    marginTop: 40,
-    marginBottom: 30,
-    alignItems: 'center',
+    marginTop: 50,
+    marginBottom: -15,
+    alignItems: 'center'
   },
 
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
     color: '#1a1a1a',
+    fontFamily: 'Poppins_700Bold',
+  },
+
+  subtitle: {
+    fontSize: 16,
+    fontFamily: 'Poppins_400Regular',
+    marginBottom: 30,
+    color: '#666',
   },
 
   filterContainer: {
     marginBottom: 20,
-    paddingVertical: 12,
+    paddingVertical: 8,
     paddingHorizontal: 16,
     backgroundColor: '#fff',
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#e0e0e0',
+    height: 110
   },
 
   filterLabel: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 16,
     color: '#333',
     marginBottom: 8,
-  },
-
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    backgroundColor: '#f9f9f9',
-    overflow: 'hidden',
-  },
-
-  picker: {
-    height: 50,
-    color: '#333',
+    paddingTop: 5,
+    fontFamily: 'Poppins_600SemiBold'
   },
 
   content: {
@@ -67,6 +62,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
+    fontFamily: 'Poppins_500Medium'
   },
 
   sacramentItem: {
@@ -83,7 +79,7 @@ const styles = StyleSheet.create({
 
   sacramentName: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: 'Poppins_700Bold',
     color: '#1a1a1a',
     marginBottom: 4,
   },
@@ -91,22 +87,15 @@ const styles = StyleSheet.create({
   minBooking: {
     fontSize: 14,
     color: '#333',
-    fontWeight: 'normal',
+    fontFamily: 'Poppins_500Medium',
   },
 
-  requirementsButton: {
-    backgroundColor: '#6b8e23',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 8,
-    minWidth: 110,
+  requirementsIconButton: {
+    backgroundColor: '#424242',
+    padding: 10,
+    borderRadius: 50,
+    justifyContent: 'center',
     alignItems: 'center',
-  },
-
-  requirementsButtonText: {
-    color: '#ffffff',
-    fontSize: 14,
-    fontWeight: '500',
   },
 
   divider: {
@@ -141,9 +130,8 @@ const styles = StyleSheet.create({
   },
 
   modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    fontSize: 22,
+    fontFamily: 'Poppins_700Bold',
     color: '#1a1a1a',
     textAlign: 'center',
   },
@@ -153,37 +141,48 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
+  requirementCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 12,
+    marginBottom: 10,
+    borderRadius: 10,
+    elevation: 5,
+    shadowColor: '#979797ff',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 6,
+  },
+
+  requirementCardText: {
+    flex: 1,
+    marginLeft: 10,
+    fontSize: 15,
+    color: '#333',
+    lineHeight: 20,
+    fontFamily: 'Poppins_500Medium',
+  },
+
   requirementItem: {
     flexDirection: 'row',
     marginBottom: 12,
     paddingRight: 10,
   },
 
-  requirementBullet: {
-    fontSize: 18,
-    color: '#6b8e23',
-    marginRight: 10,
-    fontWeight: 'bold',
-  },
-
-  requirementText: {
-    flex: 1,
-    fontSize: 16,
-    color: '#333',
-    lineHeight: 22,
-  },
-
   closeButton: {
-    backgroundColor: '#6b8e23',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
+    backgroundColor: '#FFC942',
+    paddingVertical: 9,
+    borderRadius: 20,
+    marginVertical: 5,
+    width: '100%'
   },
-  
+
   closeButtonText: {
-    color: '#ffffff',
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Poppins_700Bold',
+    color: '#424242',
+    textAlign: 'center',
   },
 });
 

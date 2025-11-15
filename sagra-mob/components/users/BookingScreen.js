@@ -5,10 +5,13 @@ import {
   ScrollView,
   TouchableOpacity,
   Modal,
+  Image
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import styles from '../../styles/users/BookingStyle';
 import CustomNavbar from '../../customs/CustomNavbar';
+import CustomPicker from '../../customs/CustomPicker';
+import { Ionicons } from "@expo/vector-icons";
 
 const sacraments = [
   { name: 'Wedding', minDate: 'October 17, 2025' },
@@ -98,7 +101,7 @@ export default function BookingScreen({ user, onNavigate }) {
 
   const filteredSacraments = useMemo(() => {
     let filtered = sacraments;
-    
+
     if (selectedMonth !== 'All Months') {
       filtered = sacraments.filter((sacrament) => {
         const dateParts = sacrament.minDate.split(' ');
@@ -114,22 +117,27 @@ export default function BookingScreen({ user, onNavigate }) {
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
+          <Image
+            source={require('../../assets/sagrada.png')}
+            style={{ width: 100, height: 100, marginBottom: 10, alignSelf: 'center' }}
+            resizeMode="contain"
+          />
           <Text style={styles.title}>Select a Sacrament</Text>
+          <Text style={styles.subtitle}>Choose a sacrament to view its requirements.</Text>
         </View>
 
         <View style={styles.filterContainer}>
           <Text style={styles.filterLabel}>Filter by Month:</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={selectedMonth}
-              onValueChange={(itemValue) => setSelectedMonth(itemValue)}
-              style={styles.picker}
-            >
-              {months.map((month) => (
-                <Picker.Item key={month} label={month} value={month} />
-              ))}
-            </Picker>
-          </View>
+
+          <CustomPicker
+            selectedValue={selectedMonth}
+            onValueChange={(itemValue) => setSelectedMonth(itemValue)}
+            options={months.map((month) => ({
+              label: month,
+              value: month,
+            }))}
+            placeholder="Select Month"
+          />
         </View>
 
         <View style={styles.content}>
@@ -144,10 +152,10 @@ export default function BookingScreen({ user, onNavigate }) {
                     </Text>
                   </View>
                   <TouchableOpacity
-                    style={styles.requirementsButton}
+                    style={styles.requirementsIconButton}
                     onPress={() => handleRequirements(sacrament.name)}
                   >
-                    <Text style={styles.requirementsButtonText}>Requirements</Text>
+                    <Ionicons name="document-text-outline" size={24} color="#fff" />
                   </TouchableOpacity>
                 </View>
                 {index < filteredSacraments.length - 1 && <View style={styles.divider} />}
@@ -156,7 +164,7 @@ export default function BookingScreen({ user, onNavigate }) {
           ) : (
             <View style={styles.noResultsContainer}>
               <Text style={styles.noResultsText}>
-                No sacraments found for {selectedMonth}
+                No sacraments found for {selectedMonth}.
               </Text>
             </View>
           )}
@@ -186,15 +194,18 @@ export default function BookingScreen({ user, onNavigate }) {
             <Text style={styles.modalTitle}>
               {selectedSacrament} Requirements
             </Text>
-            
+            <Text style={[styles.subtitle, { fontSize: 13, textAlign: 'center' }]}>Please complete the following requirements:</Text>
+
             <ScrollView style={styles.requirementsList}>
-              {selectedSacrament && requirements[selectedSacrament]?.map((req, index) => (
-                <View key={index} style={styles.requirementItem}>
-                  <Text style={styles.requirementBullet}>•</Text>
-                  <Text style={styles.requirementText}>{req}</Text>
-                </View>
-              ))}
+              {selectedSacrament &&
+                requirements[selectedSacrament]?.map((req, index) => (
+                  <View key={index} style={styles.requirementCard}>
+                    <Ionicons name="checkmark-circle-outline" size={22} color="#e0a40dff" />
+                    <Text style={styles.requirementCardText}>{req}</Text>
+                  </View>
+                ))}
             </ScrollView>
+
 
             <TouchableOpacity
               style={styles.closeButton}
