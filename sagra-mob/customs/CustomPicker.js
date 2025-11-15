@@ -11,6 +11,7 @@ const CustomPicker = ({
     error,
     placeholder,
     style,
+    disabled = false, // <-- new prop
 }) => {
     const [showModal, setShowModal] = useState(false);
 
@@ -25,9 +26,13 @@ const CustomPicker = ({
                 style={[
                     styles.inputContainer,
                     error && styles.inputContainerError,
-                    { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: 45 }
+                    { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: 45 },
+                    disabled && { opacity: 0.6 },
                 ]}
-                onPress={() => setShowModal(true)}
+                onPress={() => {
+                    if (!disabled) setShowModal(true);
+                }}
+                activeOpacity={disabled ? 1 : 0.7}
             >
                 <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
                     {iconName && <Ionicons name={iconName} size={20} color="#999" style={styles.inputIcon} />}
@@ -48,33 +53,35 @@ const CustomPicker = ({
 
             {error && <Text style={styles.errorText}>{error}</Text>}
 
-            <Modal
-                visible={showModal}
-                transparent
-                animationType="slide"
-                onRequestClose={() => setShowModal(false)}
-            >
-                <TouchableOpacity
-                    style={styles.modalOverlay}
-                    activeOpacity={1}
-                    onPressOut={() => setShowModal(false)}
+            {!disabled && (
+                <Modal
+                    visible={showModal}
+                    transparent
+                    animationType="slide"
+                    onRequestClose={() => setShowModal(false)}
                 >
-                    <View style={[styles.modalContent, { maxHeight: 180 }]}>
-                        <FlatList
-                            data={options}
-                            keyExtractor={(item) => item.value}
-                            renderItem={({ item }) => (
-                                <TouchableOpacity
-                                    style={{ padding: 5 }}
-                                    onPress={() => handleSelect(item.value)}
-                                >
-                                    <Text style={[styles.input, { marginBottom: -10 }]}>{item.label}</Text>
-                                </TouchableOpacity>
-                            )}
-                        />
-                    </View>
-                </TouchableOpacity>
-            </Modal>
+                    <TouchableOpacity
+                        style={styles.modalOverlay}
+                        activeOpacity={1}
+                        onPressOut={() => setShowModal(false)}
+                    >
+                        <View style={[styles.modalContent, { maxHeight: 180 }]}>
+                            <FlatList
+                                data={options}
+                                keyExtractor={(item) => item.value}
+                                renderItem={({ item }) => (
+                                    <TouchableOpacity
+                                        style={{ padding: 5 }}
+                                        onPress={() => handleSelect(item.value)}
+                                    >
+                                        <Text style={[styles.input, { marginBottom: -10 }]}>{item.label}</Text>
+                                    </TouchableOpacity>
+                                )}
+                            />
+                        </View>
+                    </TouchableOpacity>
+                </Modal>
+            )}
         </View>
     );
 };
