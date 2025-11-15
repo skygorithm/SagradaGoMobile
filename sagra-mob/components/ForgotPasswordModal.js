@@ -10,9 +10,12 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { auth } from '../config/FireBaseConfig';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { API_BASE_URL } from '../config/API';
 import styles from '../styles/LoginStyle';
 
-export default function ForgotPasswordModal({ visible, onClose, apiBaseUrl }) {
+export default function ForgotPasswordModal({ visible, onClose }) {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -30,7 +33,8 @@ export default function ForgotPasswordModal({ visible, onClose, apiBaseUrl }) {
 
     setLoading(true);
     try {
-      const response = await fetch(`${apiBaseUrl}/forgotPassword`, {
+      console.log('Checking if email exists:', email.trim());
+      const checkResponse = await fetch(`${API_BASE_URL}/checkEmail`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -40,10 +44,21 @@ export default function ForgotPasswordModal({ visible, onClose, apiBaseUrl }) {
         }),
       });
 
-      const data = await response.json();
+      const checkData = await checkResponse.json();
 
-      if (response.ok) {
-        Alert.alert('Success', data.message, [
+      if (!checkData.exists) {
+        Alert.alert('Error', 'No account found with this email address. Please check your email and try again.');
+        setLoading(false);
+        return;
+      }
+
+      console.log('Email exists, sending password reset email...');
+      await sendPasswordResetEmail(auth, email.trim());
+      
+      Alert.alert(
+        'Success', 
+        'Password reset email has been sent! Please check your inbox and spam folder for instructions to reset your password.',
+        [
           {
             text: 'OK',
             onPress: () => {
@@ -51,13 +66,29 @@ export default function ForgotPasswordModal({ visible, onClose, apiBaseUrl }) {
               onClose();
             },
           },
-        ]);
-      } else {
-        Alert.alert('Error', data.message || 'Something went wrong. Please try again.');
-      }
+        ]
+      );
+
     } catch (error) {
       console.error('Forgot password error:', error);
-      Alert.alert('Error', 'Network error. Please check your connection and try again.');
+      
+      let errorMessage = 'Failed to send password reset email. Please try again.';
+
+      if (error.message && error.message.includes('Network request failed')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Invalid email address. Please check and try again.';
+
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many requests. Please try again later.';
+
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      Alert.alert('Error', errorMessage);
+      
     } finally {
       setLoading(false);
     }
