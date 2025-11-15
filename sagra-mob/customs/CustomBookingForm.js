@@ -59,7 +59,7 @@ const getSacramentPrice = (sacrament) => {
   return prices[sacrament] || 0;
 };
 
-export default function CustomBookingForm ({ visible, onClose, selectedSacrament: initialSacrament }) {
+export default function CustomBookingForm({ visible, onClose, selectedSacrament: initialSacrament }) {
   const selectedSacrament = initialSacrament || '';
   const [date, setDate] = useState(null);
   const [time, setTime] = useState(null);
@@ -177,7 +177,7 @@ export default function CustomBookingForm ({ visible, onClose, selectedSacrament
 
     } else if (selectedSacrament === 'Burial') {
       const hasSelection = burialForm.funeral_mass || burialForm.death_anniversary ||
-                          burialForm.funeral_blessing || burialForm.tomb_blessing;
+        burialForm.funeral_blessing || burialForm.tomb_blessing;
       if (!hasSelection) {
         setErrorMessage('Please select at least one burial service.');
         return;
@@ -191,12 +191,12 @@ export default function CustomBookingForm ({ visible, onClose, selectedSacrament
     );
   };
 
-  const minDate = selectedSacrament 
+  const minDate = selectedSacrament
     ? (() => {
-        const dateStr = getMinimumBookingDate(selectedSacrament);
-        const parsed = dayjs(dateStr);
-        return parsed.isValid() ? parsed : dayjs();
-      })()
+      const dateStr = getMinimumBookingDate(selectedSacrament);
+      const parsed = dayjs(dateStr);
+      return parsed.isValid() ? parsed : dayjs();
+    })()
     : dayjs();
 
   useEffect(() => {
@@ -223,7 +223,7 @@ export default function CustomBookingForm ({ visible, onClose, selectedSacrament
             </TouchableOpacity>
           </View>
 
-          <ScrollView 
+          <ScrollView
             style={styles.modalScrollView}
             showsVerticalScrollIndicator={false}
           >
@@ -278,7 +278,7 @@ export default function CustomBookingForm ({ visible, onClose, selectedSacrament
 
                 <View style={styles.inputWrapper}>
                   <Text style={styles.inputLabel}>Number of People</Text>
-                  <View style={styles.inputContainer}>
+                  <View style={[styles.inputContainer, { paddingVertical: 2 }]}>
                     <Ionicons name="people-outline" size={20} color="#999" style={{ marginRight: 10 }} />
                     <TextInput
                       style={styles.textInput}

@@ -36,6 +36,8 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     marginBottom: 20,
+    width: '80%',
+    alignSelf: 'center'
   },
   sacramentDisplayContainer: {
     flexDirection: 'row',
@@ -185,7 +187,7 @@ const styles = StyleSheet.create({
   // Submit Button
   submitButton: {
     backgroundColor: '#FFC942',
-    paddingVertical: 15,
+    paddingVertical: 10,
     borderRadius: 10,
     alignItems: 'center',
     marginTop: 20,
