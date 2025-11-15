@@ -16,8 +16,12 @@ import { Picker } from '@react-native-picker/picker';
 import styles from '../styles/SignUpStyle';
 import { Ionicons } from "@expo/vector-icons";
 import CustomPicker from '../customs/CustomPicker';
-
-const API_BASE_URL = 'http://localhost:8080/api';
+import { auth } from '../config/FireBaseConfig';
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
+import { API_BASE_URL } from '../config/API';
 
 export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin, onBack }) {
   const [formData, setFormData] = useState({
@@ -254,11 +258,39 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin, onBack 
   };
 
   const handleSignUp = async () => {
-    if (!validateForm()) return;
-
-    setLoading(true);
     try {
-      const uid = formData.uid || generateUID();
+      // Validate required fields (matching web version)
+      if (!formData.email || !formData.password || !formData.first_name || !formData.last_name) {
+        Alert.alert('Error', 'Please fill out all required fields.');
+        return;
+      }
+
+      // Check password match (matching web version)
+      if (formData.password !== formData.confirmPassword) {
+        Alert.alert('Error', 'Passwords do not match!');
+        return;
+      }
+
+      // Run full form validation
+      if (!validateForm()) return;
+
+      setLoading(true);
+
+      // Create user with Firebase Auth first (matching web version)
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email.trim(),
+        formData.password
+      );
+
+      const user = userCredential.user;
+      const uid = user.uid;
+
+      // Send email verification (matching web version)
+      await sendEmailVerification(user);
+      Alert.alert('Success', 'Account created successfully! Please verify your email.');
+
+      // Then call API to create user in database (matching web version)
       const signUpData = {
         first_name: formData.first_name.trim(),
         middle_name: formData.middle_name.trim(),
@@ -269,7 +301,7 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin, onBack 
         birthday: formData.birthday.trim(),
         email: formData.email.trim(),
         password: formData.password,
-        uid: uid,
+        uid: uid
       };
 
       const response = await fetch(`${API_BASE_URL}/createUser`, {
@@ -281,24 +313,14 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin, onBack 
       const data = await response.json();
 
       if (response.ok) {
-        Alert.alert('Success', data.message, [
-          {
-            text: 'OK',
-            onPress: () => {
-              if (onSignUpSuccess) onSignUpSuccess(data.newUser);
-              if (onSwitchToLogin) onSwitchToLogin();
-            },
-          },
-        ]);
-
+        if (onSwitchToLogin) onSwitchToLogin();
       } else {
-        Alert.alert('Sign Up Failed', data.message || 'Failed to create account. Please try again.');
+        Alert.alert('Error', data.message || 'Failed to create account. Please try again.');
       }
 
     } catch (error) {
-      console.error('Sign up error:', error);
-      Alert.alert('Error', 'Network error. Please check your connection and try again.');
-
+      console.error('Signup Error:', error.message);
+      Alert.alert('Error', error.message || 'Network error. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }

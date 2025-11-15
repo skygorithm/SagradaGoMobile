@@ -13,8 +13,7 @@ import {
 import styles from '../styles/LoginStyle';
 import ForgotPasswordModal from './ForgotPasswordModal';
 import { Ionicons } from "@expo/vector-icons";
-
-const API_BASE_URL = 'http://localhost:8080/api';
+import { API_BASE_URL } from '../config/API';
 
 export default function LoginScreen({ onLoginSuccess, onSwitchToSignUp, onBack }) {
   const [email, setEmail] = useState('');
