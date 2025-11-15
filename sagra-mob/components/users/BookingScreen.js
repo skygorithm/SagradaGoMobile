@@ -109,37 +109,36 @@ export default function BookingScreen({ user, onNavigate }) {
             resizeMode="contain"
           />
           <Text style={styles.title}>Select a Sacrament</Text>
-          <Text style={styles.subtitle}>Choose a sacrament to view its requirements.</Text>
+          <Text style={styles.subtitle}>Click a card to view its requirements.</Text>
         </View>
 
         <View style={styles.content}>
           {filteredSacraments.length > 0 ? (
             filteredSacraments.map((sacrament, index) => (
               <View key={index}>
-                <View style={styles.sacramentItem}>
+                <TouchableOpacity
+                  style={styles.sacramentCard}
+                  onPress={() => handleRequirements(sacrament.name)}
+                  activeOpacity={0.8}
+                >
                   <View style={styles.sacramentInfo}>
                     <Text style={styles.sacramentName}>{sacrament.name}</Text>
-                    <Text style={styles.minBooking}>
-                      Minimum booking: {sacrament.minDate}
-                    </Text>
+
+                    <View style={styles.minBookingRow}>
+                      <Ionicons name="calendar-outline" size={18} color="#e0a40dff" />
+                      <Text style={styles.minBookingText}>{sacrament.minDate}</Text>
+                    </View>
                   </View>
-                  
-                  <View style={styles.actionButtons}>
-                    <TouchableOpacity
-                      style={styles.requirementsIconButton}
-                      onPress={() => handleRequirements(sacrament.name)}
-                    >
-                      <Ionicons name="document-text-outline" size={24} color="#fff" />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.bookNowButton}
-                      onPress={() => handleBookNow(sacrament.name)}
-                    >
-                      <Text style={styles.bookNowButtonText}>Book Now</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-                {index < filteredSacraments.length - 1 && <View style={styles.divider} />}
+
+                  <TouchableOpacity
+                    style={styles.bookIconButton}
+                    onPress={() => handleBookNow(sacrament.name)}
+                  >
+                    <Ionicons name="arrow-forward-circle-outline" size={32} color="#424242" />
+                  </TouchableOpacity>
+                </TouchableOpacity>
+
+                {index < filteredSacraments.length - 1 && <View style={styles.spacer} />}
               </View>
             ))
           ) : (

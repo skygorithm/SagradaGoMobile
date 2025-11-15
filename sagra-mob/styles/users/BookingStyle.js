@@ -2,17 +2,17 @@ import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1
   },
 
   scrollView: {
     flex: 1,
     padding: 20,
-    paddingBottom: 20,
+    paddingTop: 0
   },
 
   header: {
-    marginTop: 50,
+    marginTop: 60,
     marginBottom: -15,
     alignItems: 'center'
   },
@@ -66,6 +66,21 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_500Medium'
   },
 
+  sacramentCard: {
+    backgroundColor: '#fff',
+    padding: 18,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+  },
+
   sacramentItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -85,10 +100,27 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
 
-  minBooking: {
+  minBookingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+
+  minBookingText: {
+    marginLeft: 6,
     fontSize: 14,
-    color: '#333',
     fontFamily: 'Poppins_500Medium',
+    color: '#333',
+  },
+
+  bookIconButton: {
+    padding: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  spacer: {
+    height: 4,
   },
 
   actionButtons: {
