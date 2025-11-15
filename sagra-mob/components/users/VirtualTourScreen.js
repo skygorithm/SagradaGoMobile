@@ -17,7 +17,7 @@ import styles from '../../styles/users/VirtualTourStyle';
 import CustomNavbar from '../../customs/CustomNavbar';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const IMAGE_WIDTH = SCREEN_WIDTH * 3; 
+const IMAGE_WIDTH = SCREEN_WIDTH * 3;
 
 export default function VirtualTourScreen({ user, onNavigate }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -61,7 +61,7 @@ export default function VirtualTourScreen({ user, onNavigate }) {
       translateX.stopAnimation((value) => {
         panStartPosition.current = value;
         currentPosition.current = value;
-        
+
         translateX.setOffset(value);
         translateX.setValue(0);
       });
@@ -70,7 +70,7 @@ export default function VirtualTourScreen({ user, onNavigate }) {
     onPanResponderMove: (evt, gestureState) => {
       const maxTranslate = 0;
       const minTranslate = -SCREEN_WIDTH * 2;
-      
+
       const newPosition = panStartPosition.current - gestureState.dx;
       const clampedPosition = Math.max(minTranslate, Math.min(maxTranslate, newPosition));
 
@@ -84,14 +84,14 @@ export default function VirtualTourScreen({ user, onNavigate }) {
     onPanResponderRelease: (evt, gestureState) => {
       const maxTranslate = 0;
       const minTranslate = -SCREEN_WIDTH * 2;
-  
+
       const finalPosition = panStartPosition.current - gestureState.dx;
       const clampedFinal = Math.max(minTranslate, Math.min(maxTranslate, finalPosition));
-      
+
       translateX.flattenOffset();
       currentPosition.current = clampedFinal;
       translateX.setValue(clampedFinal);
- 
+
       const progress = ((clampedFinal - minTranslate) / (maxTranslate - minTranslate)) * 100;
       setPanProgress(progress);
       Animated.timing(progressAnimation, {
@@ -114,7 +114,7 @@ export default function VirtualTourScreen({ user, onNavigate }) {
       currentPosition.current = initialOffset;
       setPanProgress(50);
       progressAnimation.setValue(50);
-      
+
       Animated.timing(translateX, {
         toValue: initialOffset,
         duration: 300,
@@ -134,13 +134,13 @@ export default function VirtualTourScreen({ user, onNavigate }) {
       currentPosition.current = initialOffset;
       setPanProgress(50);
       progressAnimation.setValue(50);
-      
+
       Animated.timing(translateX, {
         toValue: initialOffset,
         duration: 300,
         useNativeDriver: true,
       }).start();
-      
+
       setImageError(false);
       return prevIndex;
     });
@@ -156,8 +156,15 @@ export default function VirtualTourScreen({ user, onNavigate }) {
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.title}>Virtual Tour</Text>
-          <Text style={styles.subtitle}>Explore our 360° experience</Text>
+          <Image
+            source={require('../../assets/sagrada.png')}
+            style={{ width: 60, height: 60, alignSelf: 'center' }}
+            resizeMode="contain"
+          />
+          <View style={{ flexDirection: 'column' }}>
+            <Text style={styles.title}>Virtual Tour</Text>
+            <Text style={styles.subtitle}>Explore our 360° experience</Text>
+          </View>
         </View>
 
         <View style={styles.tourContainer}>
@@ -167,10 +174,10 @@ export default function VirtualTourScreen({ user, onNavigate }) {
               style={styles.fullscreenButton}
               onPress={toggleFullscreen}
             >
-              <Ionicons name="expand" size={24} color="#007AFF" />
+              <Ionicons name="expand" size={24} color="#424242" />
             </TouchableOpacity>
           </View>
-          
+
           <View style={styles.imageContainer} {...panResponderRef.current.panHandlers}>
             {isLoading && !imageError && (
               <View style={styles.loadingContainer}>
@@ -178,7 +185,7 @@ export default function VirtualTourScreen({ user, onNavigate }) {
                 <Text style={styles.loadingText}>Loading...</Text>
               </View>
             )}
-            
+
             {imageError ? (
               <View style={styles.errorContainer}>
                 <Ionicons name="alert-circle" size={48} color="#fff" />
@@ -215,6 +222,13 @@ export default function VirtualTourScreen({ user, onNavigate }) {
             )}
           </View>
 
+          <View style={styles.instructionContainer}>
+            <Ionicons name="hand-left-outline" size={20} color="#666" />
+            <Text style={styles.instructionText}>
+              Drag left or right to explore the 360° view.
+            </Text>
+          </View>
+
           <View style={styles.descriptionContainer}>
             <Text style={styles.descriptionText}>{currentImage.description}</Text>
           </View>
@@ -225,7 +239,7 @@ export default function VirtualTourScreen({ user, onNavigate }) {
               onPress={handlePrevImage}
               disabled={isLoading}
             >
-              <Ionicons name="chevron-back" size={20} color="#fff" />
+              <Ionicons name="chevron-back" size={20} color="#424242" />
               <Text style={styles.navButtonText}>Previous</Text>
             </TouchableOpacity>
 
@@ -265,16 +279,10 @@ export default function VirtualTourScreen({ user, onNavigate }) {
               disabled={isLoading}
             >
               <Text style={styles.navButtonText}>Next</Text>
-              <Ionicons name="chevron-forward" size={20} color="#fff" />
+              <Ionicons name="chevron-forward" size={20} color="#424242" />
             </TouchableOpacity>
           </View>
 
-          <View style={styles.instructionContainer}>
-            <Ionicons name="hand-left-outline" size={20} color="#666" />
-            <Text style={styles.instructionText}>
-              Drag left or right to explore the 360° view
-            </Text>
-          </View>
         </View>
       </ScrollView>
 

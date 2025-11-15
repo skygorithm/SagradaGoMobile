@@ -14,20 +14,23 @@ const styles = StyleSheet.create({
   },
 
   header: {
+    flexDirection: 'row',
+    gap: 10,
     marginTop: 40,
     marginBottom: 20,
   },
 
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontSize: 25,
+    fontFamily: 'Poppins_700Bold',
     color: '#333',
-    marginBottom: 10,
+    marginBottom: -5,
   },
 
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
+    fontFamily: 'Poppins_500Medium',
   },
 
   tourContainer: {
@@ -42,11 +45,11 @@ const styles = StyleSheet.create({
   },
 
   locationName: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 25,
+    fontFamily: 'Poppins_700Bold',
     color: '#333',
     flex: 1,
-    textAlign: 'center',
+    textAlign: 'left',
   },
 
   fullscreenButton: {
@@ -57,11 +60,10 @@ const styles = StyleSheet.create({
 
   imageContainer: {
     width: '100%',
-    height: 250,
-    borderRadius: 12,
+    height: 350,
+    borderRadius: 20,
     overflow: 'hidden',
     backgroundColor: '#000',
-    marginBottom: 15,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -75,15 +77,15 @@ const styles = StyleSheet.create({
 
   panoramaWrapper: {
     width: SCREEN_WIDTH * 3,
-    height: 250,
+    height: 350,
     position: 'absolute',
     left: 0,
     top: 0,
   },
-  
+
   panoramaImage: {
     width: SCREEN_WIDTH * 3,
-    height: 250,
+    height: 350,
   },
 
   loadingContainer: {
@@ -102,6 +104,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginTop: 10,
     fontSize: 14,
+    fontFamily: 'Poppins_400Regular'
   },
 
   errorContainer: {
@@ -137,6 +140,7 @@ const styles = StyleSheet.create({
     color: '#555',
     lineHeight: 22,
     textAlign: 'justify',
+    fontFamily: 'Poppins_500Medium'
   },
 
   controlsContainer: {
@@ -180,7 +184,7 @@ const styles = StyleSheet.create({
   },
 
   navButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FFC942',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 8,
@@ -190,9 +194,9 @@ const styles = StyleSheet.create({
   },
 
   navButtonText: {
-    color: '#fff',
+    color: '#424242',
     fontSize: 14,
-    fontWeight: 'bold',
+    fontFamily: 'Poppins_700Bold'
   },
 
   dotsContainer: {
@@ -201,7 +205,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  
+
   dot: {
     width: 8,
     height: 8,
@@ -210,25 +214,25 @@ const styles = StyleSheet.create({
   },
 
   dotActive: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#dfa20aff',
     width: 10,
     height: 10,
     borderRadius: 5,
   },
-  
+
   instructionContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    marginTop: 10,
+    marginVertical: 15,
   },
 
   instructionText: {
     fontSize: 14,
     color: '#666',
     textAlign: 'center',
-    fontStyle: 'italic',
+    fontFamily: 'Poppins_400Regular'
   },
 
   fullscreenContainer: {
