@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
 
   avatarWrapper: {
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 100,
     marginBottom: 10,
   },
 
@@ -202,14 +202,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  topButtonsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    marginTop: 30,
-  },
-
   circularButton: {
+    position: 'absolute',
+    top: 50,
+    right: 30,
     width: 50,
     height: 50,
     borderRadius: 25,
@@ -230,7 +226,6 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 12,
-    marginTop: 20,
     marginBottom: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },

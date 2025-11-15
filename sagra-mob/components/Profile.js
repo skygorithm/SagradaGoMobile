@@ -54,22 +54,12 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.topButtonsContainer}>
-          {/* Booking Button */}
-          <TouchableOpacity
-            style={styles.circularButton}
-          >
-            <Ionicons name="calendar" size={24} color="#4242424" />
-          </TouchableOpacity>
-
-          {/* Logout Button */}
-          <TouchableOpacity
-            style={styles.circularButton}
-            onPress={() => setShowLogoutModal(true)}
-          >
-            <Ionicons name="log-out" size={24} color="#4242424" />
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          style={styles.circularButton}
+          onPress={() => setShowLogoutModal(true)}
+        >
+          <Ionicons name="log-out" size={24} color="#4242424" />
+        </TouchableOpacity>
 
         <View style={styles.avatarWrapper}>
           <View style={styles.avatarCircle}>
