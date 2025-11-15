@@ -149,9 +149,65 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin, onBack 
     }
   };
 
-  const handleBlur = (field) => {
+  const checkEmailExists = async (email) => {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      return false; // Don't check if email format is invalid
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/checkEmail`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+
+      const data = await response.json();
+      return data.exists;
+    } catch (error) {
+      console.error('Error checking email:', error);
+      return false; // Don't block if check fails
+    }
+  };
+
+  const checkContactExists = async (contactNumber) => {
+    if (!contactNumber || contactNumber.replace(/[^0-9]/g, '').length < 10) {
+      return false; // Don't check if contact format is invalid
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/checkContact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contact_number: contactNumber.trim() }),
+      });
+
+      const data = await response.json();
+      return data.exists;
+    } catch (error) {
+      console.error('Error checking contact:', error);
+      return false; // Don't block if check fails
+    }
+  };
+
+  const handleBlur = async (field) => {
     setTouched(prev => ({ ...prev, [field]: true }));
-    const error = validateField(field, formData[field]);
+    let error = validateField(field, formData[field]);
+
+    // Check if email or contact number already exists
+    if (field === 'email' && !error && formData.email.trim()) {
+      const emailExists = await checkEmailExists(formData.email);
+      if (emailExists) {
+        error = 'This email is already registered. Please use a different email.';
+      }
+    }
+
+    if (field === 'contact_number' && !error && formData.contact_number.trim()) {
+      const contactExists = await checkContactExists(formData.contact_number);
+      if (contactExists) {
+        error = 'This contact number is already registered. Please use a different contact number.';
+      }
+    }
+
     setErrors(prev => ({ ...prev, [field]: error }));
   };
 
@@ -270,6 +326,26 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin, onBack 
 
       setLoading(true);
 
+      // Check if email already exists before creating Firebase user
+      const emailExists = await checkEmailExists(formData.email);
+      if (emailExists) {
+        setErrors(prev => ({ ...prev, email: 'This email is already registered. Please use a different email.' }));
+        setTouched(prev => ({ ...prev, email: true }));
+        Alert.alert('Error', 'This email is already registered. Please use a different email.');
+        setLoading(false);
+        return;
+      }
+
+      // Check if contact number already exists before creating Firebase user
+      const contactExists = await checkContactExists(formData.contact_number);
+      if (contactExists) {
+        setErrors(prev => ({ ...prev, contact_number: 'This contact number is already registered. Please use a different contact number.' }));
+        setTouched(prev => ({ ...prev, contact_number: true }));
+        Alert.alert('Error', 'This contact number is already registered. Please use a different contact number.');
+        setLoading(false);
+        return;
+      }
+
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         formData.email.trim(),
@@ -339,11 +415,32 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin, onBack 
       }
 
       if (response.ok) {
-        Alert.alert('Success', 'Account created successfully! Please verify your email.');
-        if (onSwitchToLogin) onSwitchToLogin();
+        Alert.alert(
+          'Success', 
+          'Account created successfully! A verification email has been sent. Please check your inbox and spam folder.',
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                if (onSwitchToLogin) onSwitchToLogin();
+              }
+            }
+          ]
+        );
 
       } else {
         console.error('MongoDB creation failed:', data.message);
+
+        // Handle specific error messages for email/contact conflicts
+        let errorMessage = data.message || 'Failed to create account in database. Please try again.';
+        
+        if (data.message && data.message.includes('Email already exists')) {
+          setErrors(prev => ({ ...prev, email: 'This email is already registered. Please use a different email.' }));
+          setTouched(prev => ({ ...prev, email: true }));
+        } else if (data.message && data.message.includes('Contact number already exists')) {
+          setErrors(prev => ({ ...prev, contact_number: 'This contact number is already registered. Please use a different contact number.' }));
+          setTouched(prev => ({ ...prev, contact_number: true }));
+        }
 
         try {
           await deleteUser(user);
@@ -353,10 +450,7 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin, onBack 
           console.error('Error deleting Firebase user:', deleteError);
         }
         
-        Alert.alert(
-          'Error', 
-          data.message || 'Failed to create account in database. Please try again.'
-        );
+        Alert.alert('Error', errorMessage);
       }
 
     } catch (error) {
