@@ -20,6 +20,19 @@ import BurialDocuments from '../components/users/BurialDocuments';
 
 const getMinimumBookingDate = (sacrament) => {
   const dates = {
+    'Wedding': '2025-10-17',
+    'Baptism': '2025-11-01',
+    'Confession': '2025-09-19',
+    'Anointing of the Sick': '2025-09-18',
+    'First Communion': '2025-11-16',
+    'Burial': '2025-09-20',
+    'Confirmation': '2025-11-16',
+  };
+  return dates[sacrament] || dayjs().format('YYYY-MM-DD');
+};
+
+const getMinimumBookingDateDisplay = (sacrament) => {
+  const dates = {
     'Wedding': 'October 17, 2025',
     'Baptism': 'November 1, 2025',
     'Confession': 'September 19, 2025',
@@ -28,6 +41,7 @@ const getMinimumBookingDate = (sacrament) => {
     'Burial': 'September 20, 2025',
     'Confirmation': 'November 16, 2025',
   };
+
   return dates[sacrament] || new Date().toLocaleDateString();
 };
 
@@ -41,6 +55,7 @@ const getSacramentPrice = (sacrament) => {
     'Burial': 3000,
     'Confirmation': 1500,
   };
+
   return prices[sacrament] || 0;
 };
 
@@ -116,17 +131,20 @@ export default function CustomBookingForm ({ visible, onClose, selectedSacrament
       groom_permission: null,
       bride_permission: null,
     });
+
     setBaptismForm({
       main_godfather: {},
       main_godmother: {},
       additional_godparents: [],
     });
+
     setBurialForm({
       funeral_mass: false,
       death_anniversary: false,
       funeral_blessing: false,
       tomb_blessing: false,
     });
+
     setErrorMessage('');
   };
 
@@ -139,6 +157,7 @@ export default function CustomBookingForm ({ visible, onClose, selectedSacrament
       setErrorMessage('No sacrament selected. Please close and try again.');
       return;
     }
+
     if (!date || !time || !pax) {
       setErrorMessage('Please select a date, time, and number of people.');
       return;
@@ -172,7 +191,13 @@ export default function CustomBookingForm ({ visible, onClose, selectedSacrament
     );
   };
 
-  const minDate = selectedSacrament ? dayjs(getMinimumBookingDate(selectedSacrament)) : dayjs();
+  const minDate = selectedSacrament 
+    ? (() => {
+        const dateStr = getMinimumBookingDate(selectedSacrament);
+        const parsed = dayjs(dateStr);
+        return parsed.isValid() ? parsed : dayjs();
+      })()
+    : dayjs();
 
   useEffect(() => {
     if (!visible) {
@@ -222,7 +247,7 @@ export default function CustomBookingForm ({ visible, onClose, selectedSacrament
 
                 <View style={styles.infoContainer}>
                   <Text style={styles.infoText}>
-                    Earliest available date: {getMinimumBookingDate(selectedSacrament)}
+                    Earliest available date: {getMinimumBookingDateDisplay(selectedSacrament)}
                   </Text>
                   <Text style={styles.infoText}>
                     Price: ₱{getSacramentPrice(selectedSacrament).toLocaleString()}

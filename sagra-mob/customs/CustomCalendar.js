@@ -17,7 +17,9 @@ export default function CustomCalendar({
   showNavigation = true,
   initialDate = dayjs(),
 }) {
-  const [currentMonth, setCurrentMonth] = useState(initialDate);
+
+  const validInitialDate = dayjs(initialDate).isValid() ? dayjs(initialDate) : dayjs();
+  const [currentMonth, setCurrentMonth] = useState(validInitialDate);
 
   const monthStart = dayjs(currentMonth).startOf('month');
   const monthEnd = dayjs(currentMonth).endOf('month');
