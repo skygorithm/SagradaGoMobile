@@ -9,15 +9,24 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Image
 } from 'react-native';
 import styles from '../../styles/users/DonationsStyle';
 import CustomNavbar from '../../customs/CustomNavbar';
+import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function DonationsScreen({ user, onNavigate }) {
   const [showDonationModal, setShowDonationModal] = useState(false);
   const [amount, setAmount] = useState('');
   const [intercession, setIntercession] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
+
+  const recentDonations = [
+    { id: 1, amount: 500, method: "GCash", date: "Oct 12, 2025" },
+    { id: 2, amount: 1000, method: "Cash", date: "Nov 02, 2025" },
+    { id: 3, amount: 1000, method: "GCash", date: "Dec 01, 2025" },
+  ];
 
   const paymentMethods = ['GCash', 'Cash', 'In Kind'];
 
@@ -50,11 +59,48 @@ export default function DonationsScreen({ user, onNavigate }) {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
+
+        {/* HEADER */}
         <View style={styles.header}>
-          <Text style={styles.title}>Donations</Text>
-          <Text style={styles.subtitle}>Make a donation to support our cause</Text>
+          <Image
+            source={require('../../assets/sagrada.png')}
+            style={{ width: 60, height: 60, alignSelf: 'center' }}
+            resizeMode="contain"
+          />
+          <View>
+            <Text style={styles.title}>Donations</Text>
+            <Text style={styles.subtitle}>Make a donation to support our cause.</Text>
+          </View>
         </View>
 
+        {/* SUMMARY SECTION */}
+        <View style={styles.summaryBox}>
+          <View style={styles.summaryBar} />
+          <Text style={styles.summaryLabel}>You have donated a total of:</Text>
+          <Text style={styles.summaryAmount}>PHP 2,500.00</Text>
+        </View>
+
+        {/* RECENT DONATIONS */}
+        <Text style={styles.sectionTitle}>Your Donation History</Text>
+        <View style={styles.historyContainer}>
+          {recentDonations.map((item) => (
+            <View key={item.id} style={styles.historyItemWrapper}>
+              <View style={styles.historyItemRow}>
+                <View style={styles.historyItemColor} />
+                <View style={styles.historyItemContent}>
+                  <Text style={styles.historyAmount}>PHP {item.amount.toFixed(2)}</Text>
+                  <Text style={styles.historyMethod}>{item.method}</Text>
+                  <View style={styles.historyDateRow}>
+                    <Ionicons name="calendar-outline" size={14} color="#999" style={{ marginRight: 4 }} />
+                    <Text style={styles.historyDate}>{item.date}</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+          ))}
+        </View>
+
+        {/* DONATE BUTTON */}
         <View style={styles.content}>
           <TouchableOpacity
             style={styles.donateButton}
@@ -65,9 +111,10 @@ export default function DonationsScreen({ user, onNavigate }) {
         </View>
       </ScrollView>
 
+      {/* DONATION MODAL */}
       <Modal
         visible={showDonationModal}
-        transparent={true}
+        transparent
         animationType="slide"
         onRequestClose={handleCloseModal}
       >
@@ -138,11 +185,7 @@ export default function DonationsScreen({ user, onNavigate }) {
         </KeyboardAvoidingView>
       </Modal>
 
-      <CustomNavbar
-        currentScreen="DonationsScreen"
-        onNavigate={onNavigate}
-      />
+      <CustomNavbar currentScreen="DonationsScreen" onNavigate={onNavigate} />
     </View>
   );
 }
-
