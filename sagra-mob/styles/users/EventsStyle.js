@@ -34,6 +34,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: 'Poppins_500Medium'
   },
+  volunteerButton: {
+    backgroundColor: '#E1D5B8',
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    borderRadius: 25,
+    marginTop: 30,
+    width: '100%',
+    maxWidth: 300,
+  },
+  volunteerButtonText: {
+    fontSize: 18,
+    fontFamily: 'Poppins_700Bold',
+    color: '#424242',
+    textAlign: 'center',
+  },
 });
 
 export default styles;

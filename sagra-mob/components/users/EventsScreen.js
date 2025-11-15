@@ -3,6 +3,7 @@ import {
   View,
   Text,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 import styles from '../../styles/users/EventsStyle';
 import CustomNavbar from '../../customs/CustomNavbar';
@@ -20,6 +21,13 @@ export default function EventsScreen({ user, onNavigate }) {
           <Text style={styles.contentText}>
             Events will be displayed here.
           </Text>
+          
+          <TouchableOpacity
+            style={styles.volunteerButton}
+            onPress={() => onNavigate('VolunteerScreen')}
+          >
+            <Text style={styles.volunteerButtonText}>Volunteer</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 

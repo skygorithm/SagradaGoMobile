@@ -16,6 +16,7 @@ import EventsScreen from './components/users/EventsScreen';
 import BookingScreen from './components/users/BookingScreen';
 import BookingHistoryScreen from './components/users/BookingHistoryScreen';
 import NotificationsScreen from './components/notificationsScreen';
+import VolunteerScreen from './components/users/VolunteerScreen';
 
 import {
   useFonts,
@@ -173,6 +174,13 @@ export default function App() {
       case 'NotificationsScreen':
         return (
           <NotificationsScreen
+            user={currentUser}
+            onNavigate={handleNavigate}
+          />
+        );
+      case 'VolunteerScreen':
+        return (
+          <VolunteerScreen
             user={currentUser}
             onNavigate={handleNavigate}
           />
