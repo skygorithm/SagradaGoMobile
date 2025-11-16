@@ -10,8 +10,23 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import styles from '../../styles/users/EventsStyle';
 import CustomNavbar from '../../customs/CustomNavbar';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function EventsScreen({ user, onNavigate }) {
+  const { user: authUser } = useAuth();
+
+  const getUserName = () => {
+    if (authUser) {
+      const fullName = [
+        authUser.first_name || '',
+        authUser.middle_name || '',
+        authUser.last_name || ''
+      ].filter(Boolean).join(' ').trim();
+      
+      return fullName || 'Guest';
+    }
+    return 'Guest';
+  };
 
   const defaultEvents = [
     {
@@ -51,7 +66,7 @@ export default function EventsScreen({ user, onNavigate }) {
 
         {/* HEADER */}
         <View style={styles.header}>
-          <Text style={styles.greeting}>Hi, {user?.name || "Guest"} 👋</Text>
+          <Text style={styles.greeting}>Hi, {getUserName() || "Guest"} 👋</Text>
           <Text style={styles.title}>
             We have {defaultEvents.length} events this month!
           </Text>
