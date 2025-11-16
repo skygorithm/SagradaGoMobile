@@ -139,7 +139,7 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={[styles.sectionButton, selectedSection === 'Emerlyn' && styles.activeSectionButton]}
             onPress={() => setSelectedSection('Upcoming Events')}
           >
@@ -152,7 +152,7 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
             <Text style={[styles.sectionButtonText, selectedSection === 'Emerlyn' && { color: '#fff' }]}>
               Emerlyn
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </ScrollView>
 
         {selectedSection === 'Quick Access' && (
