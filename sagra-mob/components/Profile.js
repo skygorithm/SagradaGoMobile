@@ -22,6 +22,8 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
   const [isEditing, setIsEditing] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
   const currentUser = authUser || user;
 
@@ -56,8 +58,90 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
     }
   }, [currentUser]);
 
+  const validateField = (field, value) => {
+    let error = '';
+
+    switch (field) {
+      case 'first_name':
+        if (!value.trim()) {
+          error = 'First name is required';
+
+        } else if (!/^[a-zA-Z\s\-']+$/.test(value.trim())) {
+          error = 'First name must contain only letters';
+
+        } else if (value.trim().length < 2) {
+          error = 'First name must be at least 2 characters';
+        }
+        break;
+
+      case 'last_name':
+        if (!value.trim()) {
+          error = 'Last name is required';
+
+        } else if (!/^[a-zA-Z\s\-']+$/.test(value.trim())) {
+          error = 'Last name must contain only letters';
+
+        } else if (value.trim().length < 2) {
+          error = 'Last name must be at least 2 characters';
+        }
+        break;
+
+      case 'middle_name':
+        if (value.trim() && !/^[a-zA-Z\s\-']+$/.test(value.trim())) {
+          error = 'Middle name must contain only letters';
+        }
+        break;
+
+      case 'contact_number':
+        if (!value.trim()) {
+          error = 'Contact number is required';
+
+        } else if (!/^[0-9]+$/.test(value)) {
+          error = 'Contact number must contain only digits';
+
+        } else if (value.length !== 11) {
+          error = 'Contact number must be exactly 11 digits';
+        }
+        break;
+
+      case 'email':
+        if (!value.trim()) {
+          error = 'Email is required';
+
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
+          error = 'Please enter a valid email address';
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    return error;
+  };
+
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    let filteredValue = value;
+
+    if (field === 'first_name' || field === 'last_name' || field === 'middle_name') {
+      filteredValue = value.replace(/[^a-zA-Z\s\-']/g, '');
+
+    } else if (field === 'contact_number') {
+      filteredValue = value.replace(/[^0-9]/g, '').slice(0, 11);
+    }
+
+    setFormData(prev => ({ ...prev, [field]: filteredValue }));
+
+    if (touched[field] || errors[field]) {
+      const error = validateField(field, filteredValue);
+      setErrors(prev => ({ ...prev, [field]: error }));
+    }
+  };
+
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+    const error = validateField(field, formData[field]);
+    setErrors(prev => ({ ...prev, [field]: error }));
   };
 
   const handleCancel = () => {
@@ -74,12 +158,45 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
       });
     }
 
+    setErrors({});
+    setTouched({});
     setIsEditing(false);
   };
 
+  const validateForm = () => {
+    const fields = ['first_name', 'last_name', 'email', 'contact_number'];
+    let hasErrors = false;
+    const newErrors = {};
+    const newTouched = {};
+
+    fields.forEach(field => {
+      newTouched[field] = true;
+      const error = validateField(field, formData[field]);
+
+      if (error) {
+        newErrors[field] = error;
+        hasErrors = true;
+      }
+    });
+
+    if (formData.middle_name && formData.middle_name.trim()) {
+      const middleError = validateField('middle_name', formData.middle_name);
+
+      if (middleError) {
+        newErrors.middle_name = middleError;
+        hasErrors = true;
+      }
+    }
+
+    setTouched(newTouched);
+    setErrors(newErrors);
+
+    return !hasErrors;
+  };
+
   const handleSave = async () => {
-    if (!formData.first_name || !formData.last_name || !formData.email || !formData.contact_number) {
-      Alert.alert("Validation Error", "Please fill in all required fields (First Name, Last Name, Email, Contact Number).");
+    if (!validateForm()) {
+      Alert.alert("Validation Error", "Please fix the errors in the form.");
       return;
     }
 
@@ -147,7 +264,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
         </TouchableOpacity>
 
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <View style={[styles.inputContainer, { flex: 1, marginRight: 10 }]}>
+          <View style={[styles.inputContainer, { flex: 1, marginRight: 10 }, errors.first_name && styles.inputContainerError]}>
             <Ionicons name="person-outline" size={20} color="#999" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
@@ -155,10 +272,11 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
               editable={isEditing}
               value={formData.first_name}
               onChangeText={(v) => handleInputChange("first_name", v)}
+              onBlur={() => handleBlur("first_name")}
             />
           </View>
 
-          <View style={[styles.inputContainer, { flex: 1, marginHorizontal: 5 }]}>
+          <View style={[styles.inputContainer, { flex: 1, marginHorizontal: 5 }, errors.middle_name && styles.inputContainerError]}>
             <Ionicons name="person-outline" size={20} color="#999" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
@@ -166,10 +284,11 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
               editable={isEditing}
               value={formData.middle_name}
               onChangeText={(v) => handleInputChange("middle_name", v)}
+              onBlur={() => handleBlur("middle_name")}
             />
           </View>
 
-          <View style={[styles.inputContainer, { flex: 1, marginLeft: 10 }]}>
+          <View style={[styles.inputContainer, { flex: 1, marginLeft: 10 }, errors.last_name && styles.inputContainerError]}>
             <Ionicons name="person-outline" size={20} color="#999" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
@@ -177,11 +296,16 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
               editable={isEditing}
               value={formData.last_name}
               onChangeText={(v) => handleInputChange("last_name", v)}
+              onBlur={() => handleBlur("last_name")}
             />
           </View>
         </View>
 
-        <View style={styles.inputContainer}>
+        {errors.first_name && <Text style={[styles.errorText, { marginLeft: 0 }]}>{errors.first_name}</Text>}
+        {errors.middle_name && <Text style={[styles.errorText, { marginLeft: 0 }]}>{errors.middle_name}</Text>}
+        {errors.last_name && <Text style={[styles.errorText, { marginLeft: 0 }]}>{errors.last_name}</Text>}
+
+        <View style={[styles.inputContainer, errors.contact_number && styles.inputContainerError]}>
           <Ionicons name="call-outline" size={20} color="#999" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
@@ -190,8 +314,11 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
             keyboardType="phone-pad"
             value={formData.contact_number}
             onChangeText={(v) => handleInputChange("contact_number", v)}
+            onBlur={() => handleBlur("contact_number")}
           />
         </View>
+
+        {errors.contact_number && <Text style={styles.errorText}>{errors.contact_number}</Text>}
 
         <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 15, marginBottom: -10 }}>
           <CustomPicker
@@ -221,7 +348,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
           />
         </View>
 
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, errors.email && styles.inputContainerError]}>
           <Ionicons name="mail-outline" size={20} color="#999" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
@@ -230,8 +357,11 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
             editable={isEditing}
             value={formData.email}
             onChangeText={(v) => handleInputChange("email", v)}
+            onBlur={() => handleBlur("email")}
           />
         </View>
+        
+        {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
         {!isEditing ? (
           <TouchableOpacity

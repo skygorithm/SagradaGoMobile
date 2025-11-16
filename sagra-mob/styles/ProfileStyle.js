@@ -160,6 +160,12 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
 
+  inputContainerError: {
+    borderColor: '#ff3b30',
+    borderWidth: 1.5,
+    backgroundColor: "#fff",
+  },
+
   inputIcon: {
     marginRight: 6,
   },
@@ -168,6 +174,16 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: "Poppins_500Medium",
     fontSize: 15,
+  },
+
+  errorText: {
+    color: '#ff3b30',
+    fontFamily: 'Poppins_400Regular',
+    textAlign: 'right',
+    fontSize: 12,
+    marginBottom: 5,
+    marginTop: -5,
+    marginLeft: 5,
   },
 
   yellowButton: {
