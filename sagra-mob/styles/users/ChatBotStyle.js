@@ -143,6 +143,75 @@ const styles = StyleSheet.create({
     color: '#6c757d',
     textAlign: 'center',
   },
+
+  choiceButtonsContainer: {
+    marginTop: 20,
+    marginBottom: 20,
+    paddingBottom: 20,
+  },
+
+  choiceButtonsTitle: {
+    fontSize: 20,
+    fontFamily: 'Poppins_700Bold',
+    color: '#1a1a1a',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+
+  choiceButtonsSubtitle: {
+    fontSize: 14,
+    fontFamily: 'Poppins_400Regular',
+    color: '#6c757d',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+
+  choiceButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+
+  choiceButtonText: {
+    flex: 1,
+    fontSize: 14,
+    fontFamily: 'Poppins_500Medium',
+    color: '#1a1a1a',
+    lineHeight: 20,
+  },
+
+  showChoicesButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f5f5f5',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 24,
+    marginTop: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    alignSelf: 'center',
+  },
+
+  showChoicesButtonText: {
+    fontSize: 14,
+    fontFamily: 'Poppins_500Medium',
+    color: '#424242',
+    marginLeft: 8,
+  },
 });
 
 export default styles;
