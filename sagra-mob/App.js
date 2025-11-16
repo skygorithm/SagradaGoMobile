@@ -39,6 +39,7 @@ function AppContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [currentScreen, setCurrentScreen] = useState('GetStarted');
+  const [navigationParams, setNavigationParams] = useState({});
 
   const [fontsLoaded] = useFonts({
     Poppins_100Thin,
@@ -93,8 +94,9 @@ function AppContent() {
     setCurrentUser(null);
   };
 
-  const handleNavigate = (screen) => {
+  const handleNavigate = (screen, params = {}) => {
     setCurrentScreen(screen);
+    setNavigationParams(params);
   };
 
   const renderScreen = () => {
@@ -231,6 +233,7 @@ function AppContent() {
             // Testing
             user={currentUser}
             onNavigate={handleNavigate}
+            event={navigationParams.event}
           />
         );
       default:

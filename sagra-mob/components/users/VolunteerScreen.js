@@ -24,7 +24,7 @@ const volunteerRoles = [
   { label: 'Others', value: 'Others' },
 ];
 
-export default function VolunteerScreen({ user, onNavigate }) {
+export default function VolunteerScreen({ user, onNavigate, event }) {
   const { user: authUser } = useAuth();
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
@@ -61,6 +61,8 @@ export default function VolunteerScreen({ user, onNavigate }) {
       name: name,
       contact: contact,
       role: role,
+      eventTitle: event?.title || 'General Volunteer',
+      eventId: event?.id || null,
       date: new Date().toLocaleDateString(),
     };
 
@@ -68,7 +70,7 @@ export default function VolunteerScreen({ user, onNavigate }) {
 
     Alert.alert(
       'Success',
-      `Thank you ${name}! You've signed up as ${role}.`,
+      `Thank you ${name}! You've signed up as ${role}${event?.title ? ` for ${event.title}` : ''}.`,
       [
         {
           text: 'OK',
@@ -117,7 +119,11 @@ export default function VolunteerScreen({ user, onNavigate }) {
             resizeMode="contain"
           />
           <Text style={styles.title}>Volunteer</Text>
-          <Text style={styles.subtitle}>Fill in all necessary information.</Text>
+          {event && event.title ? (
+            <Text style={styles.subtitle}>Volunteering for: {event.title}</Text>
+          ) : (
+            <Text style={styles.subtitle}>Fill in all necessary information.</Text>
+          )}
         </View>
 
         {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
@@ -162,6 +168,9 @@ export default function VolunteerScreen({ user, onNavigate }) {
             volunteerLog.map((item) => (
               <View key={item.id} style={styles.logItem}>
                 <Text style={styles.logText}>{item.name} - {item.role}</Text>
+                {item.eventTitle && (
+                  <Text style={styles.logText}>Event: {item.eventTitle}</Text>
+                )}
                 <Text style={styles.logText}>{item.contact}</Text>
                 <Text style={styles.logDate}>{item.date}</Text>
               </View>
