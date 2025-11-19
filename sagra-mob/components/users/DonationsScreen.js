@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import styles from '../../styles/users/DonationsStyle';
 import CustomNavbar from '../../customs/CustomNavbar';
+import CustomPicker from '../../customs/CustomPicker';
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { API_BASE_URL } from '../../config/API';
@@ -24,11 +25,20 @@ export default function DonationsScreen({ user, onNavigate }) {
   const [intercession, setIntercession] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
   const [donations, setDonations] = useState([]);
+  const [allDonations, setAllDonations] = useState([]); // Store all donations for filtering
   const [donationStats, setDonationStats] = useState({ totalAmount: 0 });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const paymentMethods = ['GCash', 'Cash', 'In Kind'];
+
+  const statusOptions = [
+    { label: 'All Donations', value: 'all' },
+    { label: 'Approved', value: 'confirmed' },
+    { label: 'Pending', value: 'pending' },
+    { label: 'Rejected', value: 'cancelled' },
+  ];
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -53,16 +63,20 @@ export default function DonationsScreen({ user, onNavigate }) {
       const data = await response.json();
 
       if (response.ok) {
-        setDonations(data.donations || []);
-        
+        const fetchedDonations = data.donations || [];
+        setAllDonations(fetchedDonations);
+        filterDonationsByStatus(fetchedDonations, statusFilter);
+
       } else {
         console.error('Error fetching donations:', data.message);
         setDonations([]);
+        setAllDonations([]);
       }
 
     } catch (error) {
       console.error('Error fetching donations:', error);
       setDonations([]);
+      setAllDonations([]);
     }
   };
 
@@ -145,12 +159,12 @@ export default function DonationsScreen({ user, onNavigate }) {
         Alert.alert('Success', 'Donation submitted successfully!', [
           {
             text: 'OK',
-            onPress: () => {
+            onPress: async () => {
               setShowDonationModal(false);
               setAmount('');
               setIntercession('');
               setPaymentMethod('');
-              fetchDonations();
+              await fetchDonations();
               fetchDonationStats();
             },
           },
@@ -174,6 +188,25 @@ export default function DonationsScreen({ user, onNavigate }) {
     setAmount('');
     setIntercession('');
     setPaymentMethod('');
+  };
+
+  const filterDonationsByStatus = (donationsList, filter) => {
+    if (filter === 'all') {
+      setDonations(donationsList);
+
+    } else {
+      const filtered = donationsList.filter(donation => {
+        const donationStatus = (donation.status || 'pending').toLowerCase();
+        return donationStatus === filter.toLowerCase();
+      });
+      
+      setDonations(filtered);
+    }
+  };
+
+  const handleStatusFilterChange = (selectedStatus) => {
+    setStatusFilter(selectedStatus);
+    filterDonationsByStatus(allDonations, selectedStatus);
   };
 
   return (
@@ -207,7 +240,17 @@ export default function DonationsScreen({ user, onNavigate }) {
         </View>
 
         {/* RECENT DONATIONS */}
-        <Text style={styles.sectionTitle}>Your Donation History</Text>
+        <View style={styles.filterContainer}>
+          <Text style={styles.sectionTitle}>Your Donation History</Text>
+          <CustomPicker
+            value={statusOptions.find(opt => opt.value === statusFilter)?.label || 'All Donations'}
+            onValueChange={handleStatusFilterChange}
+            options={statusOptions}
+            placeholder="Filter by status"
+            iconName="filter-outline"
+            style={styles.statusFilterPicker}
+          />
+        </View>
         {loading ? (
           <View style={{ padding: 20, alignItems: 'center' }}>
             <ActivityIndicator size="large" color="#FFC942" />
@@ -215,27 +258,66 @@ export default function DonationsScreen({ user, onNavigate }) {
           </View>
         ) : donations.length === 0 ? (
           <View style={{ padding: 20, alignItems: 'center' }}>
-            <Text style={{ color: '#999', fontSize: 14 }}>No donations yet. Make your first donation!</Text>
+            <Text style={{ color: '#999', fontSize: 14 }}>
+              {statusFilter === 'all' 
+                ? 'No donations yet. Make your first donation!'
+                : `No ${statusOptions.find(opt => opt.value === statusFilter)?.label.toLowerCase()} donations found.`}
+            </Text>
           </View>
         ) : (
           <View style={styles.historyContainer}>
-            {donations.map((item) => (
-              <View key={item._id} style={styles.historyItemWrapper}>
-                <View style={styles.historyItemRow}>
-                  <View style={styles.historyItemColor} />
-                  <View style={styles.historyItemContent}>
-                    <Text style={styles.historyAmount}>PHP {item.amount?.toFixed(2) || '0.00'}</Text>
-                    <Text style={styles.historyMethod}>{item.paymentMethod || 'N/A'}</Text>
-                    <View style={styles.historyDateRow}>
-                      <Ionicons name="calendar-outline" size={14} color="#999" style={{ marginRight: 4 }} />
-                      <Text style={styles.historyDate}>
-                        {item.createdAt ? formatDate(item.createdAt) : 'N/A'}
-                      </Text>
+            {donations.map((item) => {
+              const status = item.status || 'pending';
+              const getStatusColor = (status) => {
+                switch (status.toLowerCase()) {
+                  case 'confirmed':
+                    return '#4CAF50';
+                  case 'pending':
+                    return '#FF9800';
+                  case 'cancelled':
+                    return '#F44336';
+                  default:
+                    return '#FF9800';
+                }
+              };
+              const getStatusText = (status) => {
+                switch (status.toLowerCase()) {
+                  case 'confirmed':
+                    return 'Confirmed';
+                  case 'pending':
+                    return 'Pending';
+                  case 'cancelled':
+                    return 'Cancelled';
+                  default:
+                    return 'Pending';
+                }
+              };
+
+              return (
+                <View key={item._id} style={styles.historyItemWrapper}>
+                  <View style={styles.historyItemRow}>
+                    <View style={[styles.historyItemColor, { backgroundColor: getStatusColor(status) }]} />
+                    <View style={styles.historyItemContent}>
+                      <View style={styles.historyHeaderRow}>
+                        <Text style={styles.historyAmount}>PHP {item.amount?.toFixed(2) || '0.00'}</Text>
+                        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(status) + '20' }]}>
+                          <Text style={[styles.statusText, { color: getStatusColor(status) }]}>
+                            {getStatusText(status)}
+                          </Text>
+                        </View>
+                      </View>
+                      <Text style={styles.historyMethod}>{item.paymentMethod || 'N/A'}</Text>
+                      <View style={styles.historyDateRow}>
+                        <Ionicons name="calendar-outline" size={14} color="#999" style={{ marginRight: 4 }} />
+                        <Text style={styles.historyDate}>
+                          {item.createdAt ? formatDate(item.createdAt) : 'N/A'}
+                        </Text>
+                      </View>
                     </View>
                   </View>
                 </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
         )}
 

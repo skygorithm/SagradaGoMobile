@@ -79,6 +79,15 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
 
+  filterContainer: {
+    marginBottom: 15,
+  },
+
+  statusFilterPicker: {
+    marginTop: 10,
+    marginBottom: 5,
+  },
+
   /* HISTORY CARD LIST */
   historyContainer: {
     gap: 10,
@@ -145,6 +154,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 2,
+  },
+
+  historyHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+
+  statusText: {
+    fontSize: 11,
+    fontFamily: 'Poppins_600SemiBold',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
 
   /* DONATE BUTTON */
