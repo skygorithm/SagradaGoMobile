@@ -1,73 +1,90 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   RefreshControl,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import styles from '../styles/notificationStyle';
 import CustomNavbar from '../customs/CustomNavbar';
 import { Ionicons } from '@expo/vector-icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { API_BASE_URL } from '../config/API';
+import { useAuth } from '../contexts/AuthContext';
 
 dayjs.extend(relativeTime);
 
 export default function NotificationsScreen({ user, onNavigate }) {
   const [refreshing, setRefreshing] = useState(false);
- 
-  const [notifications, setNotifications] = useState([
-    {
-      id: '1',
-      type: 'booking',
-      title: 'Booking Confirmed',
-      message: 'Your baptism booking for December 15, 2024 has been confirmed.',
-      time: dayjs().subtract(2, 'hours'),
-      read: false,
-      action: 'BookingHistoryScreen',
-    },
-    {
-      id: '2',
-      type: 'announcement',
-      title: 'New Announcement',
-      message: 'Join us for the Christmas Mass on December 24 at 6:00 PM.',
-      time: dayjs().subtract(5, 'hours'),
-      read: false,
-      action: 'AnnouncementsScreen',
-    },
-    {
-      id: '3',
-      type: 'event',
-      title: 'Upcoming Event',
-      message: 'Community Cleanup event is scheduled for this Saturday.',
-      time: dayjs().subtract(1, 'day'),
-      read: true,
-      action: 'EventsScreen',
-    },
-    {
-      id: '4',
-      type: 'donation',
-      title: 'Thank You',
-      message: 'Thank you for your generous donation. Your contribution makes a difference.',
-      time: dayjs().subtract(2, 'days'),
-      read: true,
-      action: 'DonationsScreen',
-    },
-    {
-      id: '5',
-      type: 'reminder',
-      title: 'Reminder',
-      message: 'Don\'t forget about your scheduled confession appointment tomorrow.',
-      time: dayjs().subtract(3, 'days'),
-      read: true,
-      action: 'BookingHistoryScreen',
-    },
-  ]);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const { user: authUser } = useAuth();
+  
+  const currentUser = user || authUser;
+
+  const fetchNotifications = async () => {
+    try {
+      if (!currentUser || !currentUser.uid) {
+        console.warn('User not available for fetching notifications');
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/getNotifications`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          recipient_id: currentUser.uid,
+          recipient_type: 'user',
+          limit: 50,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const transformedNotifications = data.notifications.map((notification) => ({
+          id: notification._id,
+          type: notification.type,
+          title: notification.title,
+          message: notification.message,
+          time: dayjs(notification.createdAt),
+          read: notification.read || false,
+          action: notification.action || null,
+        }));
+
+        setNotifications(transformedNotifications);
+        setUnreadCount(data.unreadCount || 0);
+
+      } else {
+        Alert.alert('Error', data.message || 'Failed to load notifications');
+      }
+
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      Alert.alert('Error', 'Network error. Please check your connection and try again.');
+
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [currentUser?.uid]);
 
   const getNotificationIcon = (type) => {
     switch (type) {
       case 'booking':
+      case 'booking_status':
         return 'calendar-outline';
 
       case 'announcement':
@@ -77,10 +94,17 @@ export default function NotificationsScreen({ user, onNavigate }) {
         return 'calendar-outline';
 
       case 'donation':
+      case 'donation_status':
         return 'heart-outline';
         
       case 'reminder':
         return 'time-outline';
+
+      case 'system':
+        return 'settings-outline';
+
+      case 'message':
+        return 'chatbubble-outline';
 
       default:
         return 'notifications-outline';
@@ -90,6 +114,7 @@ export default function NotificationsScreen({ user, onNavigate }) {
   const getNotificationColor = (type) => {
     switch (type) {
       case 'booking':
+      case 'booking_status':
         return '#a8862fff';
 
       case 'announcement':
@@ -99,38 +124,110 @@ export default function NotificationsScreen({ user, onNavigate }) {
         return '#2196F3';
 
       case 'donation':
+      case 'donation_status':
         return '#FF9800';
 
       case 'reminder':
         return '#9C27B0';
+
+      case 'system':
+        return '#607D8B';
+
+      case 'message':
+        return '#E91E63';
 
       default:
         return '#666';
     }
   };
 
-  const handleNotificationPress = (notification) => {
-    setNotifications(notifications.map(n => 
-      n.id === notification.id ? { ...n, read: true } : n
-    ));
+  const handleNotificationPress = async (notification) => {
+    if (!notification.read) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/markAsRead`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            notification_id: notification.id,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setNotifications(notifications.map(n => 
+            n.id === notification.id ? { ...n, read: true } : n
+          ));
+          setUnreadCount(Math.max(0, unreadCount - 1));
+
+        } else {
+          console.error('Error marking notification as read:', data.message);
+        }
+
+      } catch (error) {
+        console.error('Error marking notification as read:', error);
+      }
+    }
 
     if (notification.action && onNavigate) {
       onNavigate(notification.action);
     }
   };
 
-  const handleMarkAllAsRead = () => {
-    setNotifications(notifications.map(n => ({ ...n, read: true })));
+  const handleMarkAllAsRead = async () => {
+    if (!currentUser || !currentUser.uid) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/markAllAsRead`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          recipient_id: currentUser.uid,
+          recipient_type: 'user',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setNotifications(notifications.map(n => ({ ...n, read: true })));
+        setUnreadCount(0);
+
+      } else {
+        Alert.alert('Error', data.message || 'Failed to mark all as read');
+      }
+      
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+      Alert.alert('Error', 'Network error. Please try again.');
+    }
   };
 
   const onRefresh = () => {
     setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1000);
+    fetchNotifications();
   };
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  if (loading && !refreshing) {
+    return (
+      <View style={styles.container}>
+        <View style={[styles.header, { flex: 1, justifyContent: 'center', alignItems: 'center' }]}>
+          <ActivityIndicator size="large" color="#a8862fff" />
+          <Text style={[styles.subtitle, { marginTop: 10 }]}>Loading notifications...</Text>
+        </View>
+        <CustomNavbar
+          currentScreen="NotificationsScreen"
+          onNavigate={onNavigate}
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
