@@ -15,6 +15,7 @@ import CustomPicker from '../../customs/CustomPicker';
 import { Ionicons } from "@expo/vector-icons";
 import CustomBookingForm from '../../customs/CustomBookingForm';
 import { useAuth } from '../../contexts/AuthContext';
+import { sacramentRequirements } from '../../utils/sacramentRequirements';
 
 const sacraments = [
   { name: 'Wedding', minDate: 'October 17, 2025' },
@@ -25,51 +26,6 @@ const sacraments = [
   { name: 'Burial', minDate: 'September 20, 2025' },
   { name: 'Confirmation', minDate: 'November 16, 2025' },
 ];
-
-const requirements = {
-  'Wedding': [
-    'Valid marriage license',
-    'Baptismal certificate',
-    'Confirmation certificate',
-    'Pre-marriage seminar certificate',
-    'Parental consent (if applicable)',
-  ],
-  'Baptism': [
-    'Birth certificate',
-    'Parent\'s marriage certificate',
-    'Godparent\'s confirmation certificate',
-    'Baptismal seminar attendance',
-  ],
-  'Confession': [
-    'No special requirements',
-    'Come with a contrite heart',
-    'Examination of conscience',
-  ],
-  'Anointing of the Sick': [
-    'Medical certificate (if applicable)',
-    'Family member or guardian present',
-    'Contact parish office for scheduling',
-  ],
-  'First Communion': [
-    'Baptismal certificate',
-    'First Communion preparation completion',
-    'Parent/guardian consent',
-    'Regular attendance at catechism classes',
-  ],
-  'Burial': [
-    'Death certificate',
-    'Baptismal certificate of deceased',
-    'Family contact information',
-    'Preferred date and time',
-  ],
-  'Confirmation': [
-    'Baptismal certificate',
-    'First Communion certificate',
-    'Confirmation preparation completion',
-    'Sponsor\'s confirmation certificate',
-    'Regular attendance at catechism classes',
-  ],
-};
 
 export default function BookingScreen({ user: userProp, onNavigate }) {
   const { user: authUser } = useAuth();
@@ -217,10 +173,10 @@ export default function BookingScreen({ user: userProp, onNavigate }) {
 
             <ScrollView style={styles.requirementsList}>
               {selectedSacrament &&
-                requirements[selectedSacrament]?.map((req, index) => (
-                  <View key={index} style={styles.requirementCard}>
+                sacramentRequirements[selectedSacrament]?.map((req) => (
+                  <View key={req.id} style={styles.requirementCard}>
                     <Ionicons name="checkmark-circle-outline" size={22} color="#e0a40dff" />
-                    <Text style={styles.requirementCardText}>{req}</Text>
+                    <Text style={styles.requirementCardText}>{req.label}</Text>
                   </View>
                 ))}
             </ScrollView>

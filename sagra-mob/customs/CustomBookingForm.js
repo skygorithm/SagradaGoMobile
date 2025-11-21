@@ -18,7 +18,9 @@ import TimePicker from './TimePicker';
 import WeddingDocuments from '../components/users/WeddingDocuments';
 import BaptismDocuments from '../components/users/BaptismDocuments';
 import BurialDocuments from '../components/users/BurialDocuments';
+import CustomUploadPDF from './CustomUploadPDF';
 import { useAuth } from '../contexts/AuthContext';
+import { sacramentRequirements } from '../utils/sacramentRequirements';
 
 const getMinimumBookingDate = (sacrament) => {
   const dates = {
@@ -71,6 +73,8 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
+  const [isUploadModalVisible, setIsUploadModalVisible] = useState(false);
+  const [uploadedDocuments, setUploadedDocuments] = useState({});
 
   const [weddingForm, setWeddingForm] = useState({
     groom_fullname: '',
@@ -104,6 +108,14 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
     funeral_blessing: false,
     tomb_blessing: false,
   });
+
+  const uploadableRequirements = selectedSacrament
+    ? (sacramentRequirements[selectedSacrament] || []).filter((req) => req.requiresUpload)
+    : [];
+
+  const uploadedCount = selectedSacrament
+    ? Object.keys(uploadedDocuments[selectedSacrament] || {}).length
+    : 0;
 
   useEffect(() => {
     if (errorMessage) {
@@ -151,6 +163,36 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
 
     setErrorMessage('');
     setShowQRCode(false);
+    setUploadedDocuments({});
+  };
+
+  const handleDocumentUpload = (requirementId, file) => {
+    if (!selectedSacrament) return;
+    setUploadedDocuments((prev) => {
+      const sacramentDocs = prev[selectedSacrament] || {};
+      return {
+        ...prev,
+        [selectedSacrament]: {
+          ...sacramentDocs,
+          [requirementId]: file,
+        },
+      };
+    });
+  };
+
+  const handleDocumentRemove = (requirementId) => {
+    if (!selectedSacrament) return;
+    setUploadedDocuments((prev) => {
+      const sacramentDocs = { ...(prev[selectedSacrament] || {}) };
+      delete sacramentDocs[requirementId];
+      const updated = { ...prev };
+      if (Object.keys(sacramentDocs).length === 0) {
+        delete updated[selectedSacrament];
+      } else {
+        updated[selectedSacrament] = sacramentDocs;
+      }
+      return updated;
+    });
   };
 
   const handleClose = () => {
@@ -209,6 +251,21 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
         burialForm.funeral_blessing || burialForm.tomb_blessing;
       if (!hasSelection) {
         setErrorMessage('Please select at least one burial service.');
+        return;
+      }
+    }
+
+    if (uploadableRequirements.length > 0) {
+      const missingUploads = uploadableRequirements.filter(
+        (req) => !uploadedDocuments[selectedSacrament]?.[req.id]
+      );
+
+      if (missingUploads.length > 0) {
+        setErrorMessage(
+          `Please upload the following documents: ${missingUploads
+            .map((req) => req.label)
+            .join(', ')}.`
+        );
         return;
       }
     }
@@ -278,6 +335,34 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
                     Price: ₱{getSacramentPrice(selectedSacrament).toLocaleString()}
                   </Text>
                 </View>
+
+                {uploadableRequirements.length > 0 && (
+                  <View style={styles.uploadSection}>
+                    <View style={styles.uploadSectionHeader}>
+                      <Text style={styles.inputLabel}>Supporting Documents</Text>
+                      <Text style={styles.uploadBadge}>
+                        {uploadedCount}/{uploadableRequirements.length}
+                      </Text>
+                    </View>
+                    <Text style={styles.uploadHelperText}>
+                      Upload PDF copies of the required documents before proceeding.
+                    </Text>
+                    <TouchableOpacity
+                      style={styles.uploadButton}
+                      onPress={() => setIsUploadModalVisible(true)}
+                    >
+                      <Ionicons
+                        name="cloud-upload-outline"
+                        size={20}
+                        color="#424242"
+                        style={{ marginRight: 10 }}
+                      />
+                      <Text style={styles.uploadButtonText}>
+                        {uploadedCount > 0 ? 'Manage Uploads' : 'Upload PDFs'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
 
                 <View style={styles.inputWrapper}>
                   <Text style={styles.inputLabel}>Select Date</Text>
@@ -381,6 +466,16 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
           </View>
         </View>
       </Modal>
+
+      <CustomUploadPDF
+        visible={isUploadModalVisible}
+        onClose={() => setIsUploadModalVisible(false)}
+        sacrament={selectedSacrament}
+        requirements={uploadableRequirements}
+        uploadedDocs={selectedSacrament ? uploadedDocuments[selectedSacrament] || {} : {}}
+        onUpload={handleDocumentUpload}
+        onRemove={handleDocumentRemove}
+      />
 
       <Modal
         visible={showQRCode}
