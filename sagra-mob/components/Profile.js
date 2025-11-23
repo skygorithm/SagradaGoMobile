@@ -39,8 +39,8 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
     last_name: currentUser?.last_name || "",
     email: currentUser?.email || "",
     contact_number: currentUser?.contact_number || "",
-    gender: currentUser?.gender || "",
-    civil_status: currentUser?.civil_status || "",
+    // gender: currentUser?.gender || "",
+    // civil_status: currentUser?.civil_status || "",
     birthday: currentUser?.birthday || "",
   });
 
@@ -52,8 +52,8 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
         last_name: currentUser.last_name || "",
         email: currentUser.email || "",
         contact_number: currentUser.contact_number || "",
-        gender: currentUser.gender || "",
-        civil_status: currentUser.civil_status || "",
+        // gender: currentUser.gender || "",
+        // civil_status: currentUser.civil_status || "",
         birthday: currentUser.birthday || "",
       });
     }
@@ -153,8 +153,8 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
         last_name: currentUser.last_name || "",
         email: currentUser.email || "",
         contact_number: currentUser.contact_number || "",
-        gender: currentUser.gender || "",
-        civil_status: currentUser.civil_status || "",
+        // gender: currentUser.gender || "",
+        // civil_status: currentUser.civil_status || "",
         birthday: currentUser.birthday || "",
       });
     }
@@ -337,7 +337,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
 
         {errors.contact_number && <Text style={styles.errorText}>{errors.contact_number}</Text>}
 
-        <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 15, marginBottom: -10 }}>
+        {/* <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 15, marginBottom: -10 }}>
           <CustomPicker
             value={formData.gender}
             onValueChange={(v) => handleInputChange("gender", v)}
@@ -363,7 +363,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
             style={{ flex: 1, marginLeft: 10 }}
             disabled={!isEditing}
           />
-        </View>
+        </View> */}
 
         <View style={[styles.inputContainer, errors.email && styles.inputContainerError]}>
           <Ionicons name="mail-outline" size={20} color="#999" style={styles.inputIcon} />

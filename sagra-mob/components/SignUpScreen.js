@@ -29,9 +29,9 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin, onBack 
     first_name: '',
     middle_name: '',
     last_name: '',
-    gender: '',
+    // gender: '',
     contact_number: '',
-    civil_status: '',
+    // civil_status: '',
     birthday: '',
     email: '',
     password: '',
@@ -74,11 +74,11 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin, onBack 
         }
         break;
 
-      case 'gender':
-        if (!value.trim()) {
-          error = 'Gender is required';
-        }
-        break;
+      // case 'gender':
+      //   if (!value.trim()) {
+      //     error = 'Gender is required';
+      //   }
+      //   break;
 
       case 'contact_number':
         if (!value.trim()) {
@@ -297,7 +297,7 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin, onBack 
   };
 
   const validateForm = () => {
-    const fields = ['first_name', 'last_name', 'gender', 'contact_number', 'birthday', 'email', 'password', 'confirmPassword'];
+    const fields = ['first_name', 'last_name', /* 'gender', */ 'contact_number', 'birthday', 'email', 'password', 'confirmPassword'];
     let hasErrors = false;
     const newErrors = {};
 
@@ -375,9 +375,9 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin, onBack 
         first_name: formData.first_name.trim(),
         middle_name: formData.middle_name.trim(),
         last_name: formData.last_name.trim(),
-        gender: formData.gender.trim(),
+        // gender: formData.gender.trim(),
         contact_number: formData.contact_number.trim(),
-        civil_status: formData.civil_status.trim(),
+        // civil_status: formData.civil_status.trim(),
         birthday: formData.birthday.trim(),
         email: formData.email.trim(),
         password: formData.password,
@@ -546,7 +546,7 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin, onBack 
           </View>
           {errors.contact_number && <Text style={styles.errorText}>{errors.contact_number}</Text>}
 
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          {/* <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <CustomPicker
               value={formData.gender}
               onValueChange={(value) => handleInputChange('gender', value)}
@@ -575,7 +575,7 @@ export default function SignUpScreen({ onSignUpSuccess, onSwitchToLogin, onBack 
               placeholder="Civil Status"
               style={{ flex: 1, marginLeft: 10 }}
             />
-          </View>
+          </View> */}
 
           <TouchableOpacity
             onPress={openDatePicker}

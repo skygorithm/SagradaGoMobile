@@ -23,18 +23,18 @@ export const AuthProvider = ({ children }) => {
       if (storedUser) {
         const userData = JSON.parse(storedUser);
         
-        if (!userData.profilePicture && userData.gender) {
-          const gender = userData.gender.toLowerCase();
+        // if (!userData.profilePicture && userData.gender) {
+        //   const gender = userData.gender.toLowerCase();
 
-          if (gender === 'female') {
-            userData.profilePicture = 'female-avatar';
+        //   if (gender === 'female') {
+        //     userData.profilePicture = 'female-avatar';
 
-          } else if (gender === 'male') {
-            userData.profilePicture = 'male-avatar';
-          }
+        //   } else if (gender === 'male') {
+        //     userData.profilePicture = 'male-avatar';
+        //   }
           
-          await saveUserToStorage(userData);
-        }
+        //   await saveUserToStorage(userData);
+        // }
         
         setUser(userData);
         setIsAuthenticated(true);
@@ -87,16 +87,16 @@ export const AuthProvider = ({ children }) => {
       if (response.ok) {
         const userData = data.user;
 
-        if (!userData.profilePicture && userData.gender) {
-          const gender = userData.gender.toLowerCase();
+        // if (!userData.profilePicture && userData.gender) {
+        //   const gender = userData.gender.toLowerCase();
 
-          if (gender === 'female') {
-            userData.profilePicture = 'female-avatar';
+        //   if (gender === 'female') {
+        //     userData.profilePicture = 'female-avatar';
 
-          } else if (gender === 'male') {
-            userData.profilePicture = 'male-avatar';
-          }
-        }
+        //   } else if (gender === 'male') {
+        //     userData.profilePicture = 'male-avatar';
+        //   }
+        // }
         
         await saveUserToStorage(userData);
         setUser(userData);
@@ -123,9 +123,9 @@ export const AuthProvider = ({ children }) => {
         first_name, 
         middle_name, 
         last_name, 
-        gender, 
+        // gender, 
         contact_number, 
-        civil_status, 
+        // civil_status, 
         birthday, 
         email, 
         password,
@@ -136,9 +136,9 @@ export const AuthProvider = ({ children }) => {
         first_name: first_name.trim(),
         middle_name: middle_name ? middle_name.trim() : '',
         last_name: last_name.trim(),
-        gender: gender.trim(),
+        // gender: gender.trim(),
         contact_number: contact_number.trim(),
-        civil_status: civil_status ? civil_status.trim() : '',
+        // civil_status: civil_status ? civil_status.trim() : '',
         birthday: birthday.trim(),
         email: email.trim(),
         password: password,
@@ -162,24 +162,24 @@ export const AuthProvider = ({ children }) => {
           first_name: data.newUser.first_name,
           middle_name: data.newUser.middle_name,
           last_name: data.newUser.last_name,
-          gender: data.newUser.gender,
+          // gender: data.newUser.gender,
           contact_number: data.newUser.contact_number,
-          civil_status: data.newUser.civil_status,
+          // civil_status: data.newUser.civil_status,
           birthday: data.newUser.birthday,
           is_admin: data.newUser.is_admin || false,
           volunteers: data.newUser.volunteers || [],
         };
 
-        if (!newUserData.profilePicture && newUserData.gender) {
-          const gender = newUserData.gender.toLowerCase();
+        // if (!newUserData.profilePicture && newUserData.gender) {
+        //   const gender = newUserData.gender.toLowerCase();
 
-          if (gender === 'female') {
-            newUserData.profilePicture = 'female-avatar';
+        //   if (gender === 'female') {
+        //     newUserData.profilePicture = 'female-avatar';
 
-          } else if (gender === 'male') {
-            newUserData.profilePicture = 'male-avatar';
-          }
-        }
+        //   } else if (gender === 'male') {
+        //     newUserData.profilePicture = 'male-avatar';
+        //   }
+        // }
 
         await saveUserToStorage(newUserData);
         setUser(newUserData);
@@ -238,16 +238,16 @@ export const AuthProvider = ({ children }) => {
       if (response.ok) {
         const updatedUser = data.user;
 
-        if (!updatedUser.profilePicture && updatedUser.gender) {
-          const gender = updatedUser.gender.toLowerCase();
+        // if (!updatedUser.profilePicture && updatedUser.gender) {
+        //   const gender = updatedUser.gender.toLowerCase();
 
-          if (gender === 'female') {
-            updatedUser.profilePicture = 'female-avatar';
+        //   if (gender === 'female') {
+        //     updatedUser.profilePicture = 'female-avatar';
 
-          } else if (gender === 'male') {
-            updatedUser.profilePicture = 'male-avatar';
-          }
-        }
+        //   } else if (gender === 'male') {
+        //     updatedUser.profilePicture = 'male-avatar';
+        //   }
+        // }
         
         await saveUserToStorage(updatedUser);
         setUser(updatedUser);
