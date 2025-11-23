@@ -188,7 +188,7 @@ export default function DonationsScreen({ user, onNavigate }) {
     } catch (error) {
       console.error('Error creating donation:', error);
       Alert.alert('Error', 'Network error. Please check your connection and try again.');
-      
+
     } finally {
       setSubmitting(false);
     }
@@ -210,7 +210,7 @@ export default function DonationsScreen({ user, onNavigate }) {
         const donationStatus = (donation.status || 'pending').toLowerCase();
         return donationStatus === filter.toLowerCase();
       });
-      
+
       setDonations(filtered);
     }
   };
@@ -265,12 +265,12 @@ export default function DonationsScreen({ user, onNavigate }) {
         {loading ? (
           <View style={{ padding: 20, alignItems: 'center' }}>
             <ActivityIndicator size="large" color="#FFC942" />
-            <Text style={{ marginTop: 10, color: '#666' }}>Loading donations...</Text>
+            <Text style={{ marginTop: 10, color: '#666', fontFamily: 'Poppins_500Medium', textAlign: 'center' }}>Loading donations...</Text>
           </View>
         ) : donations.length === 0 ? (
           <View style={{ padding: 20, alignItems: 'center' }}>
-            <Text style={{ color: '#999', fontSize: 14 }}>
-              {statusFilter === 'all' 
+            <Text style={{ color: '#999', fontSize: 14, fontFamily: 'Poppins_500Medium', textAlign: 'center' }}>
+              {statusFilter === 'all'
                 ? 'No donations yet. Make your first donation!'
                 : `No ${statusOptions.find(opt => opt.value === statusFilter)?.label.toLowerCase()} donations found.`}
             </Text>
