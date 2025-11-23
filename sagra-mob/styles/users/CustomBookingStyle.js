@@ -333,8 +333,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
     alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 10,
+    marginTop: 5,
+    marginBottom: 40,
   },
   submitButtonText: {
     fontSize: 16,
