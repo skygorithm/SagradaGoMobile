@@ -8,6 +8,7 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
     padding: 20,
+    paddingTop: 10
   },
   header: {
     marginTop: 40,
@@ -36,9 +37,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#f2f2f2',
     paddingHorizontal: 15,
-    paddingVertical: 12,
+    paddingVertical: 8,
     borderRadius: 15,
-    marginBottom: 20,
     marginHorizontal: 10,
   },
   searchInput: {
