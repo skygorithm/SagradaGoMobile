@@ -13,8 +13,7 @@ const styles = StyleSheet.create({
 
   chatbotHeaderContainer: {
     alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 24,
+    marginTop: 50,
     paddingBottom: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
