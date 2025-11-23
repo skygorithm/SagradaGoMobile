@@ -58,11 +58,11 @@ export default function ChatBotScreen({ user, onNavigate }) {
     };
 
     setMessages([welcomeMsg]);
-  }, []); 
+  }, []);
 
   const getBotResponse = (userMessage) => {
     const msg = userMessage.toLowerCase();
-    
+
     if (msg.includes('hello') || msg.includes('hi') || msg.includes('hey')) {
       return 'Hello! Welcome to Sagrada Familia Parish! How can I assist you today? You can ask me about sacraments, events, donations, volunteering, or the virtual tour.';
     }
@@ -96,7 +96,7 @@ export default function ChatBotScreen({ user, onNavigate }) {
     if (msg.includes('event') || msg.includes('what events') || msg.includes('activities')) {
       return `We have various events happening in our parish! You can view upcoming events in the Events section. Events include community activities, workshops, and special parish gatherings. You can also volunteer for events directly from the Events section.`;
     }
-    
+
     if (msg.includes('volunteer') || msg.includes('how can i help')) {
       return `Thank you for your interest in volunteering! You can volunteer in various roles:\n\n• Choir Member\n• Usher\n• Catechist\n• Tech Team\n• Others\n\nYou can sign up as a volunteer through the Events section by selecting an event and clicking the Volunteer button. Your service is greatly appreciated!`;
     }
@@ -108,11 +108,11 @@ export default function ChatBotScreen({ user, onNavigate }) {
     if (msg.includes('bye') || msg.includes('goodbye') || msg.includes('see you')) {
       return 'Thank you for visiting! If you have more questions, feel free to ask. God bless! 🙏';
     }
-    
+
     if (msg.includes('help') || msg.includes('what can you do')) {
       return 'I can help you with information about:\n\n• Sacraments and their requirements\n• Booking dates\n• Donations\n• Events\n• Volunteering\n• Virtual Tour\n\nJust ask me anything about these topics!';
     }
- 
+
     return "I'm here to help you with information about Sagrada Familia Parish! You can ask me about sacraments, booking dates, donations, events, volunteering, or the virtual tour. How can I assist you?";
   };
 
@@ -127,7 +127,7 @@ export default function ChatBotScreen({ user, onNavigate }) {
     };
 
     setMessages(prev => [...prev, userMsg]);
-    setShowChoices(false); 
+    setShowChoices(false);
 
     setTimeout(() => {
       const botNow = new Date();
@@ -167,7 +167,7 @@ export default function ChatBotScreen({ user, onNavigate }) {
         sender: 'bot',
         timeSent: formatTime(botNow),
       };
-      
+
       setMessages(prev => [...prev, botMsg]);
       scrollViewRef.current?.scrollToEnd({ animated: true });
     }, 500);
@@ -185,16 +185,18 @@ export default function ChatBotScreen({ user, onNavigate }) {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
       >
+        <View style={styles.chatbotHeaderContainer}>
+          <Text style={styles.chatbotTitleText}>SagradaBot</Text>
+          <Text style={styles.chatbotSubtitleText}>Ask me anything!</Text>
+        </View>
+
         <ScrollView
           style={styles.chatbotScrollView}
           ref={scrollViewRef}
           onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.chatbotHeaderContainer}>
-            <Text style={styles.chatbotTitleText}>SagradaBot</Text>
-            <Text style={styles.chatbotSubtitleText}>Ask me anything!</Text>
-          </View>
+
 
           <View style={styles.chatbotMessagesContainer}>
             {messages.map(msg => (
