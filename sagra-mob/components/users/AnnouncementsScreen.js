@@ -8,13 +8,14 @@ import {
   TextInput,
   ActivityIndicator,
   RefreshControl,
-  Alert,
+  Modal,
+  Pressable,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import styles from '../../styles/users/AnnouncementsStyle';
 import CustomNavbar from '../../customs/CustomNavbar';
 import { useAuth } from '../../contexts/AuthContext';
-import { API_BASE_URL } from '../../config/API';
 import dayjs from 'dayjs';
 
 export default function AnnouncementsScreen({ user, onNavigate }) {
@@ -23,6 +24,34 @@ export default function AnnouncementsScreen({ user, onNavigate }) {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Modal states
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const slideAnim = useState(new Animated.Value(0))[0];
+
+  const openModal = (item) => {
+    setSelectedAnnouncement(item);
+    setModalVisible(true);
+
+    // slide up animation
+    Animated.timing(slideAnim, {
+      toValue: 1,
+      duration: 250,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const closeModal = () => {
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => {
+      setModalVisible(false);
+      setSelectedAnnouncement(null);
+    });
+  };
 
   const getUserName = () => {
     if (authUser) {
@@ -34,7 +63,6 @@ export default function AnnouncementsScreen({ user, onNavigate }) {
 
       return fullName || 'Guest';
     }
-
     return 'Guest';
   };
 
@@ -71,13 +99,10 @@ export default function AnnouncementsScreen({ user, onNavigate }) {
   const fetchAnnouncements = async () => {
     try {
       setLoading(true);
-
       setAnnouncements(defaultAnnouncements);
-
     } catch (error) {
       console.error('Error fetching announcements:', error);
       setAnnouncements(defaultAnnouncements);
-
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -101,24 +126,16 @@ export default function AnnouncementsScreen({ user, onNavigate }) {
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case 'important':
-        return '#FF6B6B';
-
-      case 'urgent':
-        return '#FF4444';
-
-      default:
-        return '#4ECDC4';
+      case 'important': return '#FF6B6B';
+      case 'urgent': return '#FF4444';
+      default: return '#4ECDC4';
     }
   };
 
-  const handleAnnouncementPress = (announcement) => {
-    Alert.alert(
-      announcement.title,
-      `${announcement.content}\n\nDate: ${announcement.date}\nAuthor: ${announcement.author}`,
-      [{ text: 'OK' }]
-    );
-  };
+  const translateY = slideAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [400, 0],
+  });
 
   if (loading && !refreshing) {
     return (
@@ -133,15 +150,14 @@ export default function AnnouncementsScreen({ user, onNavigate }) {
 
   return (
     <View style={styles.container}>
-      <View style={{ padding: 20, paddingBottom: -5 }}>
-        {/* HEADER */}
+
+      <View style={{ padding: 20 }}>
         <View style={styles.header}>
-          <Text style={styles.greeting}>Hi, {getUserName() || 'Guest'} 👋</Text>
+          <Text style={styles.greeting}>Hi, {getUserName()} 👋</Text>
           <Text style={styles.title}>Announcements</Text>
           <Text style={styles.subtitle}>Stay updated with our latest news!</Text>
         </View>
 
-        {/* SEARCH BAR */}
         <View style={styles.searchContainer}>
           <Ionicons name="search-outline" size={20} color="#777" />
           <TextInput
@@ -156,11 +172,8 @@ export default function AnnouncementsScreen({ user, onNavigate }) {
 
       <ScrollView
         style={styles.scrollView}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        {/* ANNOUNCEMENTS LIST */}
         {filteredAnnouncements.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Ionicons name="megaphone-outline" size={64} color="#ccc" />
@@ -175,8 +188,8 @@ export default function AnnouncementsScreen({ user, onNavigate }) {
               <TouchableOpacity
                 key={announcement.id}
                 style={styles.announcementCard}
-                onPress={() => handleAnnouncementPress(announcement)}
-                activeOpacity={0.7}
+                onPress={() => openModal(announcement)}
+                activeOpacity={0.8}
               >
                 <View style={styles.cardHeader}>
                   <View style={styles.cardHeaderLeft}>
@@ -187,9 +200,7 @@ export default function AnnouncementsScreen({ user, onNavigate }) {
                           { backgroundColor: getPriorityColor(announcement.priority) },
                         ]}
                       >
-                        <Text style={styles.priorityText}>
-                          {announcement.priority.toUpperCase()}
-                        </Text>
+                        <Text style={styles.priorityText}>{announcement.priority.toUpperCase()}</Text>
                       </View>
                     )}
                     <Text style={styles.cardTitle} numberOfLines={2}>
@@ -219,10 +230,69 @@ export default function AnnouncementsScreen({ user, onNavigate }) {
         )}
       </ScrollView>
 
-      <CustomNavbar
-        currentScreen="AnnouncementsScreen"
-        onNavigate={onNavigate}
-      />
+      {/* BOTTOM SHEET MODAL */}
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+      >
+        <Pressable
+          onPress={closeModal}
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0,0,0,0.4)',
+          }}
+        >
+          <Animated.View
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              width: '100%',
+              padding: 20,
+              paddingBottom: 40,
+              backgroundColor: '#fff',
+              borderTopLeftRadius: 25,
+              borderTopRightRadius: 25,
+              transform: [{ translateY }],
+            }}
+          >
+            {selectedAnnouncement && (
+              <>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text style={{ fontSize: 20, fontFamily: 'Poppins_700Bold', flex: 1 }}>
+                    {selectedAnnouncement.title}
+                  </Text>
+                  <Pressable onPress={closeModal}>
+                    <Ionicons name="close" size={26} color="#333" />
+                  </Pressable>
+                </View>
+
+                <Text style={{ marginTop: 10, fontSize: 14, fontFamily: 'Poppins_400Regular', color: '#555' }}>
+                  {selectedAnnouncement.content}
+                </Text>
+
+                <View style={{ marginTop: 20 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                    <Ionicons name="calendar-outline" size={18} color="#555" />
+                    <Text style={{ marginLeft: 6, fontFamily: 'Poppins_500Medium', color: '#555' }}>
+                      {selectedAnnouncement.date}
+                    </Text>
+                  </View>
+
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Ionicons name="person-outline" size={18} color="#555" />
+                    <Text style={{ marginLeft: 6, fontFamily: 'Poppins_500Medium', color: '#555' }}>
+                      {selectedAnnouncement.author}
+                    </Text>
+                  </View>
+                </View>
+              </>
+            )}
+          </Animated.View>
+        </Pressable>
+      </Modal>
+
+      <CustomNavbar currentScreen="AnnouncementsScreen" onNavigate={onNavigate} />
     </View>
   );
 }
