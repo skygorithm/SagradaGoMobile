@@ -19,13 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { API_BASE_URL } from '../../config/API';
 import * as Clipboard from 'expo-clipboard';
-
-let ImagePicker = null;
-try {
-  ImagePicker = require('expo-image-picker');
-} catch (e) {
-  console.warn('expo-image-picker not available');
-}
+import * as ImagePicker from 'expo-image-picker';
 
 export default function DonationsScreen({ user, onNavigate }) {
   const [showDonationModal, setShowDonationModal] = useState(false);
@@ -144,112 +138,98 @@ export default function DonationsScreen({ user, onNavigate }) {
     return () => clearInterval(interval);
   }, [user?.uid]);
 
-  const handleConfirmDonation = async () => {
-    if (!amount || !paymentMethod) {
-      Alert.alert('Error', 'Please enter amount and select payment method');
-      return;
+ const handleConfirmDonation = async () => {
+  if (!amount || !paymentMethod) {
+    Alert.alert('Error', 'Please enter amount and select payment method');
+    return;
+  }
+
+  const amountNum = parseFloat(amount);
+  if (isNaN(amountNum) || amountNum <= 0) {
+    Alert.alert('Error', 'Please enter a valid amount');
+    return;
+  }
+
+  if (!user?.uid) {
+    Alert.alert('Error', 'User not found. Please log in again.');
+    return;
+  }
+
+  if (paymentMethod === 'In Kind' && !donationImage) {
+    Alert.alert('Error', 'Please upload an image of your donation');
+    return;
+  }
+
+  if (paymentMethod === 'GCash' && !gcashReceiptImage) {
+    Alert.alert('Error', 'Please upload your GCash receipt');
+    return;
+  }
+
+  setSubmitting(true);
+
+  try {
+    const formData = new FormData();
+    formData.append('uid', user.uid);
+    formData.append('amount', amountNum.toString());
+    formData.append('paymentMethod', paymentMethod);
+    formData.append('intercession', intercession || '');
+
+    if (donationImage) {
+      formData.append('image', {
+        uri: donationImage.uri,
+        type: donationImage.type || 'image/jpeg',
+        name: donationImage.fileName || 'donation-image.jpg',
+      });
     }
 
-    const amountNum = parseFloat(amount);
-    if (isNaN(amountNum) || amountNum <= 0) {
-      Alert.alert('Error', 'Please enter a valid amount');
-      return;
+    if (gcashReceiptImage) {
+      formData.append('receipt', {
+        uri: gcashReceiptImage.uri,
+        type: gcashReceiptImage.type || 'image/jpeg',
+        name: gcashReceiptImage.fileName || 'gcash-receipt.jpg',
+      });
     }
 
-    if (!user?.uid) {
-      Alert.alert('Error', 'User not found. Please log in again.');
-      return;
+    // Debug log to verify FormData
+    for (let pair of formData.entries()) {
+      console.log('FormData', pair[0], pair[1]);
     }
 
-    if (paymentMethod === 'In Kind' && !donationImage) {
-      Alert.alert('Error', 'Please upload an image of your donation');
-      return;
-    }
+    const response = await fetch(`http://${API_BASE_URL}/createDonation`, {
+      method: 'POST',
+      body: formData,
+      // Do NOT set 'Content-Type' manually — fetch sets it for FormData
+    });
 
-    if (paymentMethod === 'GCash' && !gcashReceiptImage) {
-      Alert.alert('Error', 'Please upload your GCash receipt');
-      return;
-    }
+    const data = await response.json();
 
-    setSubmitting(true);
-
-    try {
-      let response;
-      // Use FormData if there's an image (In Kind donation or GCash receipt)
-      if (donationImage || gcashReceiptImage) {
-        const formData = new FormData();
-        formData.append('uid', user.uid);
-        formData.append('amount', amountNum.toString());
-        formData.append('paymentMethod', paymentMethod);
-        formData.append('intercession', intercession || '');
-        
-        if (donationImage) {
-          formData.append('image', {
-            uri: donationImage.uri,
-            type: donationImage.type || 'image/jpeg',
-            name: donationImage.fileName || 'donation-image.jpg',
-          });
-        }
-        
-        if (gcashReceiptImage) {
-          formData.append('receipt', {
-            uri: gcashReceiptImage.uri,
-            type: gcashReceiptImage.type || 'image/jpeg',
-            name: gcashReceiptImage.fileName || 'gcash-receipt.jpg',
-          });
-        }
-
-        response = await fetch(`${API_BASE_URL}/createDonation`, {
-          method: 'POST',
-          body: formData,
-        });
-
-      } else {
-        response = await fetch(`${API_BASE_URL}/createDonation`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+    if (response.ok) {
+      Alert.alert('Success', 'Donation submitted successfully!', [
+        {
+          text: 'OK',
+          onPress: async () => {
+            setShowDonationModal(false);
+            setAmount('');
+            setIntercession('');
+            setPaymentMethod('');
+            setDonationImage(null);
+            setGcashReceiptImage(null);
+            await fetchDonations();
+            fetchDonationStats();
           },
-          body: JSON.stringify({
-            uid: user.uid,
-            amount: amountNum,
-            paymentMethod: paymentMethod,
-            intercession: intercession || '',
-          }),
-        });
-      }
-
-      const data = await response.json();
-
-      if (response.ok) {
-        Alert.alert('Success', 'Donation submitted successfully!', [
-          {
-            text: 'OK',
-            onPress: async () => {
-              setShowDonationModal(false);
-              setAmount('');
-              setIntercession('');
-              setPaymentMethod('');
-              setDonationImage(null);
-              setGcashReceiptImage(null);
-              await fetchDonations();
-              fetchDonationStats();
-            },
-          },
-        ]);
-
-      } else {
-        Alert.alert('Error', data.message || 'Failed to submit donation. Please try again.');
-      }
-
-    } catch (error) {
-      console.error('Error creating donation:', error);
-      Alert.alert('Error', 'Network error. Please check your connection and try again.');
-
-    } finally {
-      setSubmitting(false);
+        },
+      ]);
+    } else {
+      Alert.alert('Error', data.message || 'Failed to submit donation. Please try again.');
     }
-  };
+  } catch (error) {
+    console.error('Error creating donation:', error);
+    Alert.alert('Error', 'Network error. Please check your connection and try again.');
+  } finally {
+    setSubmitting(false);
+  }
+};
+
 
   const handleCloseModal = () => {
     setShowDonationModal(false);
