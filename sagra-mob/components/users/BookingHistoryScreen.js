@@ -1,78 +1,34 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   Modal,
-  Image
+  Image,
+  ActivityIndicator,
+  Alert,
+  RefreshControl
 } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import styles from '../../styles/users/BookingHistoryStyle';
 import CustomNavbar from '../../customs/CustomNavbar';
-
-const sampleBookings = [
-  {
-    id: '1',
-    sacrament: 'Wedding',
-    date: '2025-10-20',
-    time: '10:00 AM',
-    status: 'approved',
-    bookingDate: '2025-09-15',
-    notes: 'Please arrive 30 minutes early',
-  },
-  {
-    id: '2',
-    sacrament: 'Baptism',
-    date: '2025-11-05',
-    time: '2:00 PM',
-    status: 'approved',
-    bookingDate: '2025-09-20',
-    notes: 'Godparents must be present',
-  },
-  {
-    id: '3',
-    sacrament: 'Confirmation',
-    date: '2025-11-20',
-    time: '3:30 PM',
-    status: 'cancelled',
-    bookingDate: '2025-09-25',
-    notes: 'Cancelled by user',
-  },
-  {
-    id: '4',
-    sacrament: 'First Communion',
-    date: '2025-12-01',
-    time: '9:00 AM',
-    status: 'pending',
-    bookingDate: '2025-10-01',
-    notes: 'Awaiting approval',
-  },
-  {
-    id: '5',
-    sacrament: 'Burial',
-    date: '2025-10-15',
-    time: '11:00 AM',
-    status: 'rejected',
-    bookingDate: '2025-09-10',
-    notes: 'Incomplete requirements',
-  },
-  {
-    id: '6',
-    sacrament: 'Confession',
-    date: '2025-11-10',
-    time: '4:00 PM',
-    status: 'pending',
-    bookingDate: '2025-10-05',
-    notes: 'Under review',
-  },
-];
+import { API_BASE_URL } from '../../config/API';
 
 const statusColors = {
-  approved: '#4caf50', // green
-  pending: '#ff9800',  // orange
-  rejected: '#f44336', // red
-  cancelled: '#9e9e9e', // grey
+  confirmed: '#4caf50', 
+  approved: '#4caf50', 
+  pending: '#ff9800', 
+  rejected: '#f44336', 
+  cancelled: '#9e9e9e', 
+};
+
+const mapStatus = (status) => {
+  if (!status) return 'pending';
+  const statusLower = status.toLowerCase();
+
+  if (statusLower === 'confirmed') return 'approved';
+  return statusLower;
 };
 
 export default function BookingHistoryScreen({ user, onNavigate }) {
@@ -80,22 +36,291 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
+  const [allBookings, setAllBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchAllBookings = async (isRefresh = false) => {
+    if (!user?.uid) {
+      setLoading(false);
+      return;
+    }
+
+    if (isRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+    try {
+      const bookings = [];
+
+      try {
+        const weddingResponse = await fetch(`${API_BASE_URL}/getUserWeddings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid: user.uid }),
+        });
+
+        const weddingData = await weddingResponse.json();
+
+        if (weddingResponse.ok && weddingData.weddings) {
+          weddingData.weddings.forEach(wedding => {
+            bookings.push({
+              id: wedding.transaction_id || wedding._id,
+              transaction_id: wedding.transaction_id,
+              sacrament: 'Wedding',
+              date: wedding.date,
+              time: wedding.time,
+              status: mapStatus(wedding.status),
+              bookingDate: wedding.createdAt,
+              attendees: wedding.attendees,
+              contact_number: wedding.contact_number,
+              notes: '',
+            });
+          });
+        }
+
+      } catch (error) {
+        console.error('Error fetching weddings:', error);
+      }
+
+      try {
+        const baptismResponse = await fetch(`${API_BASE_URL}/getUserBaptisms`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid: user.uid }),
+        });
+
+        const baptismData = await baptismResponse.json();
+
+        if (baptismResponse.ok && baptismData.baptisms) {
+          baptismData.baptisms.forEach(baptism => {
+            bookings.push({
+              id: baptism.transaction_id || baptism._id,
+              transaction_id: baptism.transaction_id,
+              sacrament: 'Baptism',
+              date: baptism.date,
+              time: baptism.time,
+              status: mapStatus(baptism.status),
+              bookingDate: baptism.createdAt,
+              attendees: baptism.attendees,
+              contact_number: baptism.contact_number,
+              notes: '',
+            });
+          });
+        }
+
+      } catch (error) {
+        console.error('Error fetching baptisms:', error);
+      }
+
+      try {
+        const burialResponse = await fetch(`${API_BASE_URL}/getUserBurials`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid: user.uid }),
+        });
+
+        const burialData = await burialResponse.json();
+
+        if (burialResponse.ok && burialData.burials) {
+          burialData.burials.forEach(burial => {
+            bookings.push({
+              id: burial.transaction_id || burial._id,
+              transaction_id: burial.transaction_id,
+              sacrament: 'Burial',
+              date: burial.date,
+              time: burial.time,
+              status: mapStatus(burial.status),
+              bookingDate: burial.createdAt,
+              attendees: burial.attendees,
+              contact_number: burial.contact_number,
+              notes: '',
+            });
+          });
+        }
+
+      } catch (error) {
+        console.error('Error fetching burials:', error);
+      }
+
+      try {
+        const communionResponse = await fetch(`${API_BASE_URL}/getUserCommunions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid: user.uid }),
+        });
+
+        const communionData = await communionResponse.json();
+
+        if (communionResponse.ok && communionData.communions) {
+          communionData.communions.forEach(communion => {
+            bookings.push({
+              id: communion.transaction_id || communion._id,
+              transaction_id: communion.transaction_id,
+              sacrament: 'First Communion',
+              date: communion.date,
+              time: communion.time,
+              status: mapStatus(communion.status),
+              bookingDate: communion.createdAt,
+              attendees: communion.attendees,
+              contact_number: communion.contact_number,
+              notes: '',
+            });
+          });
+        }
+
+      } catch (error) {
+        console.error('Error fetching communions:', error);
+      }
+
+      try {
+        const anointingResponse = await fetch(`${API_BASE_URL}/getUserAnointings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid: user.uid }),
+        });
+
+        const anointingData = await anointingResponse.json();
+
+        if (anointingResponse.ok && anointingData.anointings) {
+          anointingData.anointings.forEach(anointing => {
+            bookings.push({
+              id: anointing.transaction_id || anointing._id,
+              transaction_id: anointing.transaction_id,
+              sacrament: 'Anointing of the Sick',
+              date: anointing.date,
+              time: anointing.time,
+              status: mapStatus(anointing.status),
+              bookingDate: anointing.createdAt,
+              attendees: anointing.attendees,
+              contact_number: anointing.contact_number,
+              notes: anointing.medical_condition || '',
+            });
+          });
+        }
+
+      } catch (error) {
+        console.error('Error fetching anointings:', error);
+      }
+
+      try {
+        const confirmationResponse = await fetch(`${API_BASE_URL}/getUserConfirmations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid: user.uid }),
+        });
+
+        const confirmationData = await confirmationResponse.json();
+
+        if (confirmationResponse.ok && confirmationData.confirmations) {
+          confirmationData.confirmations.forEach(confirmation => {
+            bookings.push({
+              id: confirmation.transaction_id || confirmation._id,
+              transaction_id: confirmation.transaction_id,
+              sacrament: 'Confirmation',
+              date: confirmation.date,
+              time: confirmation.time,
+              status: mapStatus(confirmation.status),
+              bookingDate: confirmation.createdAt,
+              attendees: confirmation.attendees,
+              contact_number: confirmation.contact_number,
+              notes: '',
+            });
+          });
+        }
+
+      } catch (error) {
+        console.error('Error fetching confirmations:', error);
+      }
+
+      bookings.sort((a, b) => {
+        const dateA = new Date(a.bookingDate || a.date);
+        const dateB = new Date(b.bookingDate || b.date);
+        return dateB - dateA;
+      });
+
+      setAllBookings(bookings);
+
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+
+      if (!isRefresh) {
+        Alert.alert('Error', 'Failed to load booking history. Please try again.');
+      }
+
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const onRefresh = () => {
+    fetchAllBookings(true);
+  };
+
+  useEffect(() => {
+    if (user?.uid) {
+      fetchAllBookings();
+    }
+  }, [user?.uid]);
 
   const filteredBookings = useMemo(() => {
     if (selectedFilter === 'all') {
-      return sampleBookings;
+      return allBookings;
     }
 
-    return sampleBookings.filter(booking => booking.status === selectedFilter);
-  }, [selectedFilter]);
+    const statusMap = {
+      'approved': 'confirmed',
+      'pending': 'pending',
+      'rejected': 'cancelled', 
+      'cancelled': 'cancelled',
+    };
+
+    const backendStatus = statusMap[selectedFilter] || selectedFilter;
+    
+    return allBookings.filter(booking => {
+      const bookingStatus = booking.status.toLowerCase();
+      if (selectedFilter === 'approved') {
+        return bookingStatus === 'approved' || bookingStatus === 'confirmed';
+      }
+
+      return bookingStatus === selectedFilter.toLowerCase();
+    });
+
+  }, [selectedFilter, allBookings]);
 
   const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
     const date = new Date(dateString);
+
+    if (isNaN(date.getTime())) return 'N/A';
     return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric'
     });
+  };
+
+  const formatTime = (timeString) => {
+    if (!timeString) return 'N/A';
+
+    if (typeof timeString === 'string' && (timeString.includes('AM') || timeString.includes('PM'))) {
+      return timeString;
+    }
+
+    if (timeString instanceof Date || (typeof timeString === 'string' && timeString.includes('T'))) {
+      const date = new Date(timeString);
+      
+      if (isNaN(date.getTime())) return timeString;
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      const hour12 = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
+      const period = hours >= 12 ? 'PM' : 'AM';
+      return `${hour12.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${period}`;
+    }
+
+    return timeString;
   };
 
   const handleCardPress = (booking) => {
@@ -174,11 +399,24 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#FFC942']}
+            tintColor="#FFC942"
+          />
+        }
       >
-
-
         <View style={styles.bookingsContainer}>
-          {filteredBookings.length > 0 ? (
+          {loading ? (
+            <View style={{ padding: 40, alignItems: 'center' }}>
+              <ActivityIndicator size="large" color="#FFC942" />
+              <Text style={{ marginTop: 10, color: '#666', fontFamily: 'Poppins_500Medium' }}>
+                Loading bookings...
+              </Text>
+            </View>
+          ) : filteredBookings.length > 0 ? (
             filteredBookings.map((booking) => (
               <TouchableOpacity
                 key={booking.id}
@@ -199,7 +437,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                       paddingVertical: 4,
                       paddingHorizontal: 12,
                       borderRadius: 12,
-                      backgroundColor: statusColors[booking.status] || '#ccc',
+                      backgroundColor: statusColors[booking.status] || statusColors[mapStatus(booking.status)] || '#ccc',
                     }}
                   >
                     <Text style={{ color: '#fff', fontFamily: 'Poppins_600SemiBold', fontSize: 13 }}>
@@ -217,15 +455,18 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                   </View>
                   <View style={styles.detailRow}>
                     <Ionicons name="time-outline" size={16} color="#666" style={{ marginRight: 6 }} />
-                    <Text style={styles.detailText}>{booking.time}</Text>
+                    <Text style={styles.detailText}>{formatTime(booking.time)}</Text>
                   </View>
                 </View>
               </TouchableOpacity>
             ))
           ) : (
             <View style={styles.emptyContainer}>
+              <Ionicons name="calendar-outline" size={48} color="#ccc" style={{ marginBottom: 10 }} />
               <Text style={styles.emptyText}>
-                No {selectedFilter !== 'all' ? selectedFilter : ''} bookings found
+                {selectedFilter !== 'all' 
+                  ? `No ${selectedFilter} bookings found` 
+                  : 'No bookings yet. Book a sacrament to get started!'}
               </Text>
             </View>
           )}
@@ -269,7 +510,9 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                     { label: "Sacrament", value: selectedBooking.sacrament },
                     { label: "Status", value: selectedBooking.status.charAt(0).toUpperCase() + selectedBooking.status.slice(1) },
                     { label: "Date", value: formatDate(selectedBooking.date), icon: "calendar-outline" },
-                    { label: "Time", value: selectedBooking.time, icon: "time-outline" },
+                    { label: "Time", value: formatTime(selectedBooking.time), icon: "time-outline" },
+                    { label: "Attendees", value: selectedBooking.attendees ? `${selectedBooking.attendees} people` : 'N/A', icon: "people-outline" },
+                    { label: "Transaction ID", value: selectedBooking.transaction_id || selectedBooking.id, icon: "receipt-outline" },
                     { label: "Booked on", value: formatDate(selectedBooking.bookingDate), icon: "calendar-outline" },
                   ].map((item, idx) => (
                     <React.Fragment key={idx}>
