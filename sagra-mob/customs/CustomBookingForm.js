@@ -21,6 +21,8 @@ import BurialDocuments from '../components/users/BurialDocuments';
 import CustomUploadPDF from './CustomUploadPDF';
 import { useAuth } from '../contexts/AuthContext';
 import { sacramentRequirements } from '../utils/sacramentRequirements';
+import { API_BASE_URL } from '../config/API';
+import { Platform } from 'react-native';
 
 const getMinimumBookingDate = (sacrament) => {
   const dates = {
@@ -75,6 +77,7 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
   const [showQRCode, setShowQRCode] = useState(false);
   const [isUploadModalVisible, setIsUploadModalVisible] = useState(false);
   const [uploadedDocuments, setUploadedDocuments] = useState({});
+  const [submitting, setSubmitting] = useState(false);
 
   const [weddingForm, setWeddingForm] = useState({
     groom_fullname: '',
@@ -274,6 +277,300 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
     }
 
     setShowQRCode(true);
+  };
+
+  const handleSubmitBooking = async () => {
+    if (!user?.uid) {
+      Alert.alert('Error', 'User not found. Please log in again.');
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const formData = new FormData();
+      
+      formData.append('uid', user.uid);
+      formData.append('date', date.toISOString());
+      formData.append('time', time.toISOString());
+      formData.append('attendees', pax.toString());
+
+      const docs = uploadedDocuments[selectedSacrament] || {};
+      
+      if (selectedSacrament === 'Wedding') {
+        formData.append('groom_fullname', weddingForm.groom_fullname || '');
+        formData.append('bride_fullname', weddingForm.bride_fullname || '');
+        formData.append('contact_number', weddingForm.contact_no || user.contact_number || '');
+
+  
+        const weddingDocs = {
+          'marriage_license': 'marriage_license',
+          'baptismal_certificate': 'groom_baptismal_cert',
+          'confirmation_certificate': 'groom_confirmation_cert',
+          'pre_marriage_seminar': 'marriage_contract',
+          'parental_consent': 'groom_permission',
+        };
+
+        Object.keys(docs).forEach((reqId) => {
+          const file = docs[reqId];
+          if (file && file.uri) {
+            const fieldName = weddingDocs[reqId] || reqId;
+            formData.append(fieldName, {
+              uri: file.uri,
+              type: file.mimeType || 'application/pdf',
+              name: file.name || `${fieldName}.pdf`,
+            });
+
+            console.log(`Appending wedding document: ${reqId} -> ${fieldName}`);
+          }
+        });
+
+        const weddingImageFields = [
+          'marriage_license', 'marriage_contract', 'groom_1x1', 'bride_1x1',
+          'groom_baptismal_cert', 'bride_baptismal_cert',
+          'groom_confirmation_cert', 'bride_confirmation_cert',
+          'groom_cenomar', 'bride_cenomar',
+          'groom_banns', 'bride_banns',
+          'groom_permission', 'bride_permission'
+        ];
+
+        weddingImageFields.forEach((fieldName) => {
+          const file = weddingForm[fieldName];
+          if (file && file.uri) {
+            formData.append(fieldName, {
+              uri: file.uri,
+              type: file.mimeType || file.type || 'image/jpeg',
+              name: file.fileName || file.name || `${fieldName}.jpg`,
+            });
+
+            console.log(`Appending wedding image: ${fieldName}`);
+          }
+        });
+
+        const response = await submitBookingForm(`${API_BASE_URL}/createWedding`, formData);
+        if (response) {
+          Alert.alert('Success', 'Wedding booking submitted successfully!', [
+            { text: 'OK', onPress: handleClose }
+          ]);
+        }
+
+      } else if (selectedSacrament === 'Baptism') {
+        formData.append('contact_number', user.contact_number || '');
+        formData.append('main_godfather', JSON.stringify(baptismForm.main_godfather || {}));
+        formData.append('main_godmother', JSON.stringify(baptismForm.main_godmother || {}));
+        formData.append('additional_godparents', JSON.stringify(baptismForm.additional_godparents || []));
+
+        const baptismDocs = {
+          'birth_certificate': 'birth_certificate',
+          'parents_marriage_certificate': 'parents_marriage_certificate',
+          'godparent_confirmation': 'godparent_confirmation',
+          'baptismal_seminar': 'baptismal_seminar',
+        };
+
+        Object.keys(docs).forEach((reqId) => {
+          const file = docs[reqId];
+          if (file && file.uri) {
+            const fieldName = baptismDocs[reqId] || reqId;
+            formData.append(fieldName, {
+              uri: file.uri,
+              type: file.mimeType || 'application/pdf',
+              name: file.name || `${fieldName}.pdf`,
+            });
+
+            console.log(`Appending baptism document: ${reqId} -> ${fieldName}`);
+          }
+        });
+
+        const response = await submitBookingForm(`${API_BASE_URL}/createBaptism`, formData);
+        if (response) {
+          Alert.alert('Success', 'Baptism booking submitted successfully!', [
+            { text: 'OK', onPress: handleClose }
+          ]);
+        }
+
+      } else if (selectedSacrament === 'Burial') {
+        formData.append('contact_number', user.contact_number || '');
+        formData.append('funeral_mass', burialForm.funeral_mass ? 'true' : 'false');
+        formData.append('death_anniversary', burialForm.death_anniversary ? 'true' : 'false');
+        formData.append('funeral_blessing', burialForm.funeral_blessing ? 'true' : 'false');
+        formData.append('tomb_blessing', burialForm.tomb_blessing ? 'true' : 'false');
+
+        const burialDocs = {
+          'death_certificate': 'death_certificate',
+          'deceased_baptismal': 'deceased_baptismal',
+        };
+
+        Object.keys(docs).forEach((reqId) => {
+          const file = docs[reqId];
+          if (file && file.uri) {
+            const fieldName = burialDocs[reqId] || reqId;
+            formData.append(fieldName, {
+              uri: file.uri,
+              type: file.mimeType || 'application/pdf',
+              name: file.name || `${fieldName}.pdf`,
+            });
+
+            console.log(`Appending burial document: ${reqId} -> ${fieldName}`);
+          }
+        });
+
+        const response = await submitBookingForm(`${API_BASE_URL}/createBurial`, formData);
+        if (response) {
+          Alert.alert('Success', 'Burial booking submitted successfully!', [
+            { text: 'OK', onPress: handleClose }
+          ]);
+        }
+
+      } else if (selectedSacrament === 'First Communion') {
+        formData.append('contact_number', user.contact_number || '');
+
+        const communionDocs = {
+          'baptismal_certificate': 'baptismal_certificate',
+          'communion_preparation': 'communion_preparation',
+          'parent_consent': 'parent_consent',
+        };
+
+        Object.keys(docs).forEach((reqId) => {
+          const file = docs[reqId];
+          if (file && file.uri) {
+            const fieldName = communionDocs[reqId] || reqId;
+            formData.append(fieldName, {
+              uri: file.uri,
+              type: file.mimeType || 'application/pdf',
+              name: file.name || `${fieldName}.pdf`,
+            });
+
+            console.log(`Appending communion document: ${reqId} -> ${fieldName}`);
+          }
+        });
+
+        const response = await submitBookingForm(`${API_BASE_URL}/createCommunion`, formData);
+        if (response) {
+          Alert.alert('Success', 'Communion booking submitted successfully!', [
+            { text: 'OK', onPress: handleClose }
+          ]);
+        }
+
+      } else if (selectedSacrament === 'Anointing of the Sick') {
+        formData.append('contact_number', user.contact_number || '');
+        formData.append('medical_condition', ''); 
+
+        const anointingDocs = {
+          'medical_certificate': 'medical_certificate',
+        };
+
+        Object.keys(docs).forEach((reqId) => {
+          const file = docs[reqId];
+          if (file && file.uri) {
+            const fieldName = anointingDocs[reqId] || reqId;
+            formData.append(fieldName, {
+              uri: file.uri,
+              type: file.mimeType || 'application/pdf',
+              name: file.name || `${fieldName}.pdf`,
+            });
+            
+            console.log(`Appending anointing document: ${reqId} -> ${fieldName}`);
+          }
+        });
+
+        const response = await submitBookingForm(`${API_BASE_URL}/createAnointing`, formData);
+        if (response) {
+          Alert.alert('Success', 'Anointing of the Sick booking submitted successfully!', [
+            { text: 'OK', onPress: handleClose }
+          ]);
+        }
+
+      } else if (selectedSacrament === 'Confirmation') {
+        formData.append('contact_number', user.contact_number || '');
+        formData.append('sponsor_name', ''); 
+
+        const confirmationDocs = {
+          'baptismal_certificate': 'baptismal_certificate',
+          'first_communion_certificate': 'first_communion_certificate',
+          'confirmation_preparation': 'confirmation_preparation',
+          'sponsor_certificate': 'sponsor_certificate',
+        };
+
+        Object.keys(docs).forEach((reqId) => {
+          const file = docs[reqId];
+          if (file && file.uri) {
+            const fieldName = confirmationDocs[reqId] || reqId;
+            formData.append(fieldName, {
+              uri: file.uri,
+              type: file.mimeType || 'application/pdf',
+              name: file.name || `${fieldName}.pdf`,
+            });
+
+            console.log(`Appending confirmation document: ${reqId} -> ${fieldName}`);
+          }
+        });
+
+        const response = await submitBookingForm(`${API_BASE_URL}/createConfirmation`, formData);
+        if (response) {
+          Alert.alert('Success', 'Confirmation booking submitted successfully!', [
+            { text: 'OK', onPress: handleClose }
+          ]);
+        }
+      }
+
+    } catch (error) {
+      console.error('Error submitting booking:', error);
+      Alert.alert('Error', error.message || 'Failed to submit booking. Please try again.');
+
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const submitBookingForm = async (url, formData) => {
+    console.log('Submitting booking to:', url);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+    let response;
+    try {
+      response = await fetch(url, {
+        method: 'POST',
+        body: formData,
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      console.error('Fetch error details:', fetchError);
+
+      if (fetchError.name === 'AbortError') {
+        throw new Error('Request timeout. Please check your connection and try again.');
+      }
+
+      if (fetchError.message === 'Network request failed') {
+        throw new Error('Cannot connect to server. Please check:\n1. Your internet connection\n2. The backend server is running\n3. The API URL is correct');
+      }
+
+      throw fetchError;
+    }
+
+    console.log('Response status:', response.status);
+    
+    let data;
+    try {
+      const text = await response.text();
+      console.log('Response text:', text);
+      data = JSON.parse(text);
+
+    } catch (parseError) {
+      console.error('Error parsing response:', parseError);
+      throw new Error('Invalid response from server');
+    }
+
+    if (response.ok) {
+      return data;
+      
+    } else {
+      throw new Error(data.message || 'Failed to submit booking. Please try again.');
+    }
   };
 
   const minDate = selectedSacrament
@@ -544,15 +841,27 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
               </View>
             </View>
 
-            <TouchableOpacity
-              style={styles.qrCodeCloseButton}
-              onPress={() => {
-                setShowQRCode(false);
-                handleClose();
-              }}
-            >
-              <Text style={styles.qrCodeCloseButtonText}>Done</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 20 }}>
+              <TouchableOpacity
+                style={[styles.qrCodeCloseButton, { flex: 1, backgroundColor: '#e0e0e0' }]}
+                onPress={() => {
+                  setShowQRCode(false);
+                }}
+              >
+                <Text style={[styles.qrCodeCloseButtonText, { color: '#666' }]}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.qrCodeCloseButton, { flex: 1 }]}
+                onPress={handleSubmitBooking}
+                disabled={submitting}
+              >
+                {submitting ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={styles.qrCodeCloseButtonText}>Submit Booking</Text>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
