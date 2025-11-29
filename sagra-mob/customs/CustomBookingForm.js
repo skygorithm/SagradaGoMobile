@@ -79,6 +79,11 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
   const [uploadedDocuments, setUploadedDocuments] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
+  const fullName = user
+    ? `${user.first_name || ''} ${user.middle_name || ''} ${user.last_name || ''}`.trim()
+    : '';
+  const email = user?.email || '';
+
   const [weddingForm, setWeddingForm] = useState({
     groom_fullname: '',
     bride_fullname: '',
@@ -291,6 +296,8 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
       const formData = new FormData();
       
       formData.append('uid', user.uid);
+      formData.append('full_name', fullName);
+      formData.append('email', email);
       formData.append('date', date.toISOString());
       formData.append('time', time.toISOString());
       formData.append('attendees', pax.toString());
