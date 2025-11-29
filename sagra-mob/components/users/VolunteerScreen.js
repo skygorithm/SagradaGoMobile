@@ -73,7 +73,8 @@ export default function VolunteerScreen({ user, onNavigate, event }) {
       contact: contact,
       role: role,
       eventTitle: event?.title || 'General Volunteer',
-      eventId: event?.id || null,
+      eventId: event?._id || null, 
+      user_id: authUser?.id || authUser?._id,
     };
 
     const result = await addVolunteer(newVolunteer);
