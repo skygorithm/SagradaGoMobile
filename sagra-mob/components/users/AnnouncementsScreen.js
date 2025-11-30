@@ -4,7 +4,6 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  Image,
   TextInput,
   ActivityIndicator,
   RefreshControl,
@@ -13,19 +12,19 @@ import {
   Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
 import styles from '../../styles/users/AnnouncementsStyle';
 import CustomNavbar from '../../customs/CustomNavbar';
 import { useAuth } from '../../contexts/AuthContext';
-import dayjs from 'dayjs';
+import { API_BASE_URL } from '../../config/API';
 
-export default function AnnouncementsScreen({ user, onNavigate }) {
+export default function AnnouncementsScreen({ onNavigate }) {
   const { user: authUser } = useAuth();
   const [announcements, setAnnouncements] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Modal states
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const slideAnim = useState(new Animated.Value(0))[0];
@@ -34,7 +33,6 @@ export default function AnnouncementsScreen({ user, onNavigate }) {
     setSelectedAnnouncement(item);
     setModalVisible(true);
 
-    // slide up animation
     Animated.timing(slideAnim, {
       toValue: 1,
       duration: 250,
@@ -60,49 +58,34 @@ export default function AnnouncementsScreen({ user, onNavigate }) {
         authUser.middle_name || '',
         authUser.last_name || ''
       ].filter(Boolean).join(' ').trim();
-
+      
       return fullName || 'Guest';
     }
+
     return 'Guest';
   };
-
-  const defaultAnnouncements = [
-    {
-      id: 1,
-      title: 'Weekly Mass Schedule Update',
-      content: 'Please be informed that our weekly mass schedule has been updated. Regular masses are now held every Sunday at 7:00 AM and 5:00 PM.',
-      date: dayjs().subtract(2, 'day').format('MMMM DD, YYYY'),
-      author: 'Parish Office',
-      priority: 'normal',
-      image: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6',
-    },
-    {
-      id: 2,
-      title: 'Community Service Event',
-      content: 'Join us for our monthly community service event this coming Saturday. We will be helping clean up the church grounds and organizing donations for families in need.',
-      date: dayjs().subtract(5, 'day').format('MMMM DD, YYYY'),
-      author: 'Volunteer Committee',
-      priority: 'important',
-      image: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6',
-    },
-    {
-      id: 3,
-      title: 'Special Prayer Service',
-      content: 'We invite everyone to attend our special prayer service for peace and unity this Friday evening at 6:00 PM.',
-      date: dayjs().subtract(1, 'week').format('MMMM DD, YYYY'),
-      author: 'Parish Priest',
-      priority: 'normal',
-      image: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6',
-    },
-  ];
 
   const fetchAnnouncements = async () => {
     try {
       setLoading(true);
-      setAnnouncements(defaultAnnouncements);
+      const response = await axios.get(`${API_BASE_URL}/getAnnouncements`);
+      const data = response.data.announcements || response.data; 
+      const mappedData = data.map(item => ({
+        id: item._id,
+        title: item.title,
+        content: item.content,
+        date: item.date,
+        author: item.author,
+        priority: item.priority,
+        image: item.image,
+      }));
+
+      setAnnouncements(mappedData);
+
     } catch (error) {
       console.error('Error fetching announcements:', error);
-      setAnnouncements(defaultAnnouncements);
+      setAnnouncements([]);
+
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -150,7 +133,6 @@ export default function AnnouncementsScreen({ user, onNavigate }) {
 
   return (
     <View style={styles.container}>
-
       <View style={{ padding: 20 }}>
         <View style={styles.header}>
           <Text style={styles.greeting}>Hi, {getUserName()} 👋</Text>
@@ -230,19 +212,9 @@ export default function AnnouncementsScreen({ user, onNavigate }) {
         )}
       </ScrollView>
 
-      {/* BOTTOM SHEET MODAL */}
-      <Modal
-        visible={modalVisible}
-        transparent
-        animationType="fade"
-      >
-        <Pressable
-          onPress={closeModal}
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0,0,0,0.4)',
-          }}
-        >
+      {/* Modal */}
+      <Modal visible={modalVisible} transparent animationType="fade">
+        <Pressable onPress={closeModal} style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }}>
           <Animated.View
             style={{
               position: 'absolute',
