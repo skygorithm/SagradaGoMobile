@@ -211,6 +211,47 @@ const styles = StyleSheet.create({
     color: '#424242',
     marginLeft: 8,
   },
+  
+  landingContainer: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: '#fafafa',
+  paddingHorizontal: 30,
+},
+
+landingTitle: {
+  fontSize: 34,
+  fontFamily: 'Poppins_700Bold',
+  color: '#1a1a1a',
+  marginTop: 20,
+},
+
+landingSubtitle: {
+  fontSize: 16,
+  fontFamily: 'Poppins_400Regular',
+  color: '#6c757d',
+  textAlign: 'center',
+  marginTop: 10,
+  lineHeight: 22,
+  paddingHorizontal: 10,
+},
+
+landingButton: {
+  marginTop: 35,
+  backgroundColor: '#424242',
+  paddingHorizontal: 40,
+  paddingVertical: 14,
+  borderRadius: 30,
+  elevation: 5,
+},
+
+landingButtonText: {
+  color: '#fff',
+  fontFamily: 'Poppins_600SemiBold',
+  fontSize: 16,
+},
+
 });
 
 export default styles;
