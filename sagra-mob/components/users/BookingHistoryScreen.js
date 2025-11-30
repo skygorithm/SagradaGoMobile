@@ -234,6 +234,31 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
         console.error('Error fetching confirmations:', error);
       }
 
+      const confessionResponse = await fetch(`${API_BASE_URL}/getUserConfessions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid: user.uid }),
+      });
+
+      const confessionData = await confessionResponse.json();
+
+      if (confessionResponse.ok && confessionData.bookings) {
+        confessionData.bookings.forEach(confession => {
+          bookings.push({
+            id: confession._id,
+            transaction_id: confession.transaction_id,
+            sacrament: 'Confession',
+            date: confession.date,
+            time: confession.time,
+            status: mapStatus(confession.status),
+            bookingDate: confession.createdAt,
+            attendees: confession.attendees,
+            contact_number: confession.contact_number || '',
+            notes: '',
+          });
+        });
+      }
+
       bookings.sort((a, b) => {
         const dateA = new Date(a.bookingDate || a.date);
         const dateB = new Date(b.bookingDate || b.date);
@@ -272,6 +297,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
     "First Communion": "Communion",
     "Anointing of the Sick": "Anointing",
     Confirmation: "Confirmation",
+    Confession: "Confession",
   };
 
   const filteredBookings = useMemo(() => {
