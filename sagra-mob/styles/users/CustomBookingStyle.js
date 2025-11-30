@@ -36,7 +36,6 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     marginBottom: 20,
-    width: '80%',
     alignSelf: 'center'
   },
   sacramentDisplayContainer: {
@@ -75,10 +74,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   inputLabel: {
-    fontSize: 14,
-    fontFamily: 'Poppins_600SemiBold',
+    fontSize: 16,
+    fontFamily: 'Poppins_700Bold',
     color: '#333',
-    marginBottom: 8,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -154,7 +152,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   uploadHelperText: {
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: 'Poppins_400Regular',
     color: '#5f6c7b',
     marginBottom: 12,
@@ -219,7 +217,7 @@ const styles = StyleSheet.create({
   },
   uploadFileName: {
     marginLeft: 8,
-    fontSize: 13,
+    fontSize: 14,
     fontFamily: 'Poppins_500Medium',
     color: '#2e7d32',
     flex: 1,
@@ -460,6 +458,62 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_700Bold',
     color: '#424242',
   },
+  uploadRequirementActionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 8,
+    gap: 8,
+  },
+  uploadButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFF4CC',
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  uploadButtonActive: {
+    backgroundColor: '#FFC942',
+  },
+  uploadButtonText: {
+    fontSize: 15,
+    fontFamily: 'Poppins_700Bold',
+    color: '#424242',
+  },
+  uploadButtonTextActive: {
+    color: '#fff',
+  },
+  removeButtonInline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#ff4444',
+    backgroundColor: '#FFF0F0',
+    minWidth: 120,
+  },
+  removeButtonText: {
+    fontSize: 15,
+    fontFamily: 'Poppins_700Bold',
+    color: '#ff4444',
+  },
+  darkButton: {
+    backgroundColor: '#424242',
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginVertical: 5,
+    width: '100%'
+  },
+  darkButtonText: {
+    fontSize: 15,
+    fontFamily: 'Poppins_700Bold',
+    color: '#fff',
+    textAlign: 'center',
+  }
 });
 
 export default styles;
