@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Animated,
+  Image
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import styles from '../../styles/users/ChatBotStyle';
@@ -192,27 +194,70 @@ export default function ChatBotScreen({ user, onNavigate }) {
     }, 500);
   };
 
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const iconScale = useRef(new Animated.Value(0.6)).current;
+  const buttonSlide = useRef(new Animated.Value(40)).current;
+
+  useEffect(() => {
+    if (showLanding) {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.spring(iconScale, {
+          toValue: 1,
+          friction: 4,
+          tension: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(buttonSlide, {
+          toValue: 0,
+          duration: 600,
+          delay: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [showLanding]);
+
   return (
     <>
       {/* Landing Page */}
       {showLanding && (
-        <View style={styles.landingContainer}>
+        <Animated.View style={[styles.landingContainer, { opacity: fadeAnim }]}>
 
-          <View style={{ position: 'absolute', top: 50, left: 20, zIndex: 10 }}>
-            <TouchableOpacity onPress={() => onNavigate('HomePageScreen')}>
-              <Ionicons name="arrow-back" size={28} color="#333" />
-            </TouchableOpacity>
-          </View>
-
-          <Ionicons name="chatbubbles-outline" size={90} color="#424242" />
-          <Text style={styles.landingTitle}>SagradaBot</Text>
           <TouchableOpacity
-            style={styles.landingButton}
-            onPress={() => setShowLanding(false)}
+            style={styles.backButton}
+            onPress={() => onNavigate('HomePageScreen')}
           >
-            <Text style={styles.landingButtonText}>Start Chat</Text>
+            <Ionicons name="arrow-back" size={26} color="#333" />
           </TouchableOpacity>
-        </View>
+
+          <Animated.View style={{ transform: [{ scale: iconScale }] }}>
+            <Image
+              source={require('../../assets/sagrada.png')}
+              style={{ width: 100, height: 100, marginBottom: 10, alignSelf: 'center' }}
+              resizeMode="contain"
+            />
+          </Animated.View>
+
+          <Text style={styles.landingTitle}>SagradaBot</Text>
+          <Text style={styles.landingDescription}>
+            Your smart assistant for parish information and quick guidance.
+          </Text>
+
+          <Animated.View style={{ transform: [{ translateY: buttonSlide }] }}>
+            <TouchableOpacity
+              style={styles.landingButton}
+              onPress={() => setShowLanding(false)}
+            >
+              <Text style={styles.landingButtonText}>Start Chat</Text>
+            </TouchableOpacity>
+          </Animated.View>
+
+        </Animated.View>
       )}
 
       {!showLanding && (
