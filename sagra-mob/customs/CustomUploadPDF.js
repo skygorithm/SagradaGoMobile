@@ -27,7 +27,7 @@ export default function CustomUploadPDF({
   const handlePickDocument = async (requirement) => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: "application/pdf",  
+        type: "application/pdf",
         copyToCacheDirectory: true
       });
 
@@ -73,24 +73,33 @@ export default function CustomUploadPDF({
         </View>
 
         {/* Upload / Replace / Remove buttons */}
-        <View style={styles.uploadRequirementActions}>
+        <View style={styles.uploadRequirementActionsRow}>
+          {/* Upload / Replace Button */}
           <TouchableOpacity
-            style={styles.uploadRequirementButton}
+            style={[styles.uploadButton, uploadedFile && styles.uploadButtonActive]}
             onPress={() => handlePickDocument(requirement)}
+            activeOpacity={0.8}
           >
-            <Ionicons name="cloud-upload-outline" size={18} color="#424242" style={{ marginRight: 6 }} />
-            <Text style={styles.uploadRequirementButtonText}>
+            <Ionicons
+              name="cloud-upload-outline"
+              size={18}
+              color={uploadedFile ? '#fff' : '#424242'}
+              style={{ marginRight: 6 }}
+            />
+            <Text style={[styles.uploadButtonText, uploadedFile && styles.uploadButtonTextActive]}>
               {uploadedFile ? "Replace PDF" : "Upload PDF"}
             </Text>
           </TouchableOpacity>
 
+          {/* Remove Button */}
           {uploadedFile && (
             <TouchableOpacity
-              style={styles.uploadRequirementButtonSecondary}
+              style={styles.removeButtonInline}
               onPress={() => onRemove?.(requirement.id)}
+              activeOpacity={0.8}
             >
-              <Ionicons name="trash-outline" size={16} color="#ff4444" style={{ marginRight: 4 }} />
-              <Text style={styles.uploadRequirementButtonSecondaryText}>Remove</Text>
+              <Ionicons name="trash-outline" size={18} color="#ff4444" style={{ marginRight: 6 }} />
+              <Text style={styles.removeButtonText}>Remove</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -129,11 +138,11 @@ export default function CustomUploadPDF({
           )}
 
           {/* DONE BUTTON */}
-          <TouchableOpacity style={styles.uploadModalCloseButton} onPress={onClose}>
-            <Text style={styles.qrCodeCloseButtonText}>Done</Text>
+          <TouchableOpacity style={[styles.darkButton, { marginTop: 20 }]} onPress={onClose}>
+            <Text style={styles.darkButtonText}>Done</Text>
           </TouchableOpacity>
 
-          {/* DEBUG BUTTON */}
+          {/*
           <Button
             title="Test PDF Pick"
             onPress={async () => {
@@ -150,7 +159,7 @@ export default function CustomUploadPDF({
                 Alert.alert("Error", err.message);
               }
             }}
-          />
+          /> */}
         </View>
       </View>
     </Modal>
