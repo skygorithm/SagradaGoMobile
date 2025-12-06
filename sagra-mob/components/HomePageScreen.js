@@ -11,7 +11,8 @@ import CustomNavbar from '../customs/CustomNavbar';
 import { Ionicons } from '@expo/vector-icons';
 import dayjs from 'dayjs';
 import axios from 'axios';
-import { API_BASE_URL } from '../config/API'; // Your .env API config
+import { API_BASE_URL } from '../config/API'; 
+import CustomCalendar from '../customs/CustomCalendar';
 
 export default function HomePageScreen({ user, onLogout, onNavigate }) {
   const [selectedSection, setSelectedSection] = useState('Quick Access');
@@ -49,31 +50,19 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
     },
   ];
 
-  // const getUserName = () => {
-  //   if (user) {
-  //     const fullName = [user.first_name || '', user.middle_name || '', user.last_name || '']
-  //       .filter(Boolean)
-  //       .join(' ')
-  //       .trim();
-  //     return fullName || 'Guest';
-  //   }
-
-  //   return 'Guest';
-  // };
-
   const getUserName = () => {
     if (user) {
-      const fullName = [
-        user.first_name || '',
-        user.last_name || ''
-      ]
+      const fullName = [user.first_name || '', user.last_name || '']
         .filter(Boolean)
         .join(' ')
         .trim();
 
+      if (user.is_priest) {
+        return `Father ${fullName || ''}`.trim();
+      }
+
       return fullName || 'Guest';
     }
-
     return 'Guest';
   };
 
@@ -143,95 +132,16 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
           )}
         </View>
 
-        {/* SECTION SELECTOR */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 20, marginBottom: 20, gap: 10 }}
-        >
-          <TouchableOpacity
-            style={[styles.sectionButton, selectedSection === 'Quick Access' && styles.activeSectionButton]}
-            onPress={() => setSelectedSection('Quick Access')}
-          >
-            <Ionicons
-              name="flash-outline"
-              size={20}
-              color={selectedSection === 'Quick Access' ? '#fff' : '#424242'}
-              style={{ marginRight: 8 }}
-            />
-            <Text style={[styles.sectionButtonText, selectedSection === 'Quick Access' && { color: '#fff' }]}>
-              Quick Access
-            </Text>
-          </TouchableOpacity>
+        {/* PRIEST VIEW → CALENDAR */}
+        {user && user.is_priest ? (
+          <View style={{ paddingHorizontal: 20 }}>
+            <Text style={styles.title}>Your Schedule</Text>
 
-          <TouchableOpacity
-            style={[styles.sectionButton, selectedSection === 'Upcoming Events' && styles.activeSectionButton]}
-            onPress={() => setSelectedSection('Upcoming Events')}
-          >
-            <Ionicons
-              name="calendar-outline"
-              size={20}
-              color={selectedSection === 'Upcoming Events' ? '#fff' : '#424242'}
-              style={{ marginRight: 8 }}
-            />
-            <Text style={[styles.sectionButtonText, selectedSection === 'Upcoming Events' && { color: '#fff' }]}>
-              Upcoming Events
-            </Text>
-          </TouchableOpacity>
-        </ScrollView>
-
-        {/* QUICK ACCESS */}
-        {selectedSection === 'Quick Access' && (
-          <View style={styles.shortcutsContainer}>
-            <Text style={styles.title}>Explore our Services</Text>
-            <View style={styles.shortcutsColumn}>
-              {shortcuts.map((shortcut) => (
-                <TouchableOpacity
-                  key={shortcut.id}
-                  style={[styles.shortcutCard, { borderLeftColor: shortcut.color }]}
-                  onPress={() => handleShortcutPress(shortcut.screen)}
-                >
-                  <View style={styles.shortcutArrowContainer}>
-                    <Ionicons
-                      name="arrow-forward-outline"
-                      size={20}
-                      color="#444"
-                      style={{ transform: [{ rotate: '-45deg' }] }}
-                    />
-                  </View>
-
-                  {shortcut.image && (
-                    <Image
-                      source={{ uri: shortcut.image }}
-                      style={{ width: '100%', height: 120, borderRadius: 10, marginBottom: 8 }}
-                      resizeMode="cover"
-                    />
-                  )}
-
-                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 8 }}>
-                    {shortcut.hints.map((hint, index) => (
-                      <Text key={index} style={[styles.shortcutHint, { marginRight: 5, marginBottom: 5 }]}>
-                        {hint}
-                      </Text>
-                    ))}
-                  </View>
-                  <Text style={styles.shortcutTitle}>{shortcut.title}</Text>
-                  <Text style={styles.shortcutDescription}>{shortcut.description}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        )}
-
-        {/* UPCOMING EVENTS */}
-        {selectedSection === 'Upcoming Events' && (
-          <View>
-            <Text style={[styles.title, { paddingLeft: 20 }]}>Upcoming Events</Text>
-
-            <ScrollView
+            {/* Calendar Date Selector */}
+            {/* <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 20, gap: 10, marginVertical: 10 }}
+              contentContainerStyle={{ paddingVertical: 10, gap: 10 }}
             >
               {last7Days.map((dateObj) => {
                 const dateStr = dateObj.format('YYYY-MM-DD');
@@ -243,22 +153,22 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
                   <TouchableOpacity
                     key={dateStr}
                     onPress={() => setSelectedDate(dateStr)}
-                    style={[
-                      styles.dateButton,
-                      isSelected && styles.activeDateButton
-                    ]}
+                    style={[styles.dateButton, isSelected && styles.activeDateButton]}
                   >
-                    <Text style={[styles.dateButtonText]}>
-                      {dayLabel}
-                    </Text>
-                    <Text style={[styles.dateButtonText]}>
-                      {dateLabel}
-                    </Text>
+                    <Text style={styles.dateButtonText}>{dayLabel}</Text>
+                    <Text style={styles.dateButtonText}>{dateLabel}</Text>
                   </TouchableOpacity>
                 );
               })}
-            </ScrollView>
+            </ScrollView> */}
 
+            <CustomCalendar
+              selectedDate={selectedDate}
+              onDateSelect={(date) => setSelectedDate(date)}
+              markedDates={events.map((event) => dayjs(event.date).toDate())} // highlight event dates
+            />
+
+            {/* Events for Selected Date */}
             {eventsForSelectedDate.length > 0 ? (
               eventsForSelectedDate.map((event) => (
                 <TouchableOpacity
@@ -286,6 +196,154 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
               </Text>
             )}
           </View>
+        ) : (
+          // NON-PRIEST VIEW 
+          <>
+            {/* SECTION SELECTOR */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 20, marginBottom: 20, gap: 10 }}
+            >
+              <TouchableOpacity
+                style={[styles.sectionButton, selectedSection === 'Quick Access' && styles.activeSectionButton]}
+                onPress={() => setSelectedSection('Quick Access')}
+              >
+                <Ionicons
+                  name="flash-outline"
+                  size={20}
+                  color={selectedSection === 'Quick Access' ? '#fff' : '#424242'}
+                  style={{ marginRight: 8 }}
+                />
+                <Text style={[styles.sectionButtonText, selectedSection === 'Quick Access' && { color: '#fff' }]}>
+                  Quick Access
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.sectionButton, selectedSection === 'Upcoming Events' && styles.activeSectionButton]}
+                onPress={() => setSelectedSection('Upcoming Events')}
+              >
+                <Ionicons
+                  name="calendar-outline"
+                  size={20}
+                  color={selectedSection === 'Upcoming Events' ? '#fff' : '#424242'}
+                  style={{ marginRight: 8 }}
+                />
+                <Text style={[styles.sectionButtonText, selectedSection === 'Upcoming Events' && { color: '#fff' }]}>
+                  Upcoming Events
+                </Text>
+              </TouchableOpacity>
+            </ScrollView>
+
+            {/* QUICK ACCESS */}
+            {selectedSection === 'Quick Access' && (
+              <View style={styles.shortcutsContainer}>
+                <Text style={styles.title}>Explore our Services</Text>
+                <View style={styles.shortcutsColumn}>
+                  {shortcuts.map((shortcut) => (
+                    <TouchableOpacity
+                      key={shortcut.id}
+                      style={[styles.shortcutCard, { borderLeftColor: shortcut.color }]}
+                      onPress={() => handleShortcutPress(shortcut.screen)}
+                    >
+                      <View style={styles.shortcutArrowContainer}>
+                        <Ionicons
+                          name="arrow-forward-outline"
+                          size={20}
+                          color="#444"
+                          style={{ transform: [{ rotate: '-45deg' }] }}
+                        />
+                      </View>
+
+                      {shortcut.image && (
+                        <Image
+                          source={{ uri: shortcut.image }}
+                          style={{ width: '100%', height: 120, borderRadius: 10, marginBottom: 8 }}
+                          resizeMode="cover"
+                        />
+                      )}
+
+                      <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 8 }}>
+                        {shortcut.hints.map((hint, index) => (
+                          <Text key={index} style={[styles.shortcutHint, { marginRight: 5, marginBottom: 5 }]}>
+                            {hint}
+                          </Text>
+                        ))}
+                      </View>
+                      <Text style={styles.shortcutTitle}>{shortcut.title}</Text>
+                      <Text style={styles.shortcutDescription}>{shortcut.description}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* UPCOMING EVENTS */}
+            {selectedSection === 'Upcoming Events' && (
+              <View>
+                <Text style={[styles.title, { paddingLeft: 20 }]}>Upcoming Events</Text>
+
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ paddingHorizontal: 20, gap: 10, marginVertical: 10 }}
+                >
+                  {last7Days.map((dateObj) => {
+                    const dateStr = dateObj.format('YYYY-MM-DD');
+                    const dayLabel = dateObj.format('ddd');
+                    const dateLabel = dateObj.format('DD');
+                    const isSelected = dateStr === selectedDate;
+
+                    return (
+                      <TouchableOpacity
+                        key={dateStr}
+                        onPress={() => setSelectedDate(dateStr)}
+                        style={[
+                          styles.dateButton,
+                          isSelected && styles.activeDateButton
+                        ]}
+                      >
+                        <Text style={[styles.dateButtonText]}>
+                          {dayLabel}
+                        </Text>
+                        <Text style={[styles.dateButtonText]}>
+                          {dateLabel}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+
+                {eventsForSelectedDate.length > 0 ? (
+                  eventsForSelectedDate.map((event) => (
+                    <TouchableOpacity
+                      key={event._id}
+                      style={styles.eventCard}
+                      onPress={() => onNavigate('EventsScreen', { eventId: event._id })}
+                    >
+                      <Image
+                        source={{ uri: event.image || 'https://via.placeholder.com/400' }}
+                        style={{ width: '100%', height: 130, borderTopLeftRadius: 10, borderTopRightRadius: 10 }}
+                        resizeMode="cover"
+                      />
+                      <View style={{ padding: 15 }}>
+                        <Text style={styles.eventTitle}>{event.title}</Text>
+                        <Text style={styles.eventDate}>{dayjs(event.date).format('MMMM D, YYYY')}</Text>
+                        <Text style={{ fontSize: 14, fontFamily: 'Poppins_400Regular', color: '#555' }}>
+                          {event.description}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))
+                ) : (
+                  <Text style={{ textAlign: 'center', marginTop: 20, color: '#666', fontFamily: 'Poppins_500Medium' }}>
+                    No events on this day.
+                  </Text>
+                )}
+              </View>
+            )}
+          </>
         )}
 
       </ScrollView>
