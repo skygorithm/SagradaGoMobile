@@ -144,15 +144,16 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
     marginBottom: 10,
     color: '#333',
+    fontFamily: 'Poppins_700Bold',
   },
   modalSubtitle: {
     fontSize: 14,
     color: '#666',
     marginBottom: 20,
     lineHeight: 20,
+    fontFamily: 'Poppins_500Medium',
   },
   modalInput: {
     height: 50,
@@ -183,7 +184,7 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     color: '#333',
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Poppins_700Bold',
   },
   submitButton: {
     backgroundColor: '#007AFF',
