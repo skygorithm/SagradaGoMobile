@@ -45,6 +45,8 @@ export default function BookingScreen({ user: userProp, onNavigate }) {
     setSelectedSacrament(null);
   };
 
+  const [isMiddleNameModalVisible, setIsMiddleNameModalVisible] = useState(false);
+
   const handleBookNow = (sacramentName) => {
     if (sacramentName === 'Baptism') {
       if (!user) {
@@ -55,32 +57,35 @@ export default function BookingScreen({ user: userProp, onNavigate }) {
         );
         return;
       }
-      
+
       const middleName = user.middle_name;
       if (!middleName || middleName.trim() === '') {
-        Alert.alert(
-          'Middle Name Required',
-          'A middle name is required to book a Baptism. Please update your profile with your middle name before proceeding.',
-          [
-            {
-              text: 'Go to Profile',
-              onPress: () => {
-                if (onNavigate) {
-                  onNavigate('ProfileScreen');
-                }
-              },
-              style: 'default'
-            },
-            {
-              text: 'Cancel',
-              style: 'cancel'
-            }
-          ]
-        );
+        // Alert.alert(
+        //   'Middle Name Required',
+        //   'A middle name is required to book a Baptism. Please update your profile with your middle name before proceeding.',
+        //   [
+        //     {
+        //       text: 'Go to Profile',
+        //       onPress: () => {
+        //         if (onNavigate) {
+        //           onNavigate('ProfileScreen');
+        //         }
+        //       },
+        //       style: 'default'
+        //     },
+        //     {
+        //       text: 'Cancel',
+        //       style: 'cancel'
+        //     }
+        //   ]
+        // );
+        // return;
+        setIsMiddleNameModalVisible(true);
         return;
+
       }
     }
-    
+
     setBookingSacrament(sacramentName);
     setIsBookingModalVisible(true);
   };
@@ -197,6 +202,72 @@ export default function BookingScreen({ user: userProp, onNavigate }) {
         onClose={handleCloseBookingModal}
         selectedSacrament={bookingSacrament}
       />
+
+      <Modal
+        visible={isMiddleNameModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsMiddleNameModalVisible(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setIsMiddleNameModalVisible(false)}
+        >
+          <View
+            style={styles.modalContent}
+            onStartShouldSetResponder={() => true}
+          >
+            <Text style={styles.modalTitle}>Middle Name Required</Text>
+
+            <Text style={[styles.subtitle, { fontSize: 15, textAlign: 'center', marginBottom: 10 }]}>
+              A middle name is required to book a Baptism.
+              Please update your profile with your middle name before proceeding.
+            </Text>
+
+            <View style={{
+              flexDirection: 'row',
+              width: '100%',
+              justifyContent: 'space-between',
+            }}>
+              <TouchableOpacity
+                style={[
+                  styles.closeButton,
+                  {
+                    flex: 1,
+                    width: 'auto',
+                    marginRight: 8,
+                  }
+                ]}
+                onPress={() => {
+                  setIsMiddleNameModalVisible(false);
+                  if (onNavigate) {
+                    onNavigate('ProfileScreen');
+                  }
+                }}
+              >
+                <Text style={styles.closeButtonText}>Go to Profile</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.closeButton,
+                  {
+                    flex: 1,
+                    width: 'auto',
+                    marginLeft: 8,
+                    backgroundColor: '#ccc',
+                  }
+                ]}
+                onPress={() => setIsMiddleNameModalVisible(false)}
+              >
+                <Text style={[styles.closeButtonText, { color: '#333' }]}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
     </View>
   );
 }
