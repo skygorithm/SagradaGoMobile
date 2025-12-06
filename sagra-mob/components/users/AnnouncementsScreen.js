@@ -58,7 +58,7 @@ export default function AnnouncementsScreen({ onNavigate }) {
         authUser.middle_name || '',
         authUser.last_name || ''
       ].filter(Boolean).join(' ').trim();
-      
+
       return fullName || 'Guest';
     }
 
@@ -69,7 +69,7 @@ export default function AnnouncementsScreen({ onNavigate }) {
     try {
       setLoading(true);
       const response = await axios.get(`${API_BASE_URL}/getAnnouncements`);
-      const data = response.data.announcements || response.data; 
+      const data = response.data.announcements || response.data;
       const mappedData = data.map(item => ({
         id: item._id,
         title: item.title,
@@ -159,9 +159,9 @@ export default function AnnouncementsScreen({ onNavigate }) {
         {filteredAnnouncements.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Ionicons name="megaphone-outline" size={64} color="#ccc" />
-            <Text style={styles.emptyText}>No announcements found</Text>
+            <Text style={styles.emptyText}>No announcements found.</Text>
             <Text style={styles.emptySubtext}>
-              {search ? 'Try a different search term' : 'Check back later for updates'}
+              {search ? 'Try a different search term.' : 'Check back later for updates.'}
             </Text>
           </View>
         ) : (
@@ -197,11 +197,12 @@ export default function AnnouncementsScreen({ onNavigate }) {
                 </Text>
 
                 <View style={styles.cardFooter}>
-                  <View style={styles.cardInfo}>
+                  <View style={[styles.cardInfo, { flex: 1, justifyContent: 'flex-start' }]}>
                     <Ionicons name="calendar-outline" size={14} color="#777" />
                     <Text style={styles.cardInfoText}>{announcement.date}</Text>
                   </View>
-                  <View style={styles.cardInfo}>
+
+                  <View style={[styles.cardInfo, { flex: 1, justifyContent: 'flex-end' }]}>
                     <Ionicons name="person-outline" size={14} color="#777" />
                     <Text style={styles.cardInfoText}>{announcement.author}</Text>
                   </View>
