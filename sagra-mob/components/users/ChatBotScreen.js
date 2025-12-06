@@ -262,10 +262,10 @@ export default function ChatBotScreen({ user, onNavigate }) {
 
       {!showLanding && (
         <KeyboardAvoidingView
-          style={styles.chatbotMainContainer}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
         >
-
           {/* BACK BUTTON */}
           <View style={{ position: 'absolute', top: 50, left: 20, zIndex: 10 }}>
             <TouchableOpacity onPress={() => onNavigate('HomePageScreen')}>
