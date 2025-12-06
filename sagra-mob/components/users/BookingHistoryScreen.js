@@ -16,11 +16,11 @@ import CustomNavbar from '../../customs/CustomNavbar';
 import { API_BASE_URL } from '../../config/API';
 
 const statusColors = {
-  confirmed: '#4caf50', 
-  approved: '#4caf50', 
-  pending: '#ff9800', 
-  rejected: '#f44336', 
-  cancelled: '#9e9e9e', 
+  confirmed: '#4caf50',
+  approved: '#4caf50',
+  pending: '#ff9800',
+  rejected: '#f44336',
+  cancelled: '#9e9e9e',
 };
 
 const mapStatus = (status) => {
@@ -308,12 +308,12 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
     const statusMap = {
       'approved': 'confirmed',
       'pending': 'pending',
-      'rejected': 'cancelled', 
+      'rejected': 'cancelled',
       'cancelled': 'cancelled',
     };
 
     const backendStatus = statusMap[selectedFilter] || selectedFilter;
-    
+
     return allBookings.filter(booking => {
       const bookingStatus = booking.status.toLowerCase();
       if (selectedFilter === 'approved') {
@@ -346,7 +346,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
 
     if (timeString instanceof Date || (typeof timeString === 'string' && timeString.includes('T'))) {
       const date = new Date(timeString);
-      
+
       if (isNaN(date.getTime())) return timeString;
       const hours = date.getHours();
       const minutes = date.getMinutes();
@@ -385,7 +385,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           transaction_id: selectedBooking.transaction_id || selectedBooking.id,
-          bookingType, 
+          bookingType,
         }),
       });
 
@@ -436,7 +436,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
         horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.filterContainer}
-        contentContainerStyle={{ paddingRight: 20, margin: 20, gap: 10, height: 40, marginBottom: 60 }}
+        contentContainerStyle={{ paddingRight: 20, marginHorizontal: 20, gap: 10, height: 40, marginTop: 20 }}
       >
         {['all', 'approved', 'pending', 'rejected', 'cancelled'].map((filter) => (
           <TouchableOpacity
@@ -461,6 +461,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
 
       <ScrollView
         style={styles.scrollView}
+        contentContainerStyle={styles.bookingsContainer}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -471,69 +472,67 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
           />
         }
       >
-        <View style={styles.bookingsContainer}>
-          {loading ? (
-            <View style={{ padding: 40, alignItems: 'center' }}>
-              <ActivityIndicator size="large" color="#FFC942" />
-              <Text style={{ marginTop: 10, color: '#666', fontFamily: 'Poppins_500Medium' }}>
-                Loading bookings...
-              </Text>
-            </View>
-          ) : filteredBookings.length > 0 ? (
-            filteredBookings.map((booking) => (
-              <TouchableOpacity
-                key={booking.id}
-                style={styles.bookingCard}
-                onPress={() => handleCardPress(booking)}
-                activeOpacity={0.8}
-              >
-                <View style={styles.cardHeader}>
-                  <View style={styles.cardHeaderLeft}>
-                    <Text style={styles.sacramentName}>{booking.sacrament}</Text>
-                    <Text style={styles.bookingDate}>
-                      Booked on {formatDate(booking.bookingDate)}
-                    </Text>
-                  </View>
-
-                  <View
-                    style={{
-                      paddingVertical: 4,
-                      paddingHorizontal: 12,
-                      borderRadius: 12,
-                      backgroundColor: statusColors[booking.status] || statusColors[mapStatus(booking.status)] || '#ccc',
-                    }}
-                  >
-                    <Text style={{ color: '#fff', fontFamily: 'Poppins_600SemiBold', fontSize: 13 }}>
-                      {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                    </Text>
-                  </View>
+        {loading ? (
+          <View style={{ padding: 40, alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#FFC942" />
+            <Text style={{ marginTop: 10, color: '#666', fontFamily: 'Poppins_500Medium' }}>
+              Loading bookings...
+            </Text>
+          </View>
+        ) : filteredBookings.length > 0 ? (
+          filteredBookings.map((booking) => (
+            <TouchableOpacity
+              key={booking.id}
+              style={styles.bookingCard}
+              onPress={() => handleCardPress(booking)}
+              activeOpacity={0.8}
+            >
+              <View style={styles.cardHeader}>
+                <View style={styles.cardHeaderLeft}>
+                  <Text style={styles.sacramentName}>{booking.sacrament}</Text>
+                  <Text style={styles.bookingDate}>
+                    Booked on {formatDate(booking.bookingDate)}
+                  </Text>
                 </View>
 
-                <View style={styles.cardDivider} />
-
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
-                  <View style={styles.detailRow}>
-                    <Ionicons name="calendar-outline" size={16} color="#666" style={{ marginRight: 6 }} />
-                    <Text style={styles.detailText}>{formatDate(booking.date)}</Text>
-                  </View>
-                  <View style={styles.detailRow}>
-                    <Ionicons name="time-outline" size={16} color="#666" style={{ marginRight: 6 }} />
-                    <Text style={styles.detailText}>{formatTime(booking.time)}</Text>
-                  </View>
+                <View
+                  style={{
+                    paddingVertical: 4,
+                    paddingHorizontal: 12,
+                    borderRadius: 12,
+                    backgroundColor: statusColors[booking.status] || statusColors[mapStatus(booking.status)] || '#ccc',
+                  }}
+                >
+                  <Text style={{ color: '#fff', fontFamily: 'Poppins_600SemiBold', fontSize: 13 }}>
+                    {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                  </Text>
                 </View>
-              </TouchableOpacity>
-            ))
-          ) : (
-            <View style={styles.emptyContainer}>
-              <Ionicons name="calendar-outline" size={48} color="#ccc" style={{ marginBottom: 10 }} />
-              <Text style={styles.emptyText}>
-                {selectedFilter !== 'all' 
-                  ? `No ${selectedFilter} bookings found.` 
-                  : 'No bookings yet. Book a sacrament to get started!'}
-              </Text>
-            </View>
-          )}
-        </View>
+              </View>
+
+              <View style={styles.cardDivider} />
+
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
+                <View style={styles.detailRow}>
+                  <Ionicons name="calendar-outline" size={16} color="#666" style={{ marginRight: 6 }} />
+                  <Text style={styles.detailText}>{formatDate(booking.date)}</Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Ionicons name="time-outline" size={16} color="#666" style={{ marginRight: 6 }} />
+                  <Text style={styles.detailText}>{formatTime(booking.time)}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Ionicons name="calendar-outline" size={48} color="#ccc" style={{ marginBottom: 10 }} />
+            <Text style={styles.emptyText}>
+              {selectedFilter !== 'all'
+                ? `No ${selectedFilter} bookings found.`
+                : 'No bookings yet. Book a sacrament to get started!'}
+            </Text>
+          </View>
+        )}
       </ScrollView>
 
       <CustomNavbar

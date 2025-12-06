@@ -8,6 +8,7 @@ const styles = StyleSheet.create({
 
   scrollView: {
     padding: 20,
+    flex: 1
   },
 
   header: {
@@ -39,19 +40,13 @@ const styles = StyleSheet.create({
 
   filterContainer: {
     flexDirection: 'row',
-    marginBottom: 20,
+    marginBottom: -300,
   },
 
   detailRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
-  },
-
-  detailText: {
-    fontSize: 14,
-    fontFamily: 'Poppins_500Medium',
-    color: '#666',
   },
 
   filterButton: {
@@ -80,7 +75,8 @@ const styles = StyleSheet.create({
   },
 
   bookingsContainer: {
-    marginBottom: 20,
+    paddingBottom: 20,
+    justifyContent: 'flex-start',
   },
 
   bookingCard: {
