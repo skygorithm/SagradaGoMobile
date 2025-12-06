@@ -8,7 +8,8 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  Image
+  Image,
+  Modal
 } from 'react-native';
 import styles from '../styles/LoginStyle';
 import ForgotPasswordModal from './ForgotPasswordModal';
@@ -20,42 +21,49 @@ export default function LoginScreen({ onLoginSuccess, onSwitchToSignUp, onBack }
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  
+
   const { login, loading } = useAuth();
 
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
   // Conntected to MongoDB Atlas - temporarily disabled for testing
-  // const handleLogin = async () => {
-  //   if (!email.trim() || !password.trim()) {
-  //     Alert.alert('Error', 'Please enter both email and password');
-  //     return;
-  //   }
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      // Alert.alert('Error', 'Please enter both email and password');
+      setErrorMessage('Please enter both email and password. Thank you!');
+      setErrorModalVisible(true);
+      return;
+    }
 
-  //   const result = await login(email, password);
+    const result = await login(email, password);
 
-  //   if (result.success) {
-  //     setEmail('');
-  //     setPassword('');
-  //     if (onLoginSuccess) {
-  //       onLoginSuccess(result.user);
-  //     }
+    if (result.success) {
+      setEmail('');
+      setPassword('');
+      if (onLoginSuccess) {
+        onLoginSuccess(result.user);
+      }
 
-  //   } else {
-  //     Alert.alert('Login Failed', result.message || 'Invalid email or password');
-  //   }
-  // };
+    } else {
+      // Alert.alert('Login Failed', result.message || 'Invalid email or password');
+      setErrorMessage(result.message || 'Invalid email or password.');
+      setErrorModalVisible(true);
+    }
+  };
 
   // Testing
-  const handleLogin = async () => {
-    if (onLoginSuccess) {
-      onLoginSuccess({
-        uid: 'test-uid',
-        email: email.trim() || 'test@example.com',
-        first_name: 'Test',
-        last_name: 'User',
-      });
-    }
-    return;
-  };
+  // const handleLogin = async () => {
+  //   if (onLoginSuccess) {
+  //     onLoginSuccess({
+  //       uid: 'test-uid',
+  //       email: email.trim() || 'test@example.com',
+  //       first_name: 'Test',
+  //       last_name: 'User',
+  //     });
+  //   }
+  //   return;
+  // };
 
   return (
     <KeyboardAvoidingView
@@ -158,6 +166,35 @@ export default function LoginScreen({ onLoginSuccess, onSwitchToSignUp, onBack }
         visible={showForgotPassword}
         onClose={() => setShowForgotPassword(false)}
       />
+
+      <Modal
+        visible={errorModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setErrorModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+
+            <Text style={[styles.modalTitle, { textAlign: 'center' }]}>Login Error</Text>
+
+            <Text style={styles.modalSubtitle}>
+              {errorMessage}
+            </Text>
+
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setErrorModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>OK</Text>
+              </TouchableOpacity>
+            </View>
+
+          </View>
+        </View>
+      </Modal>
+
     </KeyboardAvoidingView>
   );
 }
