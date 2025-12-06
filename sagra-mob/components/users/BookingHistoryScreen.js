@@ -75,6 +75,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               bookingDate: wedding.createdAt,
               attendees: wedding.attendees,
               contact_number: wedding.contact_number,
+              priest_name: wedding.priest_name || null,
               notes: '',
             });
           });
@@ -105,6 +106,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               bookingDate: baptism.createdAt,
               attendees: baptism.attendees,
               contact_number: baptism.contact_number,
+              priest_name: baptism.priest_name || null,
               notes: '',
             });
           });
@@ -135,6 +137,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               bookingDate: burial.createdAt,
               attendees: burial.attendees,
               contact_number: burial.contact_number,
+              priest_name: burial.priest_name || null,
               notes: '',
             });
           });
@@ -165,6 +168,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               bookingDate: communion.createdAt,
               attendees: communion.attendees,
               contact_number: communion.contact_number,
+              priest_name: communion.priest_name || null,
               notes: '',
             });
           });
@@ -195,6 +199,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               bookingDate: anointing.createdAt,
               attendees: anointing.attendees,
               contact_number: anointing.contact_number,
+              priest_name: anointing.priest_name || null,
               notes: anointing.medical_condition || '',
             });
           });
@@ -225,6 +230,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               bookingDate: confirmation.createdAt,
               attendees: confirmation.attendees,
               contact_number: confirmation.contact_number,
+              priest_name: confirmation.priest_name || null,
               notes: '',
             });
           });
@@ -254,6 +260,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
             bookingDate: confession.createdAt,
             attendees: confession.attendees,
             contact_number: confession.contact_number || '',
+            priest_name: confession.priest_name || null,
             notes: '',
           });
         });
@@ -521,6 +528,14 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                   <Text style={styles.detailText}>{formatTime(booking.time)}</Text>
                 </View>
               </View>
+              {booking.priest_name && booking.status === 'approved' && (
+                <View style={{ marginTop: 8, flexDirection: 'row', alignItems: 'center' }}>
+                  <Ionicons name="person-outline" size={16} color="#4CAF50" style={{ marginRight: 6 }} />
+                  <Text style={{ fontSize: 13, color: '#4CAF50', fontFamily: 'Poppins_500Medium' }}>
+                    Priest: {booking.priest_name}
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
           ))
         ) : (
@@ -576,6 +591,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                     { label: "Attendees", value: selectedBooking.attendees ? `${selectedBooking.attendees} people` : 'N/A', icon: "people-outline" },
                     { label: "Transaction ID", value: selectedBooking.transaction_id || selectedBooking.id, icon: "receipt-outline" },
                     { label: "Booked on", value: formatDate(selectedBooking.bookingDate), icon: "calendar-outline" },
+                    ...(selectedBooking.priest_name ? [{ label: "Assigned Priest", value: selectedBooking.priest_name, icon: "person-outline" }] : []),
                   ].map((item, idx) => (
                     <React.Fragment key={idx}>
                       <View style={styles.modalDetailRow}>
