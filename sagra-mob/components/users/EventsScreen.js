@@ -67,7 +67,7 @@ export default function EventsScreen({ onNavigate }) {
           <Text style={styles.title}>
             {events.length > 0
               ? `We have ${events.length} events this month!`
-              : "No upcoming events yet"}
+              : "No upcoming events yet!"}
           </Text>
         </View>
 
