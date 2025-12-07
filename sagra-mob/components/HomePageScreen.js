@@ -52,10 +52,12 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
 
   const getUserName = () => {
     if (user) {
-      const fullName = [user.first_name || '', user.last_name || '']
+      const fullName = [
+        user.first_name?.trim() || '',
+        user.last_name?.trim() || ''
+      ]
         .filter(Boolean)
-        .join(' ')
-        .trim();
+        .join(' ');
 
       if (user.is_priest) {
         return `Father ${fullName || ''}`.trim();
