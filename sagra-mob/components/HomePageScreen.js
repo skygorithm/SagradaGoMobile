@@ -140,10 +140,10 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
             <Text style={styles.title}>Your Schedule</Text>
 
             {/* Calendar Date Selector */}
-            {/* <ScrollView
+            <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingVertical: 10, gap: 10 }}
+              contentContainerStyle={{ paddingVertical: 15, gap: 10 }}
             >
               {last7Days.map((dateObj) => {
                 const dateStr = dateObj.format('YYYY-MM-DD');
@@ -162,7 +162,7 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
                   </TouchableOpacity>
                 );
               })}
-            </ScrollView> */}
+            </ScrollView>
 
             <CustomCalendar
               selectedDate={selectedDate}
