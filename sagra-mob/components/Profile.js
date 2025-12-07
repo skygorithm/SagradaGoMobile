@@ -283,25 +283,29 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
         <Text style={styles.title}>{fullName}</Text>
         <Text style={styles.subtitle}>{currentUser?.email || ""}</Text>
 
-        {/* Booking History Button */}
-        <TouchableOpacity
-          style={styles.bookingHistoryButton}
-          onPress={() => onNavigate && onNavigate('BookingHistoryScreen')}
-        >
-          <Ionicons name="time-outline" size={20} color="#424242" style={{ marginRight: 8 }} />
-          <Text style={styles.bookingHistoryButtonText}>Booking History</Text>
-          <Ionicons name="chevron-forward" size={20} color="#424242" />
-        </TouchableOpacity>
+        {/* Booking History Button (HIDE IF PRIEST) */}
+        {!currentUser?.is_priest && (
+          <TouchableOpacity
+            style={styles.bookingHistoryButton}
+            onPress={() => onNavigate && onNavigate('BookingHistoryScreen')}
+          >
+            <Ionicons name="time-outline" size={20} color="#424242" style={{ marginRight: 8 }} />
+            <Text style={styles.bookingHistoryButtonText}>Booking History</Text>
+            <Ionicons name="chevron-forward" size={20} color="#424242" />
+          </TouchableOpacity>
+        )}
 
-        {/* Volunteer Log Button */}
-        <TouchableOpacity
-          style={styles.bookingHistoryButton}
-          onPress={() => setShowVolunteerLogModal(true)}
-        >
-          <Ionicons name="people-outline" size={20} color="#424242" style={{ marginRight: 8 }} />
-          <Text style={styles.bookingHistoryButtonText}>Volunteer Log</Text>
-          <Ionicons name="chevron-forward" size={20} color="#424242" />
-        </TouchableOpacity>
+        {/* Volunteer Log Button (HIDE IF PRIEST) */}
+        {!currentUser?.is_priest && (
+          <TouchableOpacity
+            style={styles.bookingHistoryButton}
+            onPress={() => setShowVolunteerLogModal(true)}
+          >
+            <Ionicons name="people-outline" size={20} color="#424242" style={{ marginRight: 8 }} />
+            <Text style={styles.bookingHistoryButtonText}>Volunteer Log</Text>
+            <Ionicons name="chevron-forward" size={20} color="#424242" />
+          </TouchableOpacity>
+        )}
 
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           <View style={[styles.inputContainer, { flex: 1, marginRight: 10 }, errors.first_name && styles.inputContainerError]}>
