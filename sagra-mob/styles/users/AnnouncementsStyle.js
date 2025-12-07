@@ -11,9 +11,11 @@ const styles = StyleSheet.create({
     paddingTop: 10
   },
   header: {
+    flexDirection: 'row',
+    gap: 15,
     marginTop: 40,
     marginBottom: 20,
-    paddingHorizontal: 10,
+    marginLeft: 10
   },
   greeting: {
     fontSize: 18,
@@ -35,7 +37,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f2f2f2',
+    backgroundColor: 'rgba(238, 238, 238, 1)',
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 15,
