@@ -6,76 +6,51 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import dayjs from 'dayjs';
+import isoWeek from 'dayjs/plugin/isoWeek';
 import styles from '../styles/CalendarStyle';
+
+dayjs.extend(isoWeek); 
 
 export default function CustomCalendar({
   selectedDate = null,
-  onDateSelect = () => { },
+  onDateSelect = () => {},
   minDate = null,
   maxDate = null,
   markedDates = [],
   showNavigation = true,
   initialDate = dayjs(),
 }) {
-
   const validInitialDate = dayjs(initialDate).isValid() ? dayjs(initialDate) : dayjs();
   const [currentMonth, setCurrentMonth] = useState(validInitialDate);
 
   const monthStart = dayjs(currentMonth).startOf('month');
   const monthEnd = dayjs(currentMonth).endOf('month');
-  const startDate = monthStart.startOf('week');
-  const endDate = monthEnd.endOf('week');
+  const startDate = monthStart.startOf('isoWeek'); // Monday = first column
+  const endDate = monthEnd.endOf('isoWeek');
+
   const daysInMonth = [];
   let day = startDate;
-
   while (day.isBefore(endDate) || day.isSame(endDate, 'day')) {
     daysInMonth.push(day);
     day = day.add(1, 'day');
   }
 
-  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  const goToPreviousMonth = () => {
-    setCurrentMonth(dayjs(currentMonth).subtract(1, 'month'));
-  };
-
-  const goToNextMonth = () => {
-    setCurrentMonth(dayjs(currentMonth).add(1, 'month'));
-  };
-
-  const goToToday = () => {
-    setCurrentMonth(dayjs());
-  };
+  const goToPreviousMonth = () => setCurrentMonth(dayjs(currentMonth).subtract(1, 'month'));
+  const goToNextMonth = () => setCurrentMonth(dayjs(currentMonth).add(1, 'month'));
+  const goToToday = () => setCurrentMonth(dayjs());
 
   const isDateDisabled = (date) => {
-    if (minDate && dayjs(date).isBefore(dayjs(minDate), 'day')) {
-      return true;
-    }
-
-    if (maxDate && dayjs(date).isAfter(dayjs(maxDate), 'day')) {
-      return true;
-    }
-
+    if (minDate && day.isBefore(dayjs(minDate), 'day')) return true;
+    if (maxDate && day.isAfter(dayjs(maxDate), 'day')) return true;
     return false;
   };
 
-  const isDateMarked = (date) => {
-    return markedDates.some((markedDate) =>
-      dayjs(markedDate).isSame(date, 'day')
-    );
-  };
-
-  const isDateSelected = (date) => {
-    return selectedDate && dayjs(selectedDate).isSame(date, 'day');
-  };
-
-  const isCurrentMonth = (date) => {
-    return dayjs(date).isSame(currentMonth, 'month');
-  };
-
-  const isToday = (date) => {
-    return dayjs(date).isSame(dayjs(), 'day');
-  };
+  const eventsForDate = (date) => markedDates.filter((event) => dayjs(event.date).isSame(date, 'day'));
+  const isDateSelected = (date) => selectedDate && dayjs(selectedDate).isSame(date, 'day');
+  const isCurrentMonth = (date) => dayjs(date).isSame(currentMonth, 'month');
+  const isToday = (date) => dayjs(date).isSame(dayjs(), 'day');
 
   const handleDatePress = (date) => {
     if (!isDateDisabled(date)) {
@@ -85,10 +60,10 @@ export default function CustomCalendar({
 
   const renderDay = (date, index) => {
     const disabled = isDateDisabled(date);
-    const marked = isDateMarked(date);
     const selected = isDateSelected(date);
     const currentMonthDay = isCurrentMonth(date);
     const today = isToday(date);
+    const dayEvents = eventsForDate(date);
 
     return (
       <TouchableOpacity
@@ -115,9 +90,39 @@ export default function CustomCalendar({
         >
           {date.format('D')}
         </Text>
-        {marked && !selected && (
-          <View style={styles.markedDot} />
-        )}
+
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 2 }}>
+          {dayEvents.map((event, idx) => {
+            let backgroundColor;
+
+            if ((event.status || '').toLowerCase() === 'confirmed') {
+              backgroundColor = '#52c41a';
+
+            } else {
+              switch (event.type) {
+                case 'Wedding': backgroundColor = '#52c41a'; break;
+                case 'Baptism': backgroundColor = '#1890ff'; break;
+                case 'Burial': backgroundColor = '#f5222d'; break;
+                case 'Communion': backgroundColor = '#faad14'; break;
+                case 'Confirmation': backgroundColor = '#1890ff'; break;
+                default: backgroundColor = '#d9d9d9'; break;
+              }
+            }
+
+            return (
+              <TouchableOpacity
+                key={idx}
+                style={[styles.eventBadge, { backgroundColor }]}
+                onPress={() => onDateSelect(event)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.eventBadgeText} numberOfLines={1}>
+                  {event.type}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </TouchableOpacity>
     );
   };
@@ -126,29 +131,15 @@ export default function CustomCalendar({
     <View style={styles.calendarContainer}>
       {showNavigation && (
         <View style={styles.header}>
-          <TouchableOpacity
-            onPress={goToPreviousMonth}
-            style={styles.navButton}
-            activeOpacity={0.7}
-          >
+          <TouchableOpacity onPress={goToPreviousMonth} style={styles.navButton} activeOpacity={0.7}>
             <Ionicons name="chevron-back" size={24} color="#a8862fff" />
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={goToToday}
-            style={styles.monthYearContainer}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.monthYearText}>
-              {currentMonth.format('MMMM YYYY')}
-            </Text>
+          <TouchableOpacity onPress={goToToday} style={styles.monthYearContainer} activeOpacity={0.7}>
+            <Text style={styles.monthYearText}>{currentMonth.format('MMMM YYYY')}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={goToNextMonth}
-            style={styles.navButton}
-            activeOpacity={0.7}
-          >
+          <TouchableOpacity onPress={goToNextMonth} style={styles.navButton} activeOpacity={0.7}>
             <Ionicons name="chevron-forward" size={24} color="#a8862fff" />
           </TouchableOpacity>
         </View>
@@ -168,4 +159,3 @@ export default function CustomCalendar({
     </View>
   );
 }
-
