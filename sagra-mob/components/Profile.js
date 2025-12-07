@@ -8,7 +8,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   TextInput,
-  Alert,
   ActivityIndicator,
   Image
 } from 'react-native';
@@ -26,8 +25,17 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [showVolunteerLogModal, setShowVolunteerLogModal] = useState(false);
+  const [alertModal, setAlertModal] = useState({ visible: false, title: '', message: '', type: 'error' });
 
   const currentUser = authUser || user;
+
+  const showAlert = (title, message, type = 'error') => {
+    setAlertModal({ visible: true, title, message, type });
+  };
+
+  const closeAlert = () => {
+    setAlertModal({ visible: false, title: '', message: '', type: 'error' });
+  };
 
   const handleLogoutConfirm = () => {
     setShowLogoutModal(false);
@@ -198,26 +206,26 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
 
   const handleSave = async () => {
     if (!validateForm()) {
-      Alert.alert("Validation Error", "Please fix the errors in the form.");
+      showAlert("Validation Error", "Please fix the errors in the form.", 'error');
       return;
     }
 
     setIsSaving(true);
     try {
       const result = await updateUserProfile(formData);
-      
+
       if (result.success) {
-        Alert.alert("Success", result.message || "Profile updated successfully!");
+        showAlert("Success", result.message || "Profile updated successfully!", 'success');
         setIsEditing(false);
 
       } else {
-        Alert.alert("Error", result.message || "Failed to update profile. Please try again.");
+        showAlert("Error", result.message || "Failed to update profile. Please try again.", 'error');
       }
 
     } catch (error) {
       console.error("Save error:", error);
-      Alert.alert("Error", "An unexpected error occurred. Please try again.");
-      
+      showAlert("Error", "An unexpected error occurred. Please try again.", 'error');
+
     } finally {
       setIsSaving(false);
     }
@@ -227,7 +235,11 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
     return `${currentUser?.first_name?.charAt(0) || ''}${currentUser?.last_name?.charAt(0) || ''}`.toUpperCase();
   };
 
-  const fullName = `${currentUser?.first_name || ''} ${currentUser?.middle_name || ''} ${currentUser?.last_name || ''}`;
+  const fullName = [
+    currentUser?.first_name?.trim(),
+    currentUser?.middle_name?.trim(),
+    currentUser?.last_name?.trim()
+  ].filter(Boolean).join(' ');
 
   return (
     <KeyboardAvoidingView
@@ -251,13 +263,13 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
             {currentUser?.profilePicture ? (
               <Image
                 source={
-                  currentUser.profilePicture === 'female-avatar' 
+                  currentUser.profilePicture === 'female-avatar'
                     ? require('../assets/avatars/female-avatar.png')
                     : currentUser.profilePicture === 'male-avatar'
-                    ? require('../assets/avatars/male-avatar.png')
-                    : currentUser.profilePicture && currentUser.profilePicture.startsWith('http')
-                    ? { uri: currentUser.profilePicture }
-                    : require('../assets/defaultpfp.jpg')
+                      ? require('../assets/avatars/male-avatar.png')
+                      : currentUser.profilePicture && currentUser.profilePicture.startsWith('http')
+                        ? { uri: currentUser.profilePicture }
+                        : require('../assets/defaultpfp.jpg')
                 }
                 style={{ width: 120, height: 120, borderRadius: 60 }}
                 resizeMode="cover"
@@ -388,7 +400,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
             onBlur={() => handleBlur("email")}
           />
         </View>
-        
+
         {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
         {!isEditing ? (
@@ -513,6 +525,41 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
           </View>
         </View>
       </Modal>
+
+      <Modal
+        visible={alertModal.visible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={closeAlert}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={closeAlert}
+        >
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>{alertModal.title}</Text>
+            <Text style={styles.modalSubtitle}>{alertModal.message}</Text>
+
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.modalButton,
+                  alertModal.type === 'success'
+                    ? styles.successButton
+                    : styles.logoutConfirmButton
+                ]}
+                onPress={closeAlert}
+              >
+                <Text style={styles.logoutConfirmButtonText}>
+                  {alertModal.type === 'success' ? 'OK' : 'Close'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
     </KeyboardAvoidingView>
   );
 }

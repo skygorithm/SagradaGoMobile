@@ -15,15 +15,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
-  title: {
-    fontSize: 34,
-    fontFamily: 'Poppins_700Bold',
-    color: '#222',
-  },
-
   avatarWrapper: {
     alignItems: "center",
-    marginTop: 100,
+    marginTop: 80,
     marginBottom: 10,
   },
 
@@ -123,6 +117,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#424242',
   },
 
+  successButton: {
+    backgroundColor: '#4CAF50',
+  },
+
   logoutConfirmButtonText: {
     color: '#fff',
     fontSize: 16,
@@ -136,7 +134,7 @@ const styles = StyleSheet.create({
 
   title: {
     fontFamily: "Poppins_700Bold",
-    fontSize: 30,
+    fontSize: 25,
     textAlign: "center",
     marginTop: 5,
     marginBottom: -5,
