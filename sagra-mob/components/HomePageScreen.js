@@ -11,7 +11,7 @@ import CustomNavbar from '../customs/CustomNavbar';
 import { Ionicons } from '@expo/vector-icons';
 import dayjs from 'dayjs';
 import axios from 'axios';
-import { API_BASE_URL } from '../config/API'; 
+import { API_BASE_URL } from '../config/API';
 import CustomCalendar from '../customs/CustomCalendar';
 
 export default function HomePageScreen({ user, onLogout, onNavigate }) {
@@ -199,14 +199,12 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
         ) : (
           // NON-PRIEST VIEW 
           <>
-            {/* SECTION SELECTOR */}
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 20, marginBottom: 20, gap: 10 }}
-            >
+            <View style={styles.sectionSelector}>
               <TouchableOpacity
-                style={[styles.sectionButton, selectedSection === 'Quick Access' && styles.activeSectionButton]}
+                style={[
+                  styles.sectionButton,
+                  selectedSection === 'Quick Access' && styles.activeSectionButton
+                ]}
                 onPress={() => setSelectedSection('Quick Access')}
               >
                 <Ionicons
@@ -215,13 +213,21 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
                   color={selectedSection === 'Quick Access' ? '#fff' : '#424242'}
                   style={{ marginRight: 8 }}
                 />
-                <Text style={[styles.sectionButtonText, selectedSection === 'Quick Access' && { color: '#fff' }]}>
+                <Text
+                  style={[
+                    styles.sectionButtonText,
+                    selectedSection === 'Quick Access' && { color: '#fff' }
+                  ]}
+                >
                   Quick Access
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.sectionButton, selectedSection === 'Upcoming Events' && styles.activeSectionButton]}
+                style={[
+                  styles.sectionButton,
+                  selectedSection === 'Upcoming Events' && styles.activeSectionButton
+                ]}
                 onPress={() => setSelectedSection('Upcoming Events')}
               >
                 <Ionicons
@@ -230,16 +236,21 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
                   color={selectedSection === 'Upcoming Events' ? '#fff' : '#424242'}
                   style={{ marginRight: 8 }}
                 />
-                <Text style={[styles.sectionButtonText, selectedSection === 'Upcoming Events' && { color: '#fff' }]}>
+                <Text
+                  style={[
+                    styles.sectionButtonText,
+                    selectedSection === 'Upcoming Events' && { color: '#fff' }
+                  ]}
+                >
                   Upcoming Events
                 </Text>
               </TouchableOpacity>
-            </ScrollView>
+            </View>
 
             {/* QUICK ACCESS */}
             {selectedSection === 'Quick Access' && (
               <View style={styles.shortcutsContainer}>
-                <Text style={styles.title}>Explore our Services</Text>
+                <Text style={styles.title}>Popular Services</Text>
                 <View style={styles.shortcutsColumn}>
                   {shortcuts.map((shortcut) => (
                     <TouchableOpacity
