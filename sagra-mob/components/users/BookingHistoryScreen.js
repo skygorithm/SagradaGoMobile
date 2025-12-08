@@ -8,12 +8,15 @@ import {
   Image,
   ActivityIndicator,
   Alert,
-  RefreshControl
+  RefreshControl,
+  Linking
 } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import styles from '../../styles/users/BookingHistoryStyle';
 import CustomNavbar from '../../customs/CustomNavbar';
 import { API_BASE_URL } from '../../config/API';
+
+const SUPABASE_PUBLIC_URL = 'https://qpwoatrmswpkgyxmzkjv.supabase.co/storage/v1/object/public/bookings';
 
 const statusColors = {
   confirmed: '#4caf50',
@@ -165,6 +168,12 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               payment_method: baptism.payment_method,
               amount: baptism.amount,
               proof_of_payment: baptism.proof_of_payment,
+              documents: {
+                birth_certificate: baptism.birth_certificate,
+                parents_marriage_certificate: baptism.parents_marriage_certificate,
+                godparent_confirmation: baptism.godparent_confirmation,
+                baptismal_seminar: baptism.baptismal_seminar,
+              },
             });
           });
         }
@@ -199,6 +208,10 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               payment_method: burial.payment_method,
               amount: burial.amount,
               proof_of_payment: burial.proof_of_payment,
+              documents: {
+                death_certificate: burial.death_certificate,
+                deceased_baptismal: burial.deceased_baptismal,
+              },
             });
           });
         }
@@ -233,6 +246,11 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               payment_method: communion.payment_method,
               amount: communion.amount,
               proof_of_payment: communion.proof_of_payment,
+              documents: {
+                baptismal_certificate: communion.baptismal_certificate,
+                communion_preparation: communion.communion_preparation,
+                parent_consent: communion.parent_consent,
+              },
             });
           });
         }
@@ -301,6 +319,12 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               payment_method: confirmation.payment_method,
               amount: confirmation.amount,
               proof_of_payment: confirmation.proof_of_payment,
+              documents: {
+                baptismal_certificate: confirmation.baptismal_certificate,
+                first_communion_certificate: confirmation.first_communion_certificate,
+                confirmation_preparation: confirmation.confirmation_preparation,
+                sponsor_certificate: confirmation.sponsor_certificate,
+              },
             });
           });
         }
@@ -437,6 +461,46 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
     return timeString;
   };
 
+  const getSupabasePublicUrl = (path) => {
+    if (!path) return null;
+    
+    if (path.startsWith('http')) {
+      return path;
+    }
+    
+    const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    return `${SUPABASE_PUBLIC_URL}/${cleanPath}`;
+  };
+
+  const handleOpenDocument = async (documentPath, documentName) => {
+    if (!documentPath) {
+      Alert.alert('Error', 'Document path not available');
+      return;
+    }
+
+    try {
+      const url = getSupabasePublicUrl(documentPath);
+      console.log('Opening document:', documentName, 'URL:', url);
+      
+      if (!url) {
+        Alert.alert('Error', 'Unable to construct document URL');
+        return;
+      }
+
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+
+      } else {
+        Alert.alert('Error', `Cannot open this document: ${documentName}`);
+      }
+      
+    } catch (error) {
+      console.error('Error opening document:', error);
+      Alert.alert('Error', 'Failed to open document. Please try again.');
+    }
+  };
+
   const handleCardPress = async (booking) => {
     console.log('Selected booking - Full object:', JSON.stringify(booking, null, 2));
     console.log('Selected booking - Payment info:', {
@@ -446,6 +510,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
       amount_type: typeof booking.amount,
       proof_of_payment: booking.proof_of_payment,
       proof_of_payment_type: typeof booking.proof_of_payment,
+      documents: booking.documents,
     });
     
     setSelectedBooking(booking);
@@ -811,6 +876,50 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                       ) : (
                         <Text style={styles.modalNotes}>No proof of payment uploaded</Text>
                       )}
+                    </View>
+                  )}
+
+                  {/* Documents Section */}
+                  {selectedBooking.documents && Object.keys(selectedBooking.documents).filter(key => selectedBooking.documents[key]).length > 0 && (
+                    <View style={styles.modalNotesContainer}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                        <Ionicons name="document-text-outline" size={18} color="#666" style={{ marginRight: 6 }} />
+                        <Text style={styles.modalLabel}>Uploaded Documents</Text>
+                      </View>
+                      {Object.entries(selectedBooking.documents).map(([key, path]) => {
+                        if (!path) return null;
+                        
+                        const documentLabels = {
+                          baptismal_certificate: 'Baptismal Certificate',
+                          communion_preparation: 'Communion Preparation',
+                          parent_consent: 'Parent Consent',
+                          birth_certificate: 'Birth Certificate',
+                          parents_marriage_certificate: 'Parents Marriage Certificate',
+                          godparent_confirmation: 'Godparent Confirmation',
+                          baptismal_seminar: 'Baptismal Seminar',
+                          death_certificate: 'Death Certificate',
+                          deceased_baptismal: 'Deceased Baptismal',
+                          first_communion_certificate: 'First Communion Certificate',
+                          confirmation_preparation: 'Confirmation Preparation',
+                          sponsor_certificate: 'Sponsor Certificate',
+                        };
+                        
+                        const label = documentLabels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                        
+                        return (
+                          <TouchableOpacity
+                            key={key}
+                            style={styles.documentButton}
+                            onPress={() => handleOpenDocument(path, label)}
+                          >
+                            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                              <Ionicons name="document-outline" size={20} color="#424242" style={{ marginRight: 10 }} />
+                              <Text style={styles.documentButtonText}>{label}</Text>
+                            </View>
+                            <Ionicons name="open-outline" size={20} color="#424242" />
+                          </TouchableOpacity>
+                        );
+                      })}
                     </View>
                   )}
                 </ScrollView>

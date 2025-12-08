@@ -335,6 +335,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
 
+  documentButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 12,
+    marginVertical: 6,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+
+  documentButtonText: {
+    fontSize: 14,
+    fontFamily: 'Poppins_500Medium',
+    color: '#424242',
+    flex: 1,
+  },
+
 });
 
 export default styles;
