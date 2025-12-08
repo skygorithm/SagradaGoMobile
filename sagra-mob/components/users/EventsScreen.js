@@ -32,7 +32,7 @@ export default function EventsScreen({ onNavigate }) {
       if (authUser.is_priest) {
         return `Father ${fullName || ''}`.trim();
       }
-      
+
       return fullName || 'Guest';
     }
 
