@@ -1,6 +1,6 @@
 import { StyleSheet, Dimensions } from 'react-native';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CALENDAR_WIDTH = SCREEN_WIDTH - 40; 
+const CALENDAR_WIDTH = SCREEN_WIDTH - 40;
 const DAY_WIDTH = CALENDAR_WIDTH / 7;
 
 const styles = StyleSheet.create({
@@ -30,23 +30,23 @@ const styles = StyleSheet.create({
   },
   monthYearContainer: { flex: 1, alignItems: 'center' },
   monthYearText: { fontSize: 18, fontWeight: '600', color: '#333', fontFamily: 'Poppins_600SemiBold' },
-  weekDaysContainer: { 
-    flexDirection: 'row', 
+  weekDaysContainer: {
+    flexDirection: 'row',
     marginBottom: 4,
     paddingHorizontal: 0,
     width: '100%',
   },
-  weekDay: { 
+  weekDay: {
     width: DAY_WIDTH,
-    alignItems: 'center', 
+    alignItems: 'center',
     paddingVertical: 4,
   },
-  weekDayText: { 
-    fontSize: 12, 
-    fontWeight: '600', 
-    color: '#666', 
-    fontFamily: 'Poppins_600SemiBold', 
-    textTransform: 'uppercase' 
+  weekDayText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#666',
+    fontFamily: 'Poppins_600SemiBold',
+    textTransform: 'uppercase'
   },
   daysContainer: { flexDirection: 'row', flexWrap: 'wrap' },
 
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
 
   eventBadge: {
     borderRadius: 4,
-    paddingHorizontal: 2,
+    paddingHorizontal: 5,
     paddingVertical: 1,
     marginVertical: 1,
     alignItems: 'center',
@@ -82,11 +82,19 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
   },
   eventBadgeText: {
-    fontSize: 8,
-    color: '#fff',
-    fontWeight: '600',
+    fontSize: 10,
+    color: '#424242',
+    fontFamily: 'Poppins_700Bold',
     textAlign: 'center',
   },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 50,
+    backgroundColor: 'red',
+    marginVertical: -10,
+  },
+
 });
 
 export default styles;

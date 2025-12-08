@@ -13,11 +13,11 @@ import styles from '../styles/CalendarStyle';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CALENDAR_WIDTH = SCREEN_WIDTH - 40;
 
-dayjs.extend(isoWeek); 
+dayjs.extend(isoWeek);
 
 export default function CustomCalendar({
   selectedDate = null,
-  onDateSelect = () => {},
+  onDateSelect = () => { },
   minDate = null,
   maxDate = null,
   markedDates = [],
@@ -54,12 +54,12 @@ export default function CustomCalendar({
   const calendarWeeks = useMemo(() => {
     const monthStart = dayjs(currentMonth).startOf('month');
     const monthEnd = monthStart.endOf('month');
-    
+
     const firstDayWeekday = monthStart.isoWeekday();
-    
+
     const daysToSubtract = firstDayWeekday - 1;
     const startDate = monthStart.subtract(daysToSubtract, 'day');
-    
+
     const weeks = [];
     for (let week = 0; week < 6; week++) {
       const weekDays = [];
@@ -70,7 +70,7 @@ export default function CustomCalendar({
       }
       weeks.push(weekDays);
     }
-    
+
     return {
       monthStart,
       monthEnd,
@@ -83,11 +83,11 @@ export default function CustomCalendar({
   const goToPreviousMonth = () => {
     setCurrentMonth(prev => dayjs(prev).subtract(1, 'month').startOf('month'));
   };
-  
+
   const goToNextMonth = () => {
     setCurrentMonth(prev => dayjs(prev).add(1, 'month').startOf('month'));
   };
-  
+
   const goToToday = () => {
     setCurrentMonth(dayjs().startOf('month'));
   };
@@ -107,17 +107,17 @@ export default function CustomCalendar({
       return eventDate.isValid() && eventDate.isSame(date, 'day');
     });
   };
-  
+
   const isDateSelected = (date) => {
     if (!selectedDate) return false;
     const selected = dayjs(selectedDate);
     return selected.isValid() && selected.isSame(date, 'day');
   };
-  
+
   const isCurrentMonth = (date) => {
     return date.isSame(calendarWeeks.monthStart, 'month');
   };
-  
+
   const isToday = (date) => {
     return date.isSame(dayjs(), 'day');
   };
@@ -172,7 +172,7 @@ export default function CustomCalendar({
                 case 'Wedding': backgroundColor = '#52c41a'; break;
                 case 'Baptism': backgroundColor = '#1890ff'; break;
                 case 'Burial': backgroundColor = '#f5222d'; break;
-                case 'First Communion': 
+                case 'First Communion':
                 case 'Communion': backgroundColor = '#faad14'; break;
                 case 'Confirmation': backgroundColor = '#1890ff'; break;
                 case 'Anointing of the Sick':
@@ -185,12 +185,12 @@ export default function CustomCalendar({
             return (
               <TouchableOpacity
                 key={idx}
-                style={[styles.eventBadge, { backgroundColor }]}
+                style={[styles.eventBadge, { backgroundColor: 'transparent' }]}
                 onPress={() => onDateSelect(event)}
                 activeOpacity={0.7}
               >
-                <Text style={styles.eventBadgeText} numberOfLines={1}>
-                  {event.type || event.sacrament || 'Event'}
+                <Text style={styles.dot}>
+                  {(event.type || event.sacrament) ? '•' : ''}
                 </Text>
               </TouchableOpacity>
             );
@@ -228,10 +228,10 @@ export default function CustomCalendar({
 
       <View style={{ width: '100%', overflow: 'hidden' }}>
         {calendarWeeks.weeks.map((week, weekIndex) => (
-          <View 
-            key={weekIndex} 
-            style={{ 
-              flexDirection: 'row', 
+          <View
+            key={weekIndex}
+            style={{
+              flexDirection: 'row',
               width: CALENDAR_WIDTH,
               justifyContent: 'flex-start',
               alignItems: 'flex-start',
