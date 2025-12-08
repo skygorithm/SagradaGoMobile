@@ -136,6 +136,9 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
     if (selectedSacrament === 'Confession') {
       setPax('1');
     }
+    if (selectedSacrament === 'Anointing of the Sick') {
+      setPax('1');
+    }
   }, [selectedSacrament]);
 
   const resetForm = () => {
@@ -556,32 +559,47 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
         }
 
       } else if (selectedSacrament === 'Anointing of the Sick') {
-        formData.append('contact_number', user.contact_number || '');
-        formData.append('medical_condition', ''); 
+        if (!user?.uid) {
+          Alert.alert('Error', 'User not found. Please log in again.');
+          return;
+        }
 
-        const anointingDocs = {
-          'medical_certificate': 'medical_certificate',
+        const payload = {
+          uid: user.uid,
+          full_name: fullName || '',
+          email: email || '',
+          date: date.toISOString(),
+          time: time.toISOString(),
+          attendees: 1,
+          contact_number: user.contact_number || '',
+          medical_condition: '',
+          transaction_id: `ANOINT-${Date.now()}`,
+          status: 'pending',
         };
 
-        Object.keys(docs).forEach((reqId) => {
-          const file = docs[reqId];
-          if (file && file.uri) {
-            const fieldName = anointingDocs[reqId] || reqId;
-            formData.append(fieldName, {
-              uri: file.uri,
-              type: file.mimeType || 'application/pdf',
-              name: file.name || `${fieldName}.pdf`,
-            });
-            
-            console.log(`Appending anointing document: ${reqId} -> ${fieldName}`);
-          }
-        });
+        try {
+          const response = await fetch(`${API_BASE_URL}/createAnointing`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
 
-        const response = await submitBookingForm(`${API_BASE_URL}/createAnointing`, formData);
-        if (response) {
-          Alert.alert('Success', 'Anointing of the Sick booking submitted successfully!', [
-            { text: 'OK', onPress: handleClose }
-          ]);
+          const data = await response.json();
+
+          if (response.ok) {
+            Alert.alert('Success', 'Anointing of the Sick booking submitted successfully!', [
+              { text: 'OK', onPress: handleClose }
+            ]);
+            
+          } else {
+            throw new Error(data.message || 'Failed to submit Anointing of the Sick booking.');
+          }
+
+        } catch (err) {
+          console.error('Anointing of the Sick booking error:', err);
+          Alert.alert('Error', err.message || 'Failed to submit Anointing of the Sick booking.');
         }
 
       } else if (selectedSacrament === 'Confirmation') {
@@ -815,7 +833,7 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
                   />
                 </View>
 
-                {selectedSacrament !== 'Confession' && (
+                {selectedSacrament !== 'Confession' && selectedSacrament !== 'Anointing of the Sick' && (
                   <View style={styles.inputWrapper}>
                     <Text style={styles.inputLabel}>Number of People</Text>
                     <View style={[styles.inputContainer, { paddingVertical: 2 }]}>
@@ -852,7 +870,7 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
                   />
                 )}
 
-                {selectedSacrament === 'Confession' ? (
+                {selectedSacrament === 'Confession' || selectedSacrament === 'Anointing of the Sick' ? (
                   <TouchableOpacity
                     style={styles.submitButton}
                     onPress={handleSubmitBooking} // directly submit
@@ -942,7 +960,7 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
             </View>
             
             <View style={styles.qrCodeContainer}>
-              {selectedSacrament !== 'Confession' && (
+              {selectedSacrament !== 'Confession' && selectedSacrament !== 'Anointing of the Sick' && (
                 <>
                   <Text style={styles.qrCodeSubtitle}>
                     Scan this QR code to pay for your {selectedSacrament} booking
