@@ -17,7 +17,9 @@ import CustomCalendar from '../customs/CustomCalendar';
 export default function HomePageScreen({ user, onLogout, onNavigate }) {
   const [selectedSection, setSelectedSection] = useState('Quick Access');
   const [events, setEvents] = useState([]);
+  const [bookings, setBookings] = useState([]); 
   const [loadingEvents, setLoadingEvents] = useState(false);
+  const [loadingBookings, setLoadingBookings] = useState(false);
   const [selectedDate, setSelectedDate] = useState(dayjs().format('YYYY-MM-DD'));
 
   const shortcuts = [
@@ -71,8 +73,13 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
   const last7Days = Array.from({ length: 7 }, (_, i) => dayjs().add(i, 'day'));
 
   useEffect(() => {
-    fetchEvents();
-  }, []);
+    if (user && user.is_priest) {
+      fetchPriestSchedule();
+
+    } else {
+      fetchEvents();
+    }
+  }, [user]);
 
   const fetchEvents = async () => {
     try {
@@ -88,9 +95,45 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
     }
   };
 
+  const fetchPriestSchedule = async () => {
+    if (!user?.uid) return;
+    
+    try {
+      setLoadingBookings(true);
+      const response = await fetch(`${API_BASE_URL}/getPriestSchedule`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priest_id: user.uid }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.bookings) {
+        setBookings(data.bookings || []);
+
+      } else {
+        console.error('Error fetching priest schedule:', data.message);
+        setBookings([]);
+      }
+
+    } catch (err) {
+      console.error("Error fetching priest schedule:", err);
+      setBookings([]);
+
+    } finally {
+      setLoadingBookings(false);
+    }
+  };
+
   const eventsForSelectedDate = events.filter(
     (event) => dayjs(event.date).format('YYYY-MM-DD') === selectedDate
   );
+
+  const bookingsForSelectedDate = bookings.filter((booking) => {
+    if (!booking.date) return false;
+    const bookingDate = dayjs(booking.date).format('YYYY-MM-DD');
+    return bookingDate === selectedDate;
+  });
 
   const handleShortcutPress = (screen) => {
     if (onNavigate) onNavigate(screen);
@@ -166,35 +209,81 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
 
             <CustomCalendar
               selectedDate={selectedDate}
-              onDateSelect={(date) => setSelectedDate(date)}
-              markedDates={events.map((event) => dayjs(event.date).toDate())} // highlight event dates
+              onDateSelect={(date) => setSelectedDate(dayjs(date).format('YYYY-MM-DD'))}
+              markedDates={bookings
+                .filter((booking) => booking.date)
+                .map((booking) => {
+                  const date = dayjs(booking.date);
+                  return date.isValid() ? date.toDate() : null;
+                })
+                .filter(Boolean)} 
             />
 
-            {/* Events for Selected Date */}
-            {eventsForSelectedDate.length > 0 ? (
-              eventsForSelectedDate.map((event) => (
+            {/* Bookings for Selected Date */}
+            {loadingBookings ? (
+              <Text style={{ textAlign: 'center', marginTop: 20, color: '#666', fontFamily: 'Poppins_500Medium' }}>
+                Loading schedule...
+              </Text>
+            ) : bookingsForSelectedDate.length > 0 ? (
+              bookingsForSelectedDate.map((booking) => (
                 <TouchableOpacity
-                  key={event._id}
-                  style={styles.eventCard}
-                  onPress={() => onNavigate('EventsScreen', { eventId: event._id })}
+                  key={booking._id || booking.transaction_id}
+                  style={[styles.eventCard, { marginBottom: 15 }]}
                 >
-                  <Image
-                    source={{ uri: event.image || 'https://via.placeholder.com/400' }}
-                    style={{ width: '100%', height: 130, borderTopLeftRadius: 10, borderTopRightRadius: 10 }}
-                    resizeMode="cover"
-                  />
                   <View style={{ padding: 15 }}>
-                    <Text style={styles.eventTitle}>{event.title}</Text>
-                    <Text style={styles.eventDate}>{dayjs(event.date).format('MMMM D, YYYY')}</Text>
-                    <Text style={{ fontSize: 14, fontFamily: 'Poppins_400Regular', color: '#555' }}>
-                      {event.description}
-                    </Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.eventTitle, { fontSize: 18, marginBottom: 5 }]}>{booking.sacrament || booking.type}</Text>
+                        <Text style={styles.eventDate}>
+                          {dayjs(booking.date).format('MMMM D, YYYY')} at {booking.time ? (dayjs(booking.time).isValid() ? dayjs(booking.time).format('h:mm A') : booking.time.toString()) : 'TBD'}
+                        </Text>
+                      </View>
+                      <View style={{
+                        backgroundColor: booking.status === 'confirmed' ? '#4CAF50' : '#FF9800',
+                        paddingHorizontal: 10,
+                        paddingVertical: 5,
+                        borderRadius: 12,
+                      }}>
+                        <Text style={{ color: '#fff', fontSize: 12, fontFamily: 'Poppins_600SemiBold', textTransform: 'capitalize' }}>
+                          {booking.status}
+                        </Text>
+                      </View>
+                    </View>
+                    
+                    {booking.groom_name && booking.bride_name && (
+                      <Text style={{ fontSize: 14, fontFamily: 'Poppins_400Regular', color: '#555', marginBottom: 5 }}>
+                        {booking.groom_name} & {booking.bride_name}
+                      </Text>
+                    )}
+                    {(booking.full_name || booking.candidate_name || booking.deceased_name) && (
+                      <Text style={{ fontSize: 14, fontFamily: 'Poppins_400Regular', color: '#555', marginBottom: 5 }}>
+                        {booking.full_name || booking.candidate_name || booking.deceased_name}
+                      </Text>
+                    )}
+                    
+                    {booking.attendees && (
+                      <Text style={{ fontSize: 13, fontFamily: 'Poppins_400Regular', color: '#777', marginTop: 5 }}>
+                        {booking.attendees} attendee{booking.attendees !== 1 ? 's' : ''}
+                      </Text>
+                    )}
+                    
+                    {booking.contact_number && (
+                      <Text style={{ fontSize: 13, fontFamily: 'Poppins_400Regular', color: '#777', marginTop: 3 }}>
+                        Contact: {booking.contact_number}
+                      </Text>
+                    )}
+
+                    {booking.transaction_id && (
+                      <Text style={{ fontSize: 12, fontFamily: 'Poppins_400Regular', color: '#999', marginTop: 5 }}>
+                        ID: {booking.transaction_id}
+                      </Text>
+                    )}
                   </View>
                 </TouchableOpacity>
               ))
             ) : (
               <Text style={{ textAlign: 'center', marginTop: 20, color: '#666', fontFamily: 'Poppins_500Medium' }}>
-                No events on this day.
+                No bookings scheduled for this day.
               </Text>
             )}
           </View>

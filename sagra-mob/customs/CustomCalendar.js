@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -20,37 +20,106 @@ export default function CustomCalendar({
   showNavigation = true,
   initialDate = dayjs(),
 }) {
-  const validInitialDate = dayjs(initialDate).isValid() ? dayjs(initialDate) : dayjs();
-  const [currentMonth, setCurrentMonth] = useState(validInitialDate);
 
-  const monthStart = dayjs(currentMonth).startOf('month');
-  const monthEnd = dayjs(currentMonth).endOf('month');
-  const startDate = monthStart.startOf('isoWeek'); // Monday = first column
-  const endDate = monthEnd.endOf('isoWeek');
+  const getInitialMonth = () => {
+    if (selectedDate) {
+      const selected = dayjs(selectedDate);
+      if (selected.isValid()) return selected.startOf('month');
+    }
 
-  const daysInMonth = [];
-  let day = startDate;
-  while (day.isBefore(endDate) || day.isSame(endDate, 'day')) {
-    daysInMonth.push(day);
-    day = day.add(1, 'day');
-  }
+    const initial = dayjs(initialDate);
+    return initial.isValid() ? initial.startOf('month') : dayjs().startOf('month');
+  };
+
+  const [currentMonth, setCurrentMonth] = useState(getInitialMonth());
+
+  useEffect(() => {
+    if (selectedDate) {
+      const selected = dayjs(selectedDate);
+
+      if (selected.isValid()) {
+        const selectedMonth = selected.startOf('month');
+        setCurrentMonth(prevMonth => {
+          const prev = dayjs(prevMonth);
+
+          if (!selectedMonth.isSame(prev, 'month')) {
+            return selectedMonth;
+          }
+
+          return prevMonth;
+        });
+      }
+    }
+  }, [selectedDate]);
+
+  const calendarData = useMemo(() => {
+    const monthStart = dayjs(currentMonth).startOf('month');
+    const monthEnd = monthStart.endOf('month');
+ 
+    const firstDayOfMonthWeekday = monthStart.isoWeekday(); 
+    
+    const daysFromPrevMonth = firstDayOfMonthWeekday - 1; 
+
+    const startDate = monthStart.subtract(daysFromPrevMonth, 'day');
+    
+    const totalDaysToShow = 42; 
+    
+    const days = [];
+    for (let i = 0; i < totalDaysToShow; i++) {
+      const day = startDate.add(i, 'day');
+      days.push(day.clone());
+    }
+    
+    return {
+      monthStart,
+      monthEnd,
+      days,
+    };
+  }, [currentMonth]);
 
   const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  const goToPreviousMonth = () => setCurrentMonth(dayjs(currentMonth).subtract(1, 'month'));
-  const goToNextMonth = () => setCurrentMonth(dayjs(currentMonth).add(1, 'month'));
-  const goToToday = () => setCurrentMonth(dayjs());
+  const goToPreviousMonth = () => {
+    setCurrentMonth(prev => dayjs(prev).subtract(1, 'month').startOf('month'));
+  };
+  
+  const goToNextMonth = () => {
+    setCurrentMonth(prev => dayjs(prev).add(1, 'month').startOf('month'));
+  };
+  
+  const goToToday = () => {
+    setCurrentMonth(dayjs().startOf('month'));
+  };
 
   const isDateDisabled = (date) => {
-    if (minDate && day.isBefore(dayjs(minDate), 'day')) return true;
-    if (maxDate && day.isAfter(dayjs(maxDate), 'day')) return true;
+    if (minDate && date.isBefore(dayjs(minDate), 'day')) return true;
+    if (maxDate && date.isAfter(dayjs(maxDate), 'day')) return true;
     return false;
   };
 
-  const eventsForDate = (date) => markedDates.filter((event) => dayjs(event.date).isSame(date, 'day'));
-  const isDateSelected = (date) => selectedDate && dayjs(selectedDate).isSame(date, 'day');
-  const isCurrentMonth = (date) => dayjs(date).isSame(currentMonth, 'month');
-  const isToday = (date) => dayjs(date).isSame(dayjs(), 'day');
+  const eventsForDate = (date) => {
+    if (!markedDates || markedDates.length === 0) return [];
+    return markedDates.filter((event) => {
+      
+      if (!event) return false;
+      const eventDate = dayjs(event.date || event);
+      return eventDate.isValid() && eventDate.isSame(date, 'day');
+    });
+  };
+  
+  const isDateSelected = (date) => {
+    if (!selectedDate) return false;
+    const selected = dayjs(selectedDate);
+    return selected.isValid() && selected.isSame(date, 'day');
+  };
+  
+  const isCurrentMonth = (date) => {
+    return date.isSame(calendarData.monthStart, 'month');
+  };
+  
+  const isToday = (date) => {
+    return date.isSame(dayjs(), 'day');
+  };
 
   const handleDatePress = (date) => {
     if (!isDateDisabled(date)) {
@@ -58,7 +127,7 @@ export default function CustomCalendar({
     }
   };
 
-  const renderDay = (date, index) => {
+  const renderDay = (date) => {
     const disabled = isDateDisabled(date);
     const selected = isDateSelected(date);
     const currentMonthDay = isCurrentMonth(date);
@@ -67,7 +136,7 @@ export default function CustomCalendar({
 
     return (
       <TouchableOpacity
-        key={index}
+        key={date.format('YYYY-MM-DD')}
         style={[
           styles.dayContainer,
           !currentMonthDay && styles.otherMonthDay,
@@ -97,14 +166,17 @@ export default function CustomCalendar({
 
             if ((event.status || '').toLowerCase() === 'confirmed') {
               backgroundColor = '#52c41a';
-
             } else {
               switch (event.type) {
                 case 'Wedding': backgroundColor = '#52c41a'; break;
                 case 'Baptism': backgroundColor = '#1890ff'; break;
                 case 'Burial': backgroundColor = '#f5222d'; break;
+                case 'First Communion': 
                 case 'Communion': backgroundColor = '#faad14'; break;
                 case 'Confirmation': backgroundColor = '#1890ff'; break;
+                case 'Anointing of the Sick':
+                case 'Anointing': backgroundColor = '#faad14'; break;
+                case 'Confession': backgroundColor = '#722ed1'; break;
                 default: backgroundColor = '#d9d9d9'; break;
               }
             }
@@ -117,7 +189,7 @@ export default function CustomCalendar({
                 activeOpacity={0.7}
               >
                 <Text style={styles.eventBadgeText} numberOfLines={1}>
-                  {event.type}
+                  {event.type || event.sacrament || 'Event'}
                 </Text>
               </TouchableOpacity>
             );
@@ -136,7 +208,7 @@ export default function CustomCalendar({
           </TouchableOpacity>
 
           <TouchableOpacity onPress={goToToday} style={styles.monthYearContainer} activeOpacity={0.7}>
-            <Text style={styles.monthYearText}>{currentMonth.format('MMMM YYYY')}</Text>
+            <Text style={styles.monthYearText}>{calendarData.monthStart.format('MMMM YYYY')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={goToNextMonth} style={styles.navButton} activeOpacity={0.7}>
@@ -154,7 +226,7 @@ export default function CustomCalendar({
       </View>
 
       <View style={styles.daysContainer}>
-        {daysInMonth.map((date, index) => renderDay(date, index))}
+        {calendarData.days.map((date) => renderDay(date))}
       </View>
     </View>
   );
