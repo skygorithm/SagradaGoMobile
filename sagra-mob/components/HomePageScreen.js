@@ -19,7 +19,7 @@ import { useAuth } from '../contexts/AuthContext';
 export default function HomePageScreen({ user, onLogout, onNavigate }) {
   const [selectedSection, setSelectedSection] = useState('Quick Access');
   const [events, setEvents] = useState([]);
-  const [bookings, setBookings] = useState([]); 
+  const [bookings, setBookings] = useState([]);
   const [loadingEvents, setLoadingEvents] = useState(false);
   const [loadingBookings, setLoadingBookings] = useState(false);
   const [selectedDate, setSelectedDate] = useState(dayjs().format('YYYY-MM-DD'));
@@ -123,8 +123,8 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
   useEffect(() => {
     const refreshTimer = setTimeout(() => {
       fetchUnreadCount();
-    }, 1000); 
-    
+    }, 1000);
+
     return () => clearTimeout(refreshTimer);
   }, [currentUser?.uid]);
 
@@ -144,7 +144,7 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
 
   const fetchPriestSchedule = async () => {
     if (!user?.uid) return;
-    
+
     try {
       setLoadingBookings(true);
       const response = await fetch(`${API_BASE_URL}/getPriestSchedule`, {
@@ -272,7 +272,7 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
                   const date = dayjs(booking.date);
                   return date.isValid() ? date.toDate() : null;
                 })
-                .filter(Boolean)} 
+                .filter(Boolean)}
             />
 
             {/* Bookings for Selected Date */}
@@ -305,7 +305,7 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
                         </Text>
                       </View>
                     </View>
-                    
+
                     {booking.groom_name && booking.bride_name && (
                       <Text style={{ fontSize: 14, fontFamily: 'Poppins_400Regular', color: '#555', marginBottom: 5 }}>
                         {booking.groom_name} & {booking.bride_name}
@@ -316,13 +316,13 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
                         {booking.full_name || booking.candidate_name || booking.deceased_name}
                       </Text>
                     )}
-                    
+
                     {booking.attendees && (
                       <Text style={{ fontSize: 13, fontFamily: 'Poppins_400Regular', color: '#777', marginTop: 5 }}>
                         {booking.attendees} attendee{booking.attendees !== 1 ? 's' : ''}
                       </Text>
                     )}
-                    
+
                     {booking.contact_number && (
                       <Text style={{ fontSize: 13, fontFamily: 'Poppins_400Regular', color: '#777', marginTop: 3 }}>
                         Contact: {booking.contact_number}
