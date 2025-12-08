@@ -1,5 +1,7 @@
 import { StyleSheet, Dimensions } from 'react-native';
-const { width } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const CALENDAR_WIDTH = SCREEN_WIDTH - 40; 
+const DAY_WIDTH = CALENDAR_WIDTH / 7;
 
 const styles = StyleSheet.create({
   calendarContainer: {
@@ -12,6 +14,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    width: '100%',
+    overflow: 'hidden',
   },
   header: {
     flexDirection: 'row',
@@ -26,17 +30,33 @@ const styles = StyleSheet.create({
   },
   monthYearContainer: { flex: 1, alignItems: 'center' },
   monthYearText: { fontSize: 18, fontWeight: '600', color: '#333', fontFamily: 'Poppins_600SemiBold' },
-  weekDaysContainer: { flexDirection: 'row', marginBottom: 4 },
-  weekDay: { flex: 1, alignItems: 'center', paddingVertical: 4 },
-  weekDayText: { fontSize: 12, fontWeight: '600', color: '#666', fontFamily: 'Poppins_600SemiBold', textTransform: 'uppercase' },
+  weekDaysContainer: { 
+    flexDirection: 'row', 
+    marginBottom: 4,
+    paddingHorizontal: 0,
+    width: '100%',
+  },
+  weekDay: { 
+    width: DAY_WIDTH,
+    alignItems: 'center', 
+    paddingVertical: 4,
+  },
+  weekDayText: { 
+    fontSize: 12, 
+    fontWeight: '600', 
+    color: '#666', 
+    fontFamily: 'Poppins_600SemiBold', 
+    textTransform: 'uppercase' 
+  },
   daysContainer: { flexDirection: 'row', flexWrap: 'wrap' },
 
   dayContainer: {
-    width: (width - 16) / 7,
-    aspectRatio: 1,
+    width: DAY_WIDTH,
+    height: DAY_WIDTH,
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 0, 
+    margin: 0,
+    padding: 0,
     borderRadius: 8,
     position: 'relative',
   },

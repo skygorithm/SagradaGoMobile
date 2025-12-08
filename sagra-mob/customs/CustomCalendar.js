@@ -3,11 +3,15 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import styles from '../styles/CalendarStyle';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const CALENDAR_WIDTH = SCREEN_WIDTH - 40;
 
 dayjs.extend(isoWeek); 
 
@@ -20,13 +24,11 @@ export default function CustomCalendar({
   showNavigation = true,
   initialDate = dayjs(),
 }) {
-
   const getInitialMonth = () => {
     if (selectedDate) {
       const selected = dayjs(selectedDate);
       if (selected.isValid()) return selected.startOf('month');
     }
-
     const initial = dayjs(initialDate);
     return initial.isValid() ? initial.startOf('month') : dayjs().startOf('month');
   };
@@ -36,44 +38,43 @@ export default function CustomCalendar({
   useEffect(() => {
     if (selectedDate) {
       const selected = dayjs(selectedDate);
-
       if (selected.isValid()) {
         const selectedMonth = selected.startOf('month');
         setCurrentMonth(prevMonth => {
           const prev = dayjs(prevMonth);
-
           if (!selectedMonth.isSame(prev, 'month')) {
             return selectedMonth;
           }
-
           return prevMonth;
         });
       }
     }
   }, [selectedDate]);
 
-  const calendarData = useMemo(() => {
+  const calendarWeeks = useMemo(() => {
     const monthStart = dayjs(currentMonth).startOf('month');
     const monthEnd = monthStart.endOf('month');
- 
-    const firstDayOfMonthWeekday = monthStart.isoWeekday(); 
     
-    const daysFromPrevMonth = firstDayOfMonthWeekday - 1; 
+    const firstDayWeekday = monthStart.isoWeekday();
+    
+    const daysToSubtract = firstDayWeekday - 1;
+    const startDate = monthStart.subtract(daysToSubtract, 'day');
+    
+    const weeks = [];
+    for (let week = 0; week < 6; week++) {
+      const weekDays = [];
 
-    const startDate = monthStart.subtract(daysFromPrevMonth, 'day');
-    
-    const totalDaysToShow = 42; 
-    
-    const days = [];
-    for (let i = 0; i < totalDaysToShow; i++) {
-      const day = startDate.add(i, 'day');
-      days.push(day.clone());
+      for (let day = 0; day < 7; day++) {
+        const date = startDate.add(week * 7 + day, 'day');
+        weekDays.push(date.clone());
+      }
+      weeks.push(weekDays);
     }
     
     return {
       monthStart,
       monthEnd,
-      days,
+      weeks,
     };
   }, [currentMonth]);
 
@@ -100,7 +101,7 @@ export default function CustomCalendar({
   const eventsForDate = (date) => {
     if (!markedDates || markedDates.length === 0) return [];
     return markedDates.filter((event) => {
-      
+
       if (!event) return false;
       const eventDate = dayjs(event.date || event);
       return eventDate.isValid() && eventDate.isSame(date, 'day');
@@ -114,7 +115,7 @@ export default function CustomCalendar({
   };
   
   const isCurrentMonth = (date) => {
-    return date.isSame(calendarData.monthStart, 'month');
+    return date.isSame(calendarWeeks.monthStart, 'month');
   };
   
   const isToday = (date) => {
@@ -208,7 +209,7 @@ export default function CustomCalendar({
           </TouchableOpacity>
 
           <TouchableOpacity onPress={goToToday} style={styles.monthYearContainer} activeOpacity={0.7}>
-            <Text style={styles.monthYearText}>{calendarData.monthStart.format('MMMM YYYY')}</Text>
+            <Text style={styles.monthYearText}>{calendarWeeks.monthStart.format('MMMM YYYY')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={goToNextMonth} style={styles.navButton} activeOpacity={0.7}>
@@ -225,8 +226,20 @@ export default function CustomCalendar({
         ))}
       </View>
 
-      <View style={styles.daysContainer}>
-        {calendarData.days.map((date) => renderDay(date))}
+      <View style={{ width: '100%', overflow: 'hidden' }}>
+        {calendarWeeks.weeks.map((week, weekIndex) => (
+          <View 
+            key={weekIndex} 
+            style={{ 
+              flexDirection: 'row', 
+              width: CALENDAR_WIDTH,
+              justifyContent: 'flex-start',
+              alignItems: 'flex-start',
+            }}
+          >
+            {week.map((date) => renderDay(date))}
+          </View>
+        ))}
       </View>
     </View>
   );
