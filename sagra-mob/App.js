@@ -68,7 +68,9 @@ function AppContent() {
     }
   }, [isAuthenticated, user]);
 
-  if (!fontsLoaded || authLoading) {
+  const isOnLoginScreen = currentScreen === 'LoginScreen';
+  
+  if (!fontsLoaded || (authLoading && !isOnLoginScreen)) {
     return (
       <View style={{
         flex: 1, justifyContent: 'center',
