@@ -498,11 +498,18 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
 
             <ScrollView style={styles.volunteerLogScrollView}>
               {currentUser?.volunteers && Array.isArray(currentUser.volunteers) && currentUser.volunteers.length > 0 ? (
-                currentUser.volunteers.map((item, index) => (
+                currentUser.volunteers.map((item, index) => {
+                  const currentFullName = [
+                    currentUser?.first_name?.trim(),
+                    currentUser?.middle_name?.trim(),
+                    currentUser?.last_name?.trim()
+                  ].filter(Boolean).join(' ');
+                  
+                  return (
                   <View key={item._id || item.id || index} style={styles.volunteerLogItem}>
                     <View style={styles.volunteerLogItemHeader}>
                       <Ionicons name="person-outline" size={20} color="#FFC942" style={{ marginRight: 8 }} />
-                      <Text style={styles.volunteerLogItemName}>{item.name}</Text>
+                      <Text style={styles.volunteerLogItemName}>{currentFullName || item.name}</Text>
                     </View>
                     <Text style={styles.volunteerLogItemRole}>Role: {item.role}</Text>
                     {item.eventTitle && (
@@ -517,7 +524,8 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
                       }) : 'N/A'}
                     </Text>
                   </View>
-                ))
+                  );
+                })
               ) : (
                 <View style={styles.volunteerLogEmptyContainer}>
                   <Ionicons name="people-outline" size={48} color="#ccc" style={{ marginBottom: 10 }} />
