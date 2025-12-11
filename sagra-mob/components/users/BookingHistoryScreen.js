@@ -86,8 +86,8 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                 payment_method: booking.payment_method,
                 amount: booking.amount,
                 proof_of_payment: booking.proof_of_payment,
-                full_name: booking.full_name || booking.candidate_name || booking.deceased_name || 
-                          (booking.groom_name && booking.bride_name ? `${booking.groom_name} & ${booking.bride_name}` : null),
+                full_name: booking.full_name || booking.candidate_name || booking.deceased_name ||
+                  (booking.groom_name && booking.bride_name ? `${booking.groom_name} & ${booking.bride_name}` : null),
               });
             });
           }
@@ -463,11 +463,11 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
 
   const getSupabasePublicUrl = (path) => {
     if (!path) return null;
-    
+
     if (path.startsWith('http')) {
       return path;
     }
-    
+
     const cleanPath = path.startsWith('/') ? path.substring(1) : path;
     return `${SUPABASE_PUBLIC_URL}/${cleanPath}`;
   };
@@ -481,7 +481,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
     try {
       const url = getSupabasePublicUrl(documentPath);
       console.log('Opening document:', documentName, 'URL:', url);
-      
+
       if (!url) {
         Alert.alert('Error', 'Unable to construct document URL');
         return;
@@ -494,7 +494,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
       } else {
         Alert.alert('Error', `Cannot open this document: ${documentName}`);
       }
-      
+
     } catch (error) {
       console.error('Error opening document:', error);
       Alert.alert('Error', 'Failed to open document. Please try again.');
@@ -512,13 +512,13 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
       proof_of_payment_type: typeof booking.proof_of_payment,
       documents: booking.documents,
     });
-    
+
     setSelectedBooking(booking);
     setIsModalVisible(true);
 
     setProofOfPaymentUrl(null);
     setLoadingProofOfPayment(false);
-    
+
     if (booking.payment_method === 'gcash' && booking.proof_of_payment) {
       console.log('Fetching proof of payment for GCash booking:', booking.proof_of_payment);
 
@@ -542,7 +542,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
             console.warn('No URL in response:', data);
             setLoadingProofOfPayment(false);
           }
-          
+
         } catch (error) {
           console.error('Error fetching proof of payment URL:', error);
           setLoadingProofOfPayment(false);
@@ -625,8 +625,8 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
         </Text>
 
         <Text style={styles.subtitle}>
-          {user?.is_priest 
-            ? 'View your assigned bookings and schedule' 
+          {user?.is_priest
+            ? 'View your assigned bookings and schedule'
             : 'View your past and upcoming bookings'}
         </Text>
       </View>
@@ -635,7 +635,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
         horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.filterContainer}
-        contentContainerStyle={{ paddingRight: 20, marginHorizontal: 20, gap: 10, height: 40, marginTop: 20, marginBottom: 0}}
+        contentContainerStyle={{ paddingRight: 20, marginHorizontal: 20, gap: 10, height: 40, marginTop: 20, marginBottom: 0 }}
       >
         {['all', 'approved', 'pending', 'rejected', 'cancelled'].map((filter) => (
           <TouchableOpacity
@@ -712,19 +712,19 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
 
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
                 <View style={styles.detailRow}>
-                  <Ionicons name="calendar-outline" size={16} color="#666" style={{ marginRight: 6 }} />
+                  <Ionicons name="calendar-outline" size={16} color="#bdbdbdff" style={{ marginRight: 6 }} />
                   <Text style={styles.detailText}>{formatDate(booking.date)}</Text>
                 </View>
                 <View style={styles.detailRow}>
-                  <Ionicons name="time-outline" size={16} color="#666" style={{ marginRight: 6 }} />
+                  <Ionicons name="time-outline" size={16} color="#bdbdbdff" style={{ marginRight: 6 }} />
                   <Text style={styles.detailText}>{formatTime(booking.time)}</Text>
                 </View>
               </View>
 
               {booking.full_name && user?.is_priest && (
-                <View style={{ marginTop: 8, flexDirection: 'row', alignItems: 'center' }}>
-                  <Ionicons name="person-outline" size={16} color="#666" style={{ marginRight: 6 }} />
-                  <Text style={{ fontSize: 13, color: '#666', fontFamily: 'Poppins_500Medium' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Ionicons name="person-outline" size={16} color="#bdbdbdff" style={{ marginRight: 6 }} />
+                  <Text style={{ fontSize: 14, color: '#666', fontFamily: 'Poppins_500Medium' }}>
                     {booking.full_name}
                   </Text>
                 </View>
@@ -733,16 +733,16 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               {booking.priest_name && !user?.is_priest && booking.status === 'approved' && (
                 <View style={{ marginTop: 8, flexDirection: 'row', alignItems: 'center' }}>
                   <Ionicons name="person-outline" size={16} color="#4CAF50" style={{ marginRight: 6 }} />
-                  <Text style={{ fontSize: 13, color: '#4CAF50', fontFamily: 'Poppins_500Medium' }}>
+                  <Text style={{ fontSize: 14, color: '#4CAF50', fontFamily: 'Poppins_500Medium' }}>
                     Priest: {booking.priest_name}
                   </Text>
                 </View>
               )}
-              
+
               {booking.contact_number && user?.is_priest && (
                 <View style={{ marginTop: 6, flexDirection: 'row', alignItems: 'center' }}>
-                  <Ionicons name="call-outline" size={16} color="#666" style={{ marginRight: 6 }} />
-                  <Text style={{ fontSize: 13, color: '#666', fontFamily: 'Poppins_400Regular' }}>
+                  <Ionicons name="call-outline" size={16} color="#bdbdbdff" style={{ marginRight: 6 }} />
+                  <Text style={{ fontSize: 14, color: '#666', fontFamily: 'Poppins_400Regular' }}>
                     {booking.contact_number}
                   </Text>
                 </View>
@@ -755,8 +755,8 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
             <Text style={styles.emptyText}>
               {selectedFilter !== 'all'
                 ? `No ${selectedFilter} bookings found.`
-                : user?.is_priest 
-                  ? 'No bookings assigned to you yet.' 
+                : user?.is_priest
+                  ? 'No bookings assigned to you yet.'
                   : 'No bookings yet. Book a sacrament to get started!'}
             </Text>
           </View>
@@ -807,15 +807,15 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                     { label: "Transaction ID", value: selectedBooking.transaction_id || selectedBooking.id, icon: "receipt-outline" },
                     { label: "Booked on", value: formatDate(selectedBooking.bookingDate), icon: "calendar-outline" },
                     ...(selectedBooking.priest_name && !user?.is_priest ? [{ label: "Assigned Priest", value: selectedBooking.priest_name, icon: "person-outline" }] : []),
-                    ...(selectedBooking.payment_method ? [{ 
-                      label: "Payment Method", 
-                      value: selectedBooking.payment_method === 'gcash' ? 'GCash' : (selectedBooking.payment_method === 'in_person' ? 'In-Person Payment' : selectedBooking.payment_method), 
-                      icon: selectedBooking.payment_method === 'gcash' ? "phone-portrait-outline" : "person-outline" 
+                    ...(selectedBooking.payment_method ? [{
+                      label: "Payment Method",
+                      value: selectedBooking.payment_method === 'gcash' ? 'GCash' : (selectedBooking.payment_method === 'in_person' ? 'In-Person Payment' : selectedBooking.payment_method),
+                      icon: selectedBooking.payment_method === 'gcash' ? "phone-portrait-outline" : "person-outline"
                     }] : []),
-                    ...(selectedBooking.amount && parseFloat(selectedBooking.amount) > 0 ? [{ 
-                      label: "Amount", 
-                      value: `₱${parseFloat(selectedBooking.amount).toLocaleString()}`, 
-                      icon: "wallet-outline" 
+                    ...(selectedBooking.amount && parseFloat(selectedBooking.amount) > 0 ? [{
+                      label: "Amount",
+                      value: `₱${parseFloat(selectedBooking.amount).toLocaleString()}`,
+                      icon: "wallet-outline"
                     }] : []),
                     ...(selectedBooking.notes ? [{ label: "Notes", value: selectedBooking.notes, icon: "document-text-outline" }] : []),
                   ].map((item, idx) => (
@@ -888,7 +888,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                       </View>
                       {Object.entries(selectedBooking.documents).map(([key, path]) => {
                         if (!path) return null;
-                        
+
                         const documentLabels = {
                           baptismal_certificate: 'Baptismal Certificate',
                           communion_preparation: 'Communion Preparation',
@@ -903,9 +903,9 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                           confirmation_preparation: 'Confirmation Preparation',
                           sponsor_certificate: 'Sponsor Certificate',
                         };
-                        
+
                         const label = documentLabels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                        
+
                         return (
                           <TouchableOpacity
                             key={key}

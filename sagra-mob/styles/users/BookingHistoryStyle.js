@@ -95,7 +95,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 12,
   },
 
   cardHeaderLeft: {
@@ -117,7 +116,7 @@ const styles = StyleSheet.create({
 
   cardDivider: {
     height: 1,
-    marginVertical: 5,
+    marginVertical: 8,
     backgroundColor: '#ccc',
   },
 
