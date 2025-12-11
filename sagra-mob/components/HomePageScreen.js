@@ -287,7 +287,7 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
                   style={[styles.eventCard, { marginBottom: 15 }]}
                 >
                   <View style={{ padding: 15 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <View style={{ flex: 1 }}>
                         <Text style={[styles.eventTitle, { fontSize: 18, marginBottom: 5 }]}>{booking.sacrament || booking.type}</Text>
                         <Text style={styles.eventDate}>
@@ -307,18 +307,18 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
                     </View>
 
                     {booking.groom_name && booking.bride_name && (
-                      <Text style={{ fontSize: 14, fontFamily: 'Poppins_400Regular', color: '#555', marginBottom: 5 }}>
+                      <Text style={{ fontSize: 14, fontFamily: 'Poppins_400Regular', color: '#555' }}>
                         {booking.groom_name} & {booking.bride_name}
                       </Text>
                     )}
                     {(booking.full_name || booking.candidate_name || booking.deceased_name) && (
-                      <Text style={{ fontSize: 14, fontFamily: 'Poppins_400Regular', color: '#555', marginBottom: 5 }}>
+                      <Text style={{ fontSize: 14, fontFamily: 'Poppins_400Regular', color: '#555', marginBottom: 5, borderTopColor: '#eee', borderTopWidth: 1, paddingTop: 15 }}>
                         {booking.full_name || booking.candidate_name || booking.deceased_name}
                       </Text>
                     )}
 
                     {booking.attendees && (
-                      <Text style={{ fontSize: 13, fontFamily: 'Poppins_400Regular', color: '#777', marginTop: 5 }}>
+                      <Text style={{ fontSize: 13, fontFamily: 'Poppins_400Regular', color: '#777' }}>
                         {booking.attendees} attendee{booking.attendees !== 1 ? 's' : ''}
                       </Text>
                     )}
