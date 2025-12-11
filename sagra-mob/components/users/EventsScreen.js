@@ -23,10 +23,12 @@ export default function EventsScreen({ onNavigate }) {
 
   const getUserName = () => {
     if (authUser) {
+      const capitalize = (str) =>
+        str ? str.trim().charAt(0).toUpperCase() + str.trim().slice(1).toLowerCase() : '';
+
       const fullName = [
-        authUser?.first_name?.trim(),
-        authUser?.middle_name?.trim(),
-        authUser?.last_name?.trim()
+        capitalize(authUser?.first_name),
+        capitalize(authUser?.last_name)
       ].filter(Boolean).join(' ');
 
       if (authUser.is_priest) {
