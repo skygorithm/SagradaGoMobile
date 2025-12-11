@@ -59,12 +59,13 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
 
   const getUserName = () => {
     if (user) {
+      const capitalize = (str) =>
+        str ? str.trim().charAt(0).toUpperCase() + str.trim().slice(1).toLowerCase() : '';
+
       const fullName = [
-        user.first_name?.trim() || '',
-        user.last_name?.trim() || ''
-      ]
-        .filter(Boolean)
-        .join(' ');
+        capitalize(currentUser?.first_name),
+        capitalize(currentUser?.last_name)
+      ].filter(Boolean).join(' ');
 
       if (user.is_priest) {
         return `Father ${fullName || ''}`.trim();
