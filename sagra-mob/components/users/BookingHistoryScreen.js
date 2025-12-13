@@ -119,6 +119,20 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
 
         if (weddingResponse.ok && weddingData.weddings) {
           weddingData.weddings.forEach(wedding => {
+            const weddingDocuments = {};
+            if (wedding.marriage_docu) weddingDocuments.marriage_license = wedding.marriage_docu;
+            if (wedding.marriage_contract) weddingDocuments.marriage_contract = wedding.marriage_contract;
+            if (wedding.groom_baptismal_cert) weddingDocuments.groom_baptismal_cert = wedding.groom_baptismal_cert;
+            if (wedding.bride_baptismal_cert) weddingDocuments.bride_baptismal_cert = wedding.bride_baptismal_cert;
+            if (wedding.groom_confirmation_cert) weddingDocuments.groom_confirmation_cert = wedding.groom_confirmation_cert;
+            if (wedding.bride_confirmation_cert) weddingDocuments.bride_confirmation_cert = wedding.bride_confirmation_cert;
+            if (wedding.groom_cenomar) weddingDocuments.groom_cenomar = wedding.groom_cenomar;
+            if (wedding.bride_cenomar) weddingDocuments.bride_cenomar = wedding.bride_cenomar;
+            if (wedding.groom_banns) weddingDocuments.groom_banns = wedding.groom_banns;
+            if (wedding.bride_banns) weddingDocuments.bride_banns = wedding.bride_banns;
+            if (wedding.groom_permission) weddingDocuments.groom_permission = wedding.groom_permission;
+            if (wedding.bride_permission) weddingDocuments.bride_permission = wedding.bride_permission;
+            
             bookings.push({
               id: wedding.transaction_id || wedding._id,
               transaction_id: wedding.transaction_id,
@@ -134,6 +148,16 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               payment_method: wedding.payment_method,
               amount: wedding.amount,
               proof_of_payment: wedding.proof_of_payment,
+
+              groom_pic: wedding.groom_pic,
+              bride_pic: wedding.bride_pic,
+              groom_first_name: wedding.groom_first_name,
+              groom_middle_name: wedding.groom_middle_name,
+              groom_last_name: wedding.groom_last_name,
+              bride_first_name: wedding.bride_first_name,
+              bride_middle_name: wedding.bride_middle_name,
+              bride_last_name: wedding.bride_last_name,
+              documents: weddingDocuments,
             });
           });
         }
@@ -801,7 +825,17 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                     { label: "Status", value: selectedBooking.status.charAt(0).toUpperCase() + selectedBooking.status.slice(1) },
                     { label: "Date", value: formatDate(selectedBooking.date), icon: "calendar-outline" },
                     { label: "Time", value: formatTime(selectedBooking.time), icon: "time-outline" },
-                    ...(selectedBooking.full_name && user?.is_priest ? [{ label: "Participant", value: selectedBooking.full_name, icon: "person-outline" }] : []),
+                    ...(selectedBooking.sacrament === 'Wedding' && selectedBooking.groom_first_name ? [{
+                      label: "Groom Name",
+                      value: `${selectedBooking.groom_first_name || ''} ${selectedBooking.groom_middle_name || ''} ${selectedBooking.groom_last_name || ''}`.trim(),
+                      icon: "person-outline"
+                    }] : []),
+                    ...(selectedBooking.sacrament === 'Wedding' && selectedBooking.bride_first_name ? [{
+                      label: "Bride Name",
+                      value: `${selectedBooking.bride_first_name || ''} ${selectedBooking.bride_middle_name || ''} ${selectedBooking.bride_last_name || ''}`.trim(),
+                      icon: "person-outline"
+                    }] : []),
+                    ...(selectedBooking.full_name && user?.is_priest && selectedBooking.sacrament !== 'Wedding' ? [{ label: "Participant", value: selectedBooking.full_name, icon: "person-outline" }] : []),
                     { label: "Attendees", value: selectedBooking.attendees ? `${selectedBooking.attendees} people` : 'N/A', icon: "people-outline" },
                     ...(selectedBooking.contact_number && user?.is_priest ? [{ label: "Contact Number", value: selectedBooking.contact_number, icon: "call-outline" }] : []),
                     { label: "Transaction ID", value: selectedBooking.transaction_id || selectedBooking.id, icon: "receipt-outline" },
@@ -879,6 +913,56 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                     </View>
                   )}
 
+                  {/* Wedding Images Section */}
+                  {selectedBooking.sacrament === 'Wedding' && (selectedBooking.groom_pic || selectedBooking.bride_pic) && (
+                    <View style={styles.modalNotesContainer}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                        <Ionicons name="images-outline" size={18} color="#666" style={{ marginRight: 6 }} />
+                        <Text style={styles.modalLabel}>Photos</Text>
+                      </View>
+                      <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap' }}>
+                        {selectedBooking.groom_pic && (
+                          <View style={{ flex: 1, minWidth: '45%' }}>
+                            <Text style={[styles.modalNotes, { marginBottom: 5, fontSize: 12 }]}>Groom Photo</Text>
+                            <Image
+                              source={{ uri: getSupabasePublicUrl(selectedBooking.groom_pic) }}
+                              style={{
+                                width: '100%',
+                                height: 150,
+                                borderRadius: 8,
+                                borderWidth: 1,
+                                borderColor: '#ddd',
+                              }}
+                              resizeMode="cover"
+                              onError={(error) => {
+                                console.error('Error loading groom photo:', error);
+                              }}
+                            />
+                          </View>
+                        )}
+                        {selectedBooking.bride_pic && (
+                          <View style={{ flex: 1, minWidth: '45%' }}>
+                            <Text style={[styles.modalNotes, { marginBottom: 5, fontSize: 12 }]}>Bride Photo</Text>
+                            <Image
+                              source={{ uri: getSupabasePublicUrl(selectedBooking.bride_pic) }}
+                              style={{
+                                width: '100%',
+                                height: 150,
+                                borderRadius: 8,
+                                borderWidth: 1,
+                                borderColor: '#ddd',
+                              }}
+                              resizeMode="cover"
+                              onError={(error) => {
+                                console.error('Error loading bride photo:', error);
+                              }}
+                            />
+                          </View>
+                        )}
+                      </View>
+                    </View>
+                  )}
+
                   {/* Documents Section */}
                   {selectedBooking.documents && Object.keys(selectedBooking.documents).filter(key => selectedBooking.documents[key]).length > 0 && (
                     <View style={styles.modalNotesContainer}>
@@ -890,6 +974,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                         if (!path) return null;
 
                         const documentLabels = {
+                          // Baptism
                           baptismal_certificate: 'Baptismal Certificate',
                           communion_preparation: 'Communion Preparation',
                           parent_consent: 'Parent Consent',
@@ -897,11 +982,27 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                           parents_marriage_certificate: 'Parents Marriage Certificate',
                           godparent_confirmation: 'Godparent Confirmation',
                           baptismal_seminar: 'Baptismal Seminar',
+                          // Burial
                           death_certificate: 'Death Certificate',
                           deceased_baptismal: 'Deceased Baptismal',
+                          // Communion
                           first_communion_certificate: 'First Communion Certificate',
+                          // Confirmation
                           confirmation_preparation: 'Confirmation Preparation',
                           sponsor_certificate: 'Sponsor Certificate',
+                          // Wedding
+                          marriage_license: 'Marriage License',
+                          marriage_contract: 'Marriage Contract',
+                          groom_baptismal_cert: 'Groom Baptismal Certificate',
+                          bride_baptismal_cert: 'Bride Baptismal Certificate',
+                          groom_confirmation_cert: 'Groom Confirmation Certificate',
+                          bride_confirmation_cert: 'Bride Confirmation Certificate',
+                          groom_cenomar: 'Groom CENOMAR',
+                          bride_cenomar: 'Bride CENOMAR',
+                          groom_banns: 'Groom Banns',
+                          bride_banns: 'Bride Banns',
+                          groom_permission: 'Groom Parental Permission',
+                          bride_permission: 'Bride Parental Permission',
                         };
 
                         const label = documentLabels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
