@@ -138,6 +138,12 @@ export default function DonationsScreen({ user, onNavigate }) {
     return () => clearInterval(interval);
   }, [user?.uid]);
 
+  useEffect(() => {
+    if (paymentMethod === 'In Kind') {
+      setAmount('0');
+    }
+  }, [paymentMethod]);
+
  const handleConfirmDonation = async () => {
   if (!amount || !paymentMethod) {
     Alert.alert('Error', 'Please enter amount and select payment method');
@@ -145,7 +151,7 @@ export default function DonationsScreen({ user, onNavigate }) {
   }
 
   const amountNum = parseFloat(amount);
-  if (isNaN(amountNum) || amountNum <= 0) {
+  if (isNaN(amountNum) || (paymentMethod !== 'In Kind' && amountNum <= 0)) {
     Alert.alert('Error', 'Please enter a valid amount');
     return;
   }
@@ -569,6 +575,7 @@ export default function DonationsScreen({ user, onNavigate }) {
               value={amount}
               onChangeText={setAmount}
               keyboardType="numeric"
+              editable={paymentMethod !== 'In Kind'}
             />
 
             <View style={styles.paymentMethodContainer}>
