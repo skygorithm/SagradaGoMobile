@@ -89,23 +89,15 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
   const email = user?.email || '';
 
   const [weddingForm, setWeddingForm] = useState({
-    groom_fullname: '',
-    bride_fullname: '',
+    groom_first_name: '',
+    groom_middle_name: '',
+    groom_last_name: '',
+    bride_first_name: '',
+    bride_middle_name: '',
+    bride_last_name: '',
     contact_no: '',
-    marriage_license: null,
-    marriage_contract: null,
     groom_1x1: null,
     bride_1x1: null,
-    groom_baptismal_cert: null,
-    bride_baptismal_cert: null,
-    groom_confirmation_cert: null,
-    bride_confirmation_cert: null,
-    groom_cenomar: null,
-    bride_cenomar: null,
-    groom_banns: null,
-    bride_banns: null,
-    groom_permission: null,
-    bride_permission: null,
   });
 
   const [baptismForm, setBaptismForm] = useState({
@@ -150,23 +142,15 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
     setTime(null);
     setPax('');
     setWeddingForm({
-      groom_fullname: '',
-      bride_fullname: '',
+      groom_first_name: '',
+      groom_middle_name: '',
+      groom_last_name: '',
+      bride_first_name: '',
+      bride_middle_name: '',
+      bride_last_name: '',
       contact_no: '',
-      marriage_license: null,
-      marriage_contract: null,
       groom_1x1: null,
       bride_1x1: null,
-      groom_baptismal_cert: null,
-      bride_baptismal_cert: null,
-      groom_confirmation_cert: null,
-      bride_confirmation_cert: null,
-      groom_cenomar: null,
-      bride_cenomar: null,
-      groom_banns: null,
-      bride_banns: null,
-      groom_permission: null,
-      bride_permission: null,
     });
 
     setBaptismForm({
@@ -261,10 +245,46 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
     }
 
     if (selectedSacrament === 'Wedding') {
-      if (!weddingForm.groom_fullname || !weddingForm.bride_fullname || !weddingForm.contact_no) {
-        setErrorMessage('Please fill in all required wedding information.');
+      if (!weddingForm.groom_first_name || !weddingForm.groom_last_name || 
+          !weddingForm.bride_first_name || !weddingForm.bride_last_name || 
+          !weddingForm.contact_no) {
+        setErrorMessage('Please fill in all required wedding information (groom first & last name, bride first & last name, and contact number).');
         return;
       }
+
+        if (!weddingForm.groom_1x1 || !weddingForm.bride_1x1) {
+          setErrorMessage('Please upload both groom and bride 1x1 photos.');
+          return;
+        }
+
+        const weddingDocs = uploadedDocuments[selectedSacrament] || {};
+        const requiredDocs = ['marriage_license', 'marriage_contract', 'groom_baptismal_cert', 'bride_baptismal_cert', 'groom_confirmation_cert', 'bride_confirmation_cert'];
+        const hasMarriageDoc = weddingDocs.marriage_license || weddingDocs.marriage_contract;
+        const hasGroomBaptismal = weddingDocs.groom_baptismal_cert;
+        const hasBrideBaptismal = weddingDocs.bride_baptismal_cert;
+        const hasGroomConfirmation = weddingDocs.groom_confirmation_cert;
+        const hasBrideConfirmation = weddingDocs.bride_confirmation_cert;
+
+        if (!hasMarriageDoc) {
+          setErrorMessage('Please upload either a marriage license or marriage contract.');
+          return;
+        }
+        if (!hasGroomBaptismal) {
+          setErrorMessage('Please upload groom baptismal certificate.');
+          return;
+        }
+        if (!hasBrideBaptismal) {
+          setErrorMessage('Please upload bride baptismal certificate.');
+          return;
+        }
+        if (!hasGroomConfirmation) {
+          setErrorMessage('Please upload groom confirmation certificate.');
+          return;
+        }
+        if (!hasBrideConfirmation) {
+          setErrorMessage('Please upload bride confirmation certificate.');
+          return;
+        }
 
     } else if (selectedSacrament === 'Baptism') {
       if (!baptismForm.main_godfather?.name || !baptismForm.main_godmother?.name) {
@@ -446,54 +466,106 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
       const docs = uploadedDocuments[selectedSacrament] || {};
       
       if (selectedSacrament === 'Wedding') {
-        formData.append('groom_fullname', weddingForm.groom_fullname || '');
-        formData.append('bride_fullname', weddingForm.bride_fullname || '');
+        // Validate required name fields
+        if (!weddingForm.groom_first_name || !weddingForm.groom_last_name) {
+          Alert.alert('Validation Error', 'Please fill in groom first name and last name.');
+          setSubmitting(false);
+          return;
+        }
+        if (!weddingForm.bride_first_name || !weddingForm.bride_last_name) {
+          Alert.alert('Validation Error', 'Please fill in bride first name and last name.');
+          setSubmitting(false);
+          return;
+        }
+
+        const groomFullname = `${weddingForm.groom_first_name} ${weddingForm.groom_middle_name || ''} ${weddingForm.groom_last_name}`.trim();
+        const brideFullname = `${weddingForm.bride_first_name} ${weddingForm.bride_middle_name || ''} ${weddingForm.bride_last_name}`.trim();
+        
+        formData.append('groom_fullname', groomFullname);
+        formData.append('bride_fullname', brideFullname);
         formData.append('contact_number', weddingForm.contact_no || user.contact_number || '');
 
-  
-        const weddingDocs = {
-          'marriage_license': 'marriage_license',
-          'baptismal_certificate': 'groom_baptismal_cert',
-          'confirmation_certificate': 'groom_confirmation_cert',
-          'pre_marriage_seminar': 'marriage_contract',
-          'parental_consent': 'groom_permission',
-        };
+        if (weddingForm.groom_1x1 && weddingForm.groom_1x1.uri) {
+          formData.append('groom_1x1', {
+            uri: weddingForm.groom_1x1.uri,
+            type: weddingForm.groom_1x1.mimeType || weddingForm.groom_1x1.type || 'image/jpeg',
+            name: weddingForm.groom_1x1.fileName || weddingForm.groom_1x1.name || 'groom_1x1.jpg',
+          });
+
+          console.log('Appending groom_1x1 photo');
+        }
+
+        if (weddingForm.bride_1x1 && weddingForm.bride_1x1.uri) {
+          formData.append('bride_1x1', {
+            uri: weddingForm.bride_1x1.uri,
+            type: weddingForm.bride_1x1.mimeType || weddingForm.bride_1x1.type || 'image/jpeg',
+            name: weddingForm.bride_1x1.fileName || weddingForm.bride_1x1.name || 'bride_1x1.jpg',
+          });
+
+          console.log('Appending bride_1x1 photo');
+        }
+
+        console.log('Wedding documents to upload:', Object.keys(docs));
+        console.log('Total documents:', Object.keys(docs).length);
 
         Object.keys(docs).forEach((reqId) => {
           const file = docs[reqId];
           if (file && file.uri) {
-            const fieldName = weddingDocs[reqId] || reqId;
-            formData.append(fieldName, {
-              uri: file.uri,
-              type: file.mimeType || 'application/pdf',
-              name: file.name || `${fieldName}.pdf`,
+            const fileUri = file.uri;
+            const fileName = file.name || file.fileName || `${reqId}.pdf`;
+            const fileType = file.mimeType || file.type || 'application/pdf';
+
+            formData.append(reqId, {
+              uri: fileUri,
+              type: fileType,
+              name: fileName,
+            });
+            
+            console.log(`Appending wedding document: ${reqId}`, {
+              uri: fileUri,
+              type: fileType,
+              name: fileName,
+              size: file.size
             });
 
-            console.log(`Appending wedding document: ${reqId} -> ${fieldName}`);
+          } else {
+            console.warn(`Warning: ${reqId} file is missing or invalid:`, file);
           }
         });
 
-        const weddingImageFields = [
-          'marriage_license', 'marriage_contract', 'groom_1x1', 'bride_1x1',
-          'groom_baptismal_cert', 'bride_baptismal_cert',
-          'groom_confirmation_cert', 'bride_confirmation_cert',
-          'groom_cenomar', 'bride_cenomar',
-          'groom_banns', 'bride_banns',
-          'groom_permission', 'bride_permission'
-        ];
-
-        weddingImageFields.forEach((fieldName) => {
-          const file = weddingForm[fieldName];
-          if (file && file.uri) {
-            formData.append(fieldName, {
-              uri: file.uri,
-              type: file.mimeType || file.type || 'image/jpeg',
-              name: file.fileName || file.name || `${fieldName}.jpg`,
-            });
-
-            console.log(`Appending wedding image: ${fieldName}`);
-          }
+        console.log('Wedding form submission summary:', {
+          groom_fullname: weddingForm.groom_fullname,
+          bride_fullname: weddingForm.bride_fullname,
+          contact_no: weddingForm.contact_no,
+          hasGroom1x1: !!weddingForm.groom_1x1,
+          hasBride1x1: !!weddingForm.bride_1x1,
+          documentsCount: Object.keys(docs).length,
+          documentKeys: Object.keys(docs),
+          allDocuments: Object.keys(docs).map(key => ({
+            key,
+            hasFile: !!docs[key],
+            hasUri: !!(docs[key] && docs[key].uri),
+            fileName: docs[key]?.name || docs[key]?.fileName
+          }))
         });
+
+        const requiredDocKeys = ['marriage_license', 'marriage_contract', 'groom_baptismal_cert', 'bride_baptismal_cert', 'groom_confirmation_cert', 'bride_confirmation_cert'];
+        const missingRequiredDocs = requiredDocKeys.filter(key => {
+          if (key === 'marriage_license' || key === 'marriage_contract') {
+            return !docs.marriage_license && !docs.marriage_contract;
+          }
+          return !docs[key] || !docs[key].uri;
+        });
+
+        if (missingRequiredDocs.length > 0 && !(missingRequiredDocs.includes('marriage_license') && missingRequiredDocs.includes('marriage_contract'))) {
+          const actualMissing = missingRequiredDocs.filter(k => k !== 'marriage_license' && k !== 'marriage_contract');
+
+          if (actualMissing.length > 0) {
+            Alert.alert('Validation Error', `Missing required documents: ${actualMissing.join(', ')}`);
+            setSubmitting(false);
+            return;
+          }
+        }
 
         const response = await submitBookingForm(`${API_BASE_URL}/createWedding`, formData);
         if (response) {
@@ -503,7 +575,6 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
         }
 
       } else if (selectedSacrament === 'Baptism') {
-        // Validate godparent data before submission
         if (!baptismForm.main_godfather?.name || !baptismForm.main_godmother?.name) {
           Alert.alert('Validation Error', 'Please fill in both main godfather and main godmother names.');
           setSubmitting(false);
@@ -512,13 +583,11 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
 
         formData.append('contact_number', user.contact_number || '');
         
-        // Log godparent data before stringifying
         console.log('Baptism Form Data:');
         console.log('- main_godfather:', baptismForm.main_godfather);
         console.log('- main_godmother:', baptismForm.main_godmother);
         console.log('- additional_godparents:', baptismForm.additional_godparents);
-        
-        // Ensure we're sending valid objects (not empty if validation passed)
+
         const mainGodfather = baptismForm.main_godfather || {};
         const mainGodmother = baptismForm.main_godmother || {};
         const additionalGodparents = baptismForm.additional_godparents || [];
@@ -527,7 +596,6 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
         formData.append('main_godmother', JSON.stringify(mainGodmother));
         formData.append('additional_godparents', JSON.stringify(additionalGodparents));
 
-        // Log all form data being sent (except files)
         console.log('Baptism booking payload:');
         console.log('- uid:', user.uid);
         console.log('- full_name:', fullName);
@@ -560,6 +628,7 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
             docCount++;
           }
         });
+
         console.log(`Total documents appended: ${docCount}`);
 
         const response = await submitBookingForm(`${API_BASE_URL}/createBaptism`, formData);
@@ -672,19 +741,21 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
           console.log('Calling submitBookingForm for Communion...');
           const response = await submitBookingForm(`${API_BASE_URL}/createCommunion`, formData);
           console.log('submitBookingForm returned:', response);
+
           if (response) {
             Alert.alert('Success', 'Communion booking submitted successfully!', [
               { text: 'OK', onPress: handleClose }
             ]);
             resetForm();
           }
+
         } catch (err) {
           console.error('Communion booking submission error:', err);
           console.error('Error name:', err.name);
           console.error('Error message:', err.message);
           console.error('Error stack:', err.stack);
           Alert.alert('Error', err.message || 'Failed to submit Communion booking. Please try again.');
-          throw err; // Re-throw to be caught by outer catch
+          throw err; 
         }
 
       } else if (selectedSacrament === 'Anointing of the Sick') {
@@ -770,6 +841,7 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
       console.error('Error message:', error.message);
       console.error('Error stack:', error.stack);
       Alert.alert('Error', error.message || 'Failed to submit booking. Please try again.');
+
     } finally {
       setSubmitting(false);
     }
@@ -779,17 +851,26 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
     console.log('Submitting booking to:', url);
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // Increased timeout to 60s for file uploads
 
     let response;
     try {
       console.log('Starting fetch request...');
       console.log('FormData entries count (approximate):', formData._parts ? formData._parts.length : 'unknown');
+      
+      if (formData._parts) {
+        console.log('FormData parts:', formData._parts.map(part => ({
+          field: part[0],
+          hasValue: !!part[1],
+          valueType: typeof part[1],
+          isFile: part[1] && typeof part[1] === 'object' && part[1].uri ? 'file' : 'text'
+        })));
+      }
+      
       response = await fetch(url, {
         method: 'POST',
         body: formData,
         signal: controller.signal,
-        // Do NOT set 'Content-Type' header - let fetch set it automatically with boundary for FormData
       });
       clearTimeout(timeoutId);
       console.log('Fetch request completed, status:', response.status);
@@ -816,16 +897,17 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
     try {
       const text = await response.text();
       console.log('Response text:', text);
-      
-      // Try to parse as JSON, but handle non-JSON responses gracefully
+ 
       if (text.trim()) {
         try {
           data = JSON.parse(text);
+
         } catch (parseError) {
           console.error('Failed to parse response as JSON:', parseError);
           console.error('Raw response text:', text);
           throw new Error(`Server returned invalid JSON. Response: ${text.substring(0, 200)}`);
         }
+
       } else {
         data = { message: 'Empty response from server' };
       }
@@ -838,20 +920,37 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
     if (response.ok) {
       return data;
       
-    } else {
-      // Provide more detailed error message for 500 errors
-      const errorMsg = response.status === 500 
-        ? `Server error (500). ${data.message || 'Please check the server logs for more details.'}\n\nCheck:\n- All required fields are provided\n- File formats are correct\n- Server database connection is working`
-        : (data.message || `Failed to submit booking (Status: ${response.status}). Please try again.`);
-      
-      console.error('Server error response:', {
-        status: response.status,
-        statusText: response.statusText,
-        data: data
-      });
-      
-      throw new Error(errorMsg);
-    }
+      } else {
+        let errorMsg = '';
+        if (response.status === 500 || response.status === 600) {
+          errorMsg = `Server error (${response.status}). ${data.message || 'Please check the server logs for more details.'}\n\n`;
+          errorMsg += `Check:\n`;
+          errorMsg += `- All required fields are provided\n`;
+          errorMsg += `- File formats are correct\n`;
+          errorMsg += `- Server database connection is working\n`;
+          errorMsg += `- All required documents are uploaded\n\n`;
+
+          if (data.error) {
+            errorMsg += `Error details: ${JSON.stringify(data.error)}\n`;
+          }
+
+          if (data.stack && __DEV__) {
+            errorMsg += `Stack: ${data.stack.substring(0, 500)}\n`;
+          }
+          
+        } else {
+          errorMsg = data.message || `Failed to submit booking (Status: ${response.status}). Please try again.`;
+        }
+        
+        console.error('Server error response:', {
+          status: response.status,
+          statusText: response.statusText,
+          data: data,
+          fullResponse: JSON.stringify(data, null, 2)
+        });
+        
+        throw new Error(errorMsg);
+      }
   };
 
   const minDate = selectedSacrament

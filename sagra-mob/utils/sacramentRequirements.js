@@ -1,10 +1,17 @@
 export const sacramentRequirements = {
   Wedding: [
-    { id: 'marriage_license', label: 'Valid marriage license', requiresUpload: true },
-    { id: 'baptismal_certificate', label: 'Baptismal certificate', requiresUpload: true },
-    { id: 'confirmation_certificate', label: 'Confirmation certificate', requiresUpload: true },
-    { id: 'pre_marriage_seminar', label: 'Pre-marriage seminar certificate', requiresUpload: true },
-    { id: 'parental_consent', label: 'Parental consent (if applicable)', requiresUpload: true },
+    { id: 'marriage_license', label: 'Marriage License', requiresUpload: true },
+    { id: 'marriage_contract', label: 'Marriage Contract', requiresUpload: true },
+    { id: 'groom_baptismal_cert', label: 'Groom Baptismal Certificate', requiresUpload: true },
+    { id: 'bride_baptismal_cert', label: 'Bride Baptismal Certificate', requiresUpload: true },
+    { id: 'groom_confirmation_cert', label: 'Groom Confirmation Certificate', requiresUpload: true },
+    { id: 'bride_confirmation_cert', label: 'Bride Confirmation Certificate', requiresUpload: true },
+    { id: 'groom_cenomar', label: 'Groom CENOMAR', requiresUpload: true },
+    { id: 'bride_cenomar', label: 'Bride CENOMAR', requiresUpload: true },
+    { id: 'groom_banns', label: 'Groom Banns', requiresUpload: true },
+    { id: 'bride_banns', label: 'Bride Banns', requiresUpload: true },
+    { id: 'groom_permission', label: 'Groom Permission', requiresUpload: true },
+    { id: 'bride_permission', label: 'Bride Permission', requiresUpload: true },
   ],
   Baptism: [
     { id: 'birth_certificate', label: 'Birth certificate', requiresUpload: true },
