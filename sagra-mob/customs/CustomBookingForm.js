@@ -457,9 +457,30 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
         }
       }
 
-        // Note: To check conflicts with ALL users (not just current user),
-        // you would need to create a backend API endpoint at /checkBookingConflict
-        // For now, we only check the current user's bookings above
+      try {
+        const allBookingsResponse = await fetch(`${API_BASE_URL}/checkBookingConflict`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            date: selectedDateStr,
+            time: selectedTimeStr,
+            datetime: selectedDateTimeISO,
+          }),
+        });
+
+        if (allBookingsResponse.ok) {
+          const conflictData = await allBookingsResponse.json();
+          if (conflictData.hasConflict) {
+            return {
+              hasConflict: true,
+              message: conflictData.message || `This time slot is already booked. Please choose a different date or time.`,
+            };
+          }
+        }
+
+      } catch (error) {
+        console.log('Conflict check endpoint not available, skipping global conflict check:', error);
+      }
 
       return { hasConflict: false, message: '' };
 
