@@ -40,7 +40,22 @@ const styles = StyleSheet.create({
 
   filterContainer: {
     flexDirection: 'row',
-    marginBottom: -500,
+    marginBottom: 10,
+  },
+
+  additionalFiltersContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    marginBottom: 10,
+    gap: 10,
+  },
+
+  pickerContainer: {
+    flex: 1,
+  },
+
+  customPicker: {
+    marginBottom: 0,
   },
 
   detailRow: {

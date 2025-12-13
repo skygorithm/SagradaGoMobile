@@ -14,6 +14,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import styles from '../../styles/users/BookingHistoryStyle';
 import CustomNavbar from '../../customs/CustomNavbar';
+import CustomPicker from '../../customs/CustomPicker';
 import { API_BASE_URL } from '../../config/API';
 
 const SUPABASE_PUBLIC_URL = 'https://qpwoatrmswpkgyxmzkjv.supabase.co/storage/v1/object/public/bookings';
@@ -36,6 +37,8 @@ const mapStatus = (status) => {
 
 export default function BookingHistoryScreen({ user, onNavigate }) {
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [selectedSacrament, setSelectedSacrament] = useState('all');
+  const [selectedMonth, setSelectedMonth] = useState('all');
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
@@ -427,30 +430,71 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
     Confession: "Confession",
   };
 
+  const sacramentOptions = [
+    { label: 'All Sacraments', value: 'all' },
+    { label: 'Wedding', value: 'Wedding' },
+    { label: 'Baptism', value: 'Baptism' },
+    { label: 'Burial', value: 'Burial' },
+    { label: 'First Communion', value: 'First Communion' },
+    { label: 'Anointing of the Sick', value: 'Anointing of the Sick' },
+    { label: 'Confirmation', value: 'Confirmation' },
+    { label: 'Confession', value: 'Confession' },
+  ];
+
+  const monthOptions = [
+    { label: 'All Months', value: 'all' },
+    { label: 'January', value: '0' },
+    { label: 'February', value: '1' },
+    { label: 'March', value: '2' },
+    { label: 'April', value: '3' },
+    { label: 'May', value: '4' },
+    { label: 'June', value: '5' },
+    { label: 'July', value: '6' },
+    { label: 'August', value: '7' },
+    { label: 'September', value: '8' },
+    { label: 'October', value: '9' },
+    { label: 'November', value: '10' },
+    { label: 'December', value: '11' },
+  ];
+
   const filteredBookings = useMemo(() => {
-    if (selectedFilter === 'all') {
-      return allBookings;
+    let filtered = allBookings;
+
+
+    if (selectedFilter !== 'all') {
+      const statusMap = {
+        'approved': 'confirmed',
+        'pending': 'pending',
+        'rejected': 'cancelled',
+        'cancelled': 'cancelled',
+      };
+
+      filtered = filtered.filter(booking => {
+        const bookingStatus = booking.status.toLowerCase();
+        if (selectedFilter === 'approved') {
+          return bookingStatus === 'approved' || bookingStatus === 'confirmed';
+        }
+        return bookingStatus === selectedFilter.toLowerCase();
+      });
     }
 
-    const statusMap = {
-      'approved': 'confirmed',
-      'pending': 'pending',
-      'rejected': 'cancelled',
-      'cancelled': 'cancelled',
-    };
+    if (selectedSacrament !== 'all') {
+      filtered = filtered.filter(booking => booking.sacrament === selectedSacrament);
+    }
 
-    const backendStatus = statusMap[selectedFilter] || selectedFilter;
+    if (selectedMonth !== 'all') {
+      filtered = filtered.filter(booking => {
+        if (!booking.date) return false;
+        const bookingDate = new Date(booking.date);
+        
+        if (isNaN(bookingDate.getTime())) return false;
+        return bookingDate.getMonth() === parseInt(selectedMonth);
+      });
+    }
 
-    return allBookings.filter(booking => {
-      const bookingStatus = booking.status.toLowerCase();
-      if (selectedFilter === 'approved') {
-        return bookingStatus === 'approved' || bookingStatus === 'confirmed';
-      }
+    return filtered;
 
-      return bookingStatus === selectedFilter.toLowerCase();
-    });
-
-  }, [selectedFilter, allBookings]);
+  }, [selectedFilter, selectedSacrament, selectedMonth, allBookings]);
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -655,11 +699,12 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
         </Text>
       </View>
 
+      {/* Status Filter */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.filterContainer}
-        contentContainerStyle={{ paddingRight: 20, marginHorizontal: 20, gap: 10, height: 40, marginTop: 20, marginBottom: 0 }}
+        contentContainerStyle={{ paddingRight: 20, marginHorizontal: 20, gap: 10, height: 40, marginTop: 20, marginBottom: 10 }}
       >
         {['all', 'approved', 'pending', 'rejected', 'cancelled'].map((filter) => (
           <TouchableOpacity
@@ -681,6 +726,30 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
           </TouchableOpacity>
         ))}
       </ScrollView>
+
+      {/* Sacrament and Month Filters */}
+      <View style={styles.additionalFiltersContainer}>
+        <View style={styles.pickerContainer}>
+          <CustomPicker
+            value={sacramentOptions.find(opt => opt.value === selectedSacrament)?.label}
+            onValueChange={(value) => setSelectedSacrament(value)}
+            options={sacramentOptions}
+            placeholder="All Sacraments"
+            iconName="water-outline"
+            style={styles.customPicker}
+          />
+        </View>
+        <View style={styles.pickerContainer}>
+          <CustomPicker
+            value={monthOptions.find(opt => opt.value === selectedMonth)?.label}
+            onValueChange={(value) => setSelectedMonth(value)}
+            options={monthOptions}
+            placeholder="All Months"
+            iconName="calendar-outline"
+            style={styles.customPicker}
+          />
+        </View>
+      </View>
 
       <ScrollView
         style={styles.scrollView}
