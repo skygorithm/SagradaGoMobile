@@ -15,6 +15,7 @@ import dayjs from 'dayjs';
 import styles from '../styles/users/CustomBookingStyle';
 import CustomCalendar from './CustomCalendar';
 import TimePicker from './TimePicker';
+import CustomPicker from './CustomPicker';
 import WeddingDocuments from '../components/users/WeddingDocuments';
 import BaptismDocuments from '../components/users/BaptismDocuments';
 import BurialDocuments from '../components/users/BurialDocuments';
@@ -77,7 +78,7 @@ const getMinimumBookingDateDisplay = (sacrament) => {
 
 const getSacramentPrice = (sacrament) => {
   const prices = {
-    'Wedding': 5000,
+    'Wedding': 10000,
     'Baptism': 2000,
     'Confession': 0,
     'Anointing of the Sick': 0,
@@ -122,6 +123,7 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
     contact_no: '',
     groom_1x1: null,
     bride_1x1: null,
+    is_civilly_married: '',
   });
 
   const [baptismForm, setBaptismForm] = useState({
@@ -213,6 +215,7 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
       contact_no: '',
       groom_1x1: null,
       bride_1x1: null,
+      is_civilly_married: '',
     });
 
     setBaptismForm({
@@ -406,15 +409,20 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
         }
 
         const weddingDocs = uploadedDocuments[selectedSacrament] || {};
-        const requiredDocs = ['marriage_license', 'marriage_contract', 'groom_baptismal_cert', 'bride_baptismal_cert', 'groom_confirmation_cert', 'bride_confirmation_cert'];
-        const hasMarriageDoc = weddingDocs.marriage_license || weddingDocs.marriage_contract;
+        const isCivillyMarried = weddingForm.is_civilly_married === 'yes';
+
         const hasGroomBaptismal = weddingDocs.groom_baptismal_cert;
         const hasBrideBaptismal = weddingDocs.bride_baptismal_cert;
         const hasGroomConfirmation = weddingDocs.groom_confirmation_cert;
         const hasBrideConfirmation = weddingDocs.bride_confirmation_cert;
 
-        if (!hasMarriageDoc) {
-          setErrorMessage('Please upload either a marriage license or marriage contract.');
+        if (isCivillyMarried && !weddingDocs.marriage_contract) {
+          setErrorMessage('Please upload marriage contract (required for civilly married couples).');
+          return;
+        }
+
+        if (!isCivillyMarried && !weddingDocs.marriage_license) {
+          setErrorMessage('Please upload marriage license.');
           return;
         }
 
@@ -545,7 +553,26 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
     }
 
     if (uploadableRequirements.length > 0) {
-      const missingUploads = uploadableRequirements.filter(
+      let requiredUploads = uploadableRequirements;
+      if (selectedSacrament === 'Wedding') {
+        const isCivillyMarried = weddingForm.is_civilly_married === 'yes';
+        requiredUploads = uploadableRequirements.filter((req) => {
+          if (req.optionalIfCivillyMarried && isCivillyMarried) {
+            return false;
+          }
+
+          if (req.onlyIfCivillyMarried && !isCivillyMarried) {
+            return false;
+          }
+
+          if (req.optionalIfApplicable) {
+            return false;
+          }
+          return true;
+        });
+      }
+
+      const missingUploads = requiredUploads.filter(
         (req) => !uploadedDocuments[selectedSacrament]?.[req.id]
       );
 
@@ -741,6 +768,7 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
         formData.append('groom_fullname', groomFullname);
         formData.append('bride_fullname', brideFullname);
         formData.append('contact_number', weddingForm.contact_no || user.contact_number || '');
+        formData.append('is_civilly_married', weddingForm.is_civilly_married || 'no');
 
         if (weddingForm.groom_1x1 && weddingForm.groom_1x1.uri) {
           formData.append('groom_1x1', {
@@ -1338,6 +1366,22 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
                   </Text>
                 </View>
 
+                {selectedSacrament === 'Wedding' && uploadableRequirements.length > 0 && (
+                  <View style={styles.inputWrapper}>
+                    <Text style={styles.inputLabel}>Are you already civilly married?</Text>
+                    <CustomPicker
+                      value={weddingForm.is_civilly_married || ''}
+                      onValueChange={(value) => setWeddingForm({ ...weddingForm, is_civilly_married: value })}
+                      options={[
+                        { label: 'No', value: 'no' },
+                        { label: 'Yes', value: 'yes' },
+                      ]}
+                      placeholder="Select option"
+                    />
+                    <Text style={styles.uploadHelperText}>Select "Yes" if you are already civilly married</Text>
+                  </View>
+                )}
+
                 {uploadableRequirements.length > 0 && (
                   <View style={styles.uploadSection}>
                     <View style={styles.uploadSectionHeader}>
@@ -1498,6 +1542,7 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
         sacrament={selectedSacrament}
         requirements={uploadableRequirements}
         uploadedDocs={selectedSacrament ? uploadedDocuments[selectedSacrament] || {} : {}}
+        isCivillyMarried={selectedSacrament === 'Wedding' ? (weddingForm.is_civilly_married === 'yes') : false}
         onUpload={handleDocumentUpload}
         onRemove={handleDocumentRemove}
       />
