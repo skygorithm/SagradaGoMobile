@@ -80,7 +80,7 @@ export default function BaptismDocuments({ baptismForm, setBaptismForm, user }) 
       <Text style={styles.sacramentFormTitle}>Baptism Information</Text>
 
       {/* Candidate Information */}
-      <Text style={styles.sectionTitle}>Candidate Information</Text>
+      <Text style={styles.sectionTitle}>Baby Information</Text>
       
       <View style={styles.inputWrapper}>
         <Text style={styles.inputLabel}>First Name *</Text>

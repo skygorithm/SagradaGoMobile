@@ -387,11 +387,12 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
 
     } else if (selectedSacrament === 'Baptism') {
       if (!baptismForm.candidate_first_name || !baptismForm.candidate_last_name) {
-        setErrorMessage('Please fill in candidate first name and last name.');
+        setErrorMessage('Please fill in Baby first name and last name.');
         return;
       }
+      
       if (!baptismForm.candidate_birthday) {
-        setErrorMessage('Please enter candidate birthday.');
+        setErrorMessage('Please enter Baby birthday.');
         return;
       }
 
@@ -402,7 +403,7 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
       }
 
       if (!baptismForm.candidate_birth_place) {
-        setErrorMessage('Please enter candidate birth place.');
+        setErrorMessage('Please enter Baby birth place.');
         return;
       }
 
@@ -750,7 +751,7 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
         }
 
         if (!baptismForm.candidate_first_name || !baptismForm.candidate_last_name) {
-          Alert.alert('Validation Error', 'Please fill in candidate first name and last name.');
+          Alert.alert('Validation Error', 'Please fill in Baby first name and last name.');
           setSubmitting(false);
           return;
         }
