@@ -585,8 +585,12 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
       combinedDateTime.setSeconds(0);
       combinedDateTime.setMilliseconds(0);
 
+      const hours = time.getHours().toString().padStart(2, '0');
+      const minutes = time.getMinutes().toString().padStart(2, '0');
+      const timeString = `${hours}:${minutes}`;
+
       formData.append('date', combinedDateTime.toISOString());
-      formData.append('time', combinedDateTime.toISOString());
+      formData.append('time', timeString);
       
       formData.append('payment_method', currentPaymentMethod);
       formData.append('amount', getSacramentPrice(selectedSacrament).toString());
