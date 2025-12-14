@@ -26,30 +26,53 @@ import { Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
 const getMinimumBookingDate = (sacrament) => {
-  const dates = {
-    'Wedding': '2025-10-17',
-    'Baptism': '2025-11-01',
-    'Confession': '2025-09-19',
-    'Anointing of the Sick': '2025-09-18',
-    'First Communion': '2025-11-16',
-    'Burial': '2025-09-20',
-    'Confirmation': '2025-11-16',
-  };
-  return dates[sacrament] || dayjs().format('YYYY-MM-DD');
+  const today = dayjs();
+  let minDate;
+  
+  switch (sacrament) {
+    case 'Baptism':
+    case 'Wedding':
+      minDate = today.add(2, 'months');
+      break;
+    case 'Burial':
+      minDate = today.add(1, 'week');
+      break;
+    case 'First Communion':
+    case 'Confession':
+    case 'Anointing of the Sick':
+    case 'Confirmation':
+      minDate = today.add(1, 'day');
+      break;
+    default:
+      minDate = today;
+  }
+  
+  return minDate.format('YYYY-MM-DD');
 };
 
 const getMinimumBookingDateDisplay = (sacrament) => {
-  const dates = {
-    'Wedding': 'October 17, 2025',
-    'Baptism': 'November 1, 2025',
-    'Confession': 'September 19, 2025',
-    'Anointing of the Sick': 'September 18, 2025',
-    'First Communion': 'November 16, 2025',
-    'Burial': 'September 20, 2025',
-    'Confirmation': 'November 16, 2025',
-  };
-
-  return dates[sacrament] || new Date().toLocaleDateString();
+  const today = dayjs();
+  let minDate;
+  
+  switch (sacrament) {
+    case 'Baptism':
+    case 'Wedding':
+      minDate = today.add(2, 'months');
+      break;
+    case 'Burial':
+      minDate = today.add(1, 'week');
+      break;
+    case 'First Communion':
+    case 'Confession':
+    case 'Anointing of the Sick':
+    case 'Confirmation':
+      minDate = today.add(1, 'day');
+      break;
+    default:
+      minDate = today;
+  }
+  
+  return minDate.format('MMMM D, YYYY');
 };
 
 const getSacramentPrice = (sacrament) => {
