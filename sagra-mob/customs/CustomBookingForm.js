@@ -151,6 +151,15 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
   });
 
   const [burialForm, setBurialForm] = useState({
+    deceased_name: '',
+    deceased_age: '',
+    deceased_civil_status: '',
+    requested_by: '',
+    relationship_to_deceased: '',
+    address: '',
+    contact_number: '',
+    place_of_mass: '',
+    mass_address: '',
     funeral_mass: false,
     death_anniversary: false,
     funeral_blessing: false,
@@ -180,6 +189,15 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
       setPax('1');
     }
   }, [selectedSacrament]);
+
+  useEffect(() => {
+    if (selectedSacrament === 'Burial' && user && fullName) {
+      setBurialForm(prev => ({
+        ...prev,
+        requested_by: fullName,
+      }));
+    }
+  }, [selectedSacrament, user, fullName]);
 
   const resetForm = () => {
     setDate(null);
@@ -219,7 +237,19 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
       additional_godparents: [],
     });
 
+    const currentUserFullName = user
+      ? `${user.first_name || ''} ${user.middle_name || ''} ${user.last_name || ''}`.trim()
+      : '';
     setBurialForm({
+      deceased_name: '',
+      deceased_age: '',
+      deceased_civil_status: '',
+      requested_by: currentUserFullName,
+      relationship_to_deceased: '',
+      address: '',
+      contact_number: '',
+      place_of_mass: '',
+      mass_address: '',
       funeral_mass: false,
       death_anniversary: false,
       funeral_blessing: false,
@@ -470,6 +500,41 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
       }
 
     } else if (selectedSacrament === 'Burial') {
+      if (!burialForm.deceased_name || burialForm.deceased_name.trim() === '') {
+        setErrorMessage('Please enter deceased name.');
+        return;
+      }
+
+      if (!burialForm.deceased_age || burialForm.deceased_age.trim() === '') {
+        setErrorMessage('Please enter deceased age.');
+        return;
+      }
+
+      if (!burialForm.deceased_civil_status || burialForm.deceased_civil_status.trim() === '') {
+        setErrorMessage('Please select civil status.');
+        return;
+      }
+
+      if (!burialForm.requested_by || burialForm.requested_by.trim() === '') {
+        setErrorMessage('Please enter requested by.');
+        return;
+      }
+
+      if (!burialForm.relationship_to_deceased || burialForm.relationship_to_deceased.trim() === '') {
+        setErrorMessage('Please enter relationship to deceased.');
+        return;
+      }
+
+      if (!burialForm.address || burialForm.address.trim() === '') {
+        setErrorMessage('Please enter address.');
+        return;
+      }
+
+      if (!burialForm.contact_number || burialForm.contact_number.trim() === '') {
+        setErrorMessage('Please enter contact number.');
+        return;
+      }
+      
       const hasSelection = burialForm.funeral_mass || burialForm.death_anniversary ||
         burialForm.funeral_blessing || burialForm.tomb_blessing;
 
@@ -888,7 +953,15 @@ export default function CustomBookingForm({ visible, onClose, selectedSacrament:
         }
 
       } else if (selectedSacrament === 'Burial') {
-        formData.append('contact_number', user.contact_number || '');
+        formData.append('contact_number', burialForm.contact_number || user.contact_number || '');
+        formData.append('deceased_name', burialForm.deceased_name || '');
+        formData.append('deceased_age', burialForm.deceased_age || '');
+        formData.append('deceased_civil_status', burialForm.deceased_civil_status || '');
+        formData.append('requested_by', burialForm.requested_by || '');
+        formData.append('relationship_to_deceased', burialForm.relationship_to_deceased || '');
+        formData.append('address', burialForm.address || '');
+        formData.append('place_of_mass', burialForm.place_of_mass || '');
+        formData.append('mass_address', burialForm.mass_address || '');
         formData.append('funeral_mass', burialForm.funeral_mass ? 'true' : 'false');
         formData.append('death_anniversary', burialForm.death_anniversary ? 'true' : 'false');
         formData.append('funeral_blessing', burialForm.funeral_blessing ? 'true' : 'false');
