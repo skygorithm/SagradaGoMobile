@@ -28,7 +28,6 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
   const [touched, setTouched] = useState({});
   const [showVolunteerLogModal, setShowVolunteerLogModal] = useState(false);
   const [alertModal, setAlertModal] = useState({ visible: false, title: '', message: '', type: 'error' });
-  const [testingNotification, setTestingNotification] = useState(false);
 
   const currentUser = authUser || user;
 
@@ -38,55 +37,6 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
 
   const closeAlert = () => {
     setAlertModal({ visible: false, title: '', message: '', type: 'error' });
-  };
-
-  const testPushNotification = async () => {
-    if (!currentUser?.uid) {
-      Alert.alert('Error', 'User ID not found. Please login again.');
-      return;
-    }
-
-    setTestingNotification(true);
-    try {
-      console.log('[TEST] Sending test notification to user:', currentUser.uid);
-      
-      const response = await fetch(`${API_BASE_URL}/test-fcm`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: currentUser.uid,
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (response.ok && data.success) {
-        Alert.alert(
-          '✅ Test Sent!',
-          'Push notification sent! Check your phone notifications. If you don\'t see it, check:\n\n1. App is running (not force-closed)\n2. Notification permissions enabled\n3. Backend logs for errors',
-          [{ text: 'OK' }]
-        );
-        console.log('[TEST] ✅ Notification sent successfully');
-      } else {
-        Alert.alert(
-          '❌ Test Failed',
-          data.message || 'Failed to send notification. Check backend logs.',
-          [{ text: 'OK' }]
-        );
-        console.log('[TEST] ❌ Failed:', data.message);
-      }
-    } catch (error) {
-      console.error('[TEST] Error:', error);
-      Alert.alert(
-        '❌ Error',
-        `Failed to test notification: ${error.message}\n\nMake sure backend is running!`,
-        [{ text: 'OK' }]
-      );
-    } finally {
-      setTestingNotification(false);
-    }
   };
 
   const handleLogoutConfirm = () => {
@@ -441,38 +391,6 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
         </View>
 
         {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-
-        {/* Test Push Notification Button */}
-        <TouchableOpacity
-          style={{
-            backgroundColor: '#FFC942',
-            padding: 15,
-            borderRadius: 10,
-            marginTop: 20,
-            marginBottom: 10,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          onPress={testPushNotification}
-          disabled={testingNotification}
-        >
-          {testingNotification ? (
-            <>
-              <ActivityIndicator size="small" color="#424242" style={{ marginRight: 10 }} />
-              <Text style={{ color: '#424242', fontWeight: 'bold', fontSize: 16 }}>
-                Testing...
-              </Text>
-            </>
-          ) : (
-            <>
-              <Ionicons name="notifications-outline" size={20} color="#424242" style={{ marginRight: 8 }} />
-              <Text style={{ color: '#424242', fontWeight: 'bold', fontSize: 16 }}>
-                Test Push Notification
-              </Text>
-            </>
-          )}
-        </TouchableOpacity>
 
         {!isEditing ? (
           <TouchableOpacity

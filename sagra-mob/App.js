@@ -55,10 +55,13 @@ function AppContent() {
   });
 
   useEffect(() => {
-    // Initialize notification handler when app starts
-    notificationHandler.initialize().catch(err => {
-      console.error('Failed to initialize notification handler:', err);
-    });
+    notificationHandler.initialize()
+      .then(() => {
+        console.log('App: NotificationHandler initialized');
+      })
+      .catch(err => {
+        console.error('Failed to initialize notification handler:', err);
+      });
   }, []);
 
   useEffect(() => {
