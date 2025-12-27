@@ -431,7 +431,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
   };
 
   const sacramentOptions = [
-    { label: 'All Sacraments', value: 'all' },
+    { label: 'Sacraments', value: 'all' },
     { label: 'Wedding', value: 'Wedding' },
     { label: 'Baptism', value: 'Baptism' },
     { label: 'Burial', value: 'Burial' },
@@ -734,7 +734,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
             value={sacramentOptions.find(opt => opt.value === selectedSacrament)?.label}
             onValueChange={(value) => setSelectedSacrament(value)}
             options={sacramentOptions}
-            placeholder="All Sacraments"
+            placeholder="Sacraments"
             iconName="water-outline"
             style={[styles.customPicker]}
           />
