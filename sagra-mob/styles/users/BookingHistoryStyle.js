@@ -50,9 +50,9 @@ const styles = StyleSheet.create({
     gap: 10,
   },
 
-  // pickerContainer: {
-  //   flex: 1,
-  // },
+  pickerContainer: {
+    flex: 1,
+  },
 
   customPicker: {
     marginBottom: 0,

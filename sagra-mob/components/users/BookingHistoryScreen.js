@@ -728,7 +728,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
       </ScrollView>
 
       {/* Sacrament and Month Filters */}
-      <View style={styles.additionalFiltersContainer}>
+      <View style={[styles.additionalFiltersContainer, { marginTop: -300 }]}>
         <View style={styles.pickerContainer}>
           <CustomPicker
             value={sacramentOptions.find(opt => opt.value === selectedSacrament)?.label}
