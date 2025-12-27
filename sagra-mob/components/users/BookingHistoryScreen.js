@@ -728,7 +728,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
       </ScrollView>
 
       {/* Sacrament and Month Filters */}
-      <View style={[styles.additionalFiltersContainer, { marginTop: -300 }]}>
+      <View style={[styles.additionalFiltersContainer, { marginTop: -350 }]}>
         <View style={styles.pickerContainer}>
           <CustomPicker
             value={sacramentOptions.find(opt => opt.value === selectedSacrament)?.label}
@@ -736,7 +736,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
             options={sacramentOptions}
             placeholder="All Sacraments"
             iconName="water-outline"
-            style={[styles.customPicker, { fontSize: '15px' }]}
+            style={[styles.customPicker, { fontSize: 15 }]}
           />
         </View>
         <View style={styles.pickerContainer}>
@@ -746,7 +746,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
             options={monthOptions}
             placeholder="All Months"
             iconName="calendar-outline"
-            style={[styles.customPicker, { fontSize: '15px' }]}
+            style={[styles.customPicker, { fontSize: 15 }]}
           />
         </View>
       </View>
