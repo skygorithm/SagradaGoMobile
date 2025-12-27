@@ -135,7 +135,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
             if (wedding.bride_banns) weddingDocuments.bride_banns = wedding.bride_banns;
             if (wedding.groom_permission) weddingDocuments.groom_permission = wedding.groom_permission;
             if (wedding.bride_permission) weddingDocuments.bride_permission = wedding.bride_permission;
-            
+
             bookings.push({
               id: wedding.transaction_id || wedding._id,
               transaction_id: wedding.transaction_id,
@@ -486,7 +486,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
       filtered = filtered.filter(booking => {
         if (!booking.date) return false;
         const bookingDate = new Date(booking.date);
-        
+
         if (isNaN(bookingDate.getTime())) return false;
         return bookingDate.getMonth() === parseInt(selectedMonth);
       });
@@ -736,7 +736,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
             options={sacramentOptions}
             placeholder="All Sacraments"
             iconName="water-outline"
-            style={styles.customPicker}
+            style={[styles.customPicker, { fontSize: '15px' }]}
           />
         </View>
         <View style={styles.pickerContainer}>
@@ -746,7 +746,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
             options={monthOptions}
             placeholder="All Months"
             iconName="calendar-outline"
-            style={styles.customPicker}
+            style={[styles.customPicker, { fontSize: '15px' }]}
           />
         </View>
       </View>
