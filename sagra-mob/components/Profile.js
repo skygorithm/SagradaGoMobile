@@ -260,7 +260,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
           style={styles.circularButton}
           onPress={() => setShowLogoutModal(true)}
         >
-          <Ionicons name="log-out" size={24} color="#4242424" />
+          <Ionicons name="log-out" size={24} color="#424242" />
         </TouchableOpacity>
 
         <View style={styles.avatarWrapper}>

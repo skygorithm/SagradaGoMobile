@@ -138,6 +138,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 5,
     marginBottom: -5,
+    color: '#333',
   },
 
   subtitle: {
