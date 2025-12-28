@@ -112,6 +112,45 @@ export default function ChatBotScreen({ user, onNavigate }) {
     return `${hrs}:${m.toString().padStart(2, '0')} ${ampm}`;
   };
 
+  const formatSeenTime = (timestamp) => {
+    if (!timestamp) return null;
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now - date;
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (seconds < 60) {
+      return 'just now';
+
+    } else if (minutes < 60) {
+      return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
+
+    } else if (hours < 24) {
+      return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+
+    } else if (days === 1) {
+      return 'yesterday';
+
+    } else if (days < 7) {
+      return `${days} ${days === 1 ? 'day' : 'days'} ago`;
+      
+    } else {
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      });
+    }
+  };
+
+  const markAsSeen = () => {
+    if (socket && user?.uid) {
+      socket.emit('mark-as-seen', { userId: user.uid, viewerType: 'user' });
+    }
+  };
+
   useEffect(() => {
     if (talkToAdmin && user?.uid && !socket) {
       initializeAdminChat();
@@ -124,6 +163,32 @@ export default function ChatBotScreen({ user, onNavigate }) {
       }
     };
   }, [talkToAdmin, user?.uid]);
+
+  useEffect(() => {
+    if (talkToAdmin && socket && chatLoaded) {
+      markAsSeen();
+      
+      const interval = setInterval(() => {
+        if (talkToAdmin && socket) {
+          markAsSeen();
+        }
+      }, 2000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [talkToAdmin, socket, chatLoaded]);
+
+  useEffect(() => {
+    if (talkToAdmin && socket && chatLoaded && messages.length > 0) {
+      const hasUnreadAdminMessages = messages.some(
+        msg => msg.sender === 'admin' && !msg.seenAt
+      );
+      
+      if (hasUnreadAdminMessages) {
+        markAsSeen();
+      }
+    }
+  }, [messages, talkToAdmin, socket, chatLoaded]);
 
   useEffect(() => {
     if (!showLanding && !talkToAdmin) {
@@ -165,12 +230,18 @@ export default function ChatBotScreen({ user, onNavigate }) {
         });
 
         if (chat && chat.messages && chat.messages.length > 0) {
-          const formattedMessages = chat.messages.map((msg) => ({
-            id: msg._id || Date.now() + Math.random(),
-            text: msg.message,
-            sender: msg.senderType === 'admin' ? 'admin' : 'user',
-            timeSent: formatTime(new Date(msg.timestamp)),
-          }));
+          const formattedMessages = chat.messages.map((msg) => {
+            const msgId = msg._id?.toString();
+            return {
+              id: msgId || Date.now() + Math.random(),
+              _id: msgId,
+              text: msg.message,
+              sender: msg.senderType === 'admin' ? 'admin' : 'user',
+              timeSent: formatTime(new Date(msg.timestamp)),
+              seenAt: msg.seenAt ? new Date(msg.seenAt) : null,
+            };
+          });
+          console.log('Loaded messages with seenAt:', formattedMessages.filter(m => m.sender === 'user' && m.seenAt));
           setMessages(formattedMessages);
 
         } else {
@@ -197,15 +268,70 @@ export default function ChatBotScreen({ user, onNavigate }) {
       newSocket.on('receive-message', ({ message }) => {
         if (message.senderType === 'admin') {
           const newMsg = {
-            id: Date.now() + Math.random(),
+            id: message._id?.toString() || Date.now() + Math.random(),
+            _id: message._id?.toString(),
             text: message.message,
             sender: 'admin',
             timeSent: formatTime(new Date(message.timestamp)),
+            seenAt: message.seenAt || null,
           };
           setMessages((prev) => [...prev, newMsg]);
           setTimeout(() => {
             scrollViewRef.current?.scrollToEnd({ animated: true });
           }, 100);
+        }
+      });
+
+      newSocket.on('message-sent', ({ message }) => {
+        console.log('message-sent received:', message);
+        if (message.senderType === 'user') {
+          setMessages((prev) => {
+            const userMessages = prev.filter(m => m.sender === 'user');
+            const lastUserMsg = userMessages[userMessages.length - 1];
+            if (lastUserMsg && !lastUserMsg._id) {
+              console.log('Updating temp message with _id:', message._id);
+
+              return prev.map((msg) => {
+                if (msg.id === lastUserMsg.id && !msg._id) {
+                  return {
+                    ...msg,
+                    id: message._id?.toString() || msg.id,
+                    _id: message._id?.toString(),
+                    seenAt: message.seenAt || null,
+                  };
+                }
+                return msg;
+              });
+            }
+            return prev;
+          });
+        }
+      });
+
+      newSocket.on('messages-seen', ({ userId, seenAt, messageIds }) => {
+        console.log('messages-seen received:', { userId, seenAt, messageIds, currentUserId: user.uid });
+        if (userId === user.uid) {
+          setMessages((prev) => {
+            const updated = prev.map((msg) => {
+              const msgId = msg._id?.toString() || msg.id?.toString();
+
+              if (messageIds && Array.isArray(messageIds)) {
+                const isSeen = messageIds.some(id => {
+                  const idStr = id?.toString();
+                  return idStr === msgId;
+                });
+
+                if (isSeen) {
+                  console.log('Updating message seenAt:', msgId, seenAt);
+                  return { ...msg, seenAt };
+                }
+              }
+              return msg;
+            });
+            const seenUserMessages = updated.filter(m => m.sender === 'user' && m.seenAt);
+            console.log('Updated messages - seen user messages:', seenUserMessages.length);
+            return updated;
+          });
         }
       });
 
@@ -462,6 +588,33 @@ export default function ChatBotScreen({ user, onNavigate }) {
                   </Text>
                 </View>
               ))}
+
+              {(() => {
+                if (!talkToAdmin || messages.length === 0) return null;
+                
+                const userMessages = messages.filter(msg => msg.sender === 'user');
+                if (userMessages.length === 0) return null;
+                
+                let lastSeenUserMessage = null;
+                for (let i = userMessages.length - 1; i >= 0; i--) {
+                  if (userMessages[i].seenAt) {
+                    lastSeenUserMessage = userMessages[i];
+                    break;
+                  }
+                }
+                
+                const lastUserMessage = userMessages[userMessages.length - 1];
+                if (lastSeenUserMessage && lastSeenUserMessage.id === lastUserMessage.id) {
+                  return (
+                    <View style={{ alignItems: 'flex-end', marginTop: 4, marginRight: 16, marginBottom: 8 }}>
+                      <Text style={{ fontSize: 11, color: '#8c8c8c', fontStyle: 'italic', fontFamily: 'Poppins_400Regular' }}>
+                        Seen {formatSeenTime(lastSeenUserMessage.seenAt)}
+                      </Text>
+                    </View>
+                  );
+                }
+                return null;
+              })()}
 
               {showChoices && !talkToAdmin && (
                 <View style={styles.choiceButtonsContainer}>
