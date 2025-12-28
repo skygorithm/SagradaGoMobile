@@ -62,6 +62,8 @@ function AppContent() {
       .catch(err => {
         console.error('Failed to initialize notification handler:', err);
       });
+    
+    notificationHandler.setNavigationRef(handleNavigate);
   }, []);
 
   useEffect(() => {

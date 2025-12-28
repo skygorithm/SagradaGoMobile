@@ -281,28 +281,15 @@ class NotificationHandler {
     setTimeout(() => {
       try {
         switch (data.type) {
-          case 'request_approved':
-            this.navigationRef.navigate('OrdersScreen');
-            break;
+          case 'chat_message':
+            if (this.navigationRef) {
+              if (typeof this.navigationRef === 'function') {
+                this.navigationRef('ChatBotScreen');
 
-          case 'new_request':
-            this.navigationRef.navigate('PendingRequestScreen');
-            break;
-
-          case 'request_rejected':
-            this.navigationRef.navigate('OrdersScreen');
-            break;
-
-          case 'inventory_update':
-            this.navigationRef.navigate('InventoryStocks');
-            break;
-
-          case 'capex_approved':
-            this.navigationRef.navigate('CapexRequestScreen');
-            break;
-
-          case 'capex_rejected':
-            this.navigationRef.navigate('CapexRequestScreen');
+              } else if (this.navigationRef.navigate) {
+                this.navigationRef.navigate('ChatBotScreen');
+              }
+            }
             break;
 
           default:
