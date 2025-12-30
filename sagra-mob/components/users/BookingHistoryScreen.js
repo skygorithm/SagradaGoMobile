@@ -89,6 +89,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                 payment_method: booking.payment_method,
                 amount: booking.amount,
                 proof_of_payment: booking.proof_of_payment,
+                admin_comment: booking.admin_comment || null,
                 full_name: booking.full_name || booking.candidate_name || booking.deceased_name ||
                   (booking.groom_name && booking.bride_name ? `${booking.groom_name} & ${booking.bride_name}` : null),
               });
@@ -151,7 +152,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               payment_method: wedding.payment_method,
               amount: wedding.amount,
               proof_of_payment: wedding.proof_of_payment,
-
+              admin_comment: wedding.admin_comment || null,
               groom_pic: wedding.groom_pic,
               bride_pic: wedding.bride_pic,
               groom_first_name: wedding.groom_first_name,
@@ -195,6 +196,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               payment_method: baptism.payment_method,
               amount: baptism.amount,
               proof_of_payment: baptism.proof_of_payment,
+              admin_comment: baptism.admin_comment || null,
               documents: {
                 birth_certificate: baptism.birth_certificate,
                 parents_marriage_certificate: baptism.parents_marriage_certificate,
@@ -235,6 +237,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               payment_method: burial.payment_method,
               amount: burial.amount,
               proof_of_payment: burial.proof_of_payment,
+              admin_comment: burial.admin_comment || null,
               documents: {
                 death_certificate: burial.death_certificate,
                 deceased_baptismal: burial.deceased_baptismal,
@@ -273,6 +276,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               payment_method: communion.payment_method,
               amount: communion.amount,
               proof_of_payment: communion.proof_of_payment,
+              admin_comment: communion.admin_comment || null,
               documents: {
                 baptismal_certificate: communion.baptismal_certificate,
                 communion_preparation: communion.communion_preparation,
@@ -312,6 +316,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               payment_method: anointing.payment_method,
               amount: anointing.amount,
               proof_of_payment: anointing.proof_of_payment,
+              admin_comment: anointing.admin_comment || null,
             });
           });
         }
@@ -346,6 +351,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               payment_method: confirmation.payment_method,
               amount: confirmation.amount,
               proof_of_payment: confirmation.proof_of_payment,
+              admin_comment: confirmation.admin_comment || null,
               documents: {
                 baptismal_certificate: confirmation.baptismal_certificate,
                 first_communion_certificate: confirmation.first_communion_certificate,
@@ -385,6 +391,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
             payment_method: confession.payment_method,
             amount: confession.amount,
             proof_of_payment: confession.proof_of_payment,
+            admin_comment: confession.admin_comment || null,
           });
         });
       }
@@ -938,6 +945,25 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                     <View style={styles.modalNotesContainer}>
                       <Text style={styles.modalLabel}>Notes</Text>
                       <Text style={styles.modalNotes}>{selectedBooking.notes}</Text>
+                    </View>
+                  )}
+
+                  {/* Admin Comment Section - Show if booking has admin comment */}
+                  {selectedBooking.admin_comment && (selectedBooking.status === 'approved' || selectedBooking.status === 'confirmed' || selectedBooking.status === 'cancelled') && (
+                    <View style={styles.modalNotesContainer}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                        <Ionicons name="chatbubble-outline" size={18} color="#666" style={{ marginRight: 6 }} />
+                        <Text style={styles.modalLabel}>Admin Comment</Text>
+                      </View>
+                      <View style={{
+                        padding: 12,
+                        backgroundColor: '#f5f5f5',
+                        borderRadius: 8,
+                        borderWidth: 1,
+                        borderColor: '#d9d9d9',
+                      }}>
+                        <Text style={styles.modalNotes}>{selectedBooking.admin_comment}</Text>
+                      </View>
                     </View>
                   )}
 
