@@ -439,13 +439,13 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
 
   const sacramentOptions = [
     { label: 'Sacraments', value: 'all' },
-    { label: 'Wedding', value: 'Wedding' },
+    { label: 'Anointing of the Sick', value: 'Anointing of the Sick' },
     { label: 'Baptism', value: 'Baptism' },
     { label: 'Burial', value: 'Burial' },
-    { label: 'First Communion', value: 'First Communion' },
-    { label: 'Anointing of the Sick', value: 'Anointing of the Sick' },
-    { label: 'Confirmation', value: 'Confirmation' },
     { label: 'Confession', value: 'Confession' },
+    { label: 'Confirmation', value: 'Confirmation' },
+    { label: 'First Communion', value: 'First Communion' },
+    { label: 'Wedding', value: 'Wedding' },
   ];
 
   const monthOptions = [
