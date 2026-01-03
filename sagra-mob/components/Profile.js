@@ -31,6 +31,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
   const [volunteerRecords, setVolunteerRecords] = useState([]);
   const [loadingVolunteers, setLoadingVolunteers] = useState(false);
   const [statusFilter, setStatusFilter] = useState('registered'); 
+  const [typeFilter, setTypeFilter] = useState('all'); 
   const [alertModal, setAlertModal] = useState({ visible: false, title: '', message: '', type: 'error' });
 
   const currentUser = authUser || user;
@@ -117,6 +118,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
     if (showVolunteerLogModal && currentUser?.uid) {
       fetchVolunteerRecords();
       setStatusFilter('registered');
+      setTypeFilter('all');
     }
   }, [showVolunteerLogModal, currentUser?.uid]);
 
@@ -561,11 +563,12 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
             </View>
 
             {/* Status Filter Buttons */}
-            <View style={{ flexDirection: 'row', paddingHorizontal: 20, paddingTop: 15, paddingBottom: 10, gap: 10 }}>
+            <View style={{ flexDirection: 'row', paddingHorizontal: 20, paddingTop: 15, paddingBottom: 10 }}>
               <TouchableOpacity
                 style={[
                   styles.filterButton,
-                  statusFilter === 'finished' && styles.filterButtonActive
+                  statusFilter === 'finished' && styles.filterButtonActive,
+                  { marginRight: 10 }
                 ]}
                 onPress={() => setStatusFilter('finished')}
               >
@@ -577,7 +580,8 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
               <TouchableOpacity
                 style={[
                   styles.filterButton,
-                  statusFilter === 'ongoing' && styles.filterButtonActive
+                  statusFilter === 'ongoing' && styles.filterButtonActive,
+                  { marginRight: 10 }
                 ]}
                 onPress={() => setStatusFilter('ongoing')}
               >
@@ -600,6 +604,20 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
               </TouchableOpacity>
             </View>
 
+            {/* Type Filter Dropdown */}
+            <View style={{ paddingHorizontal: 20, paddingBottom: 10 }}>
+              <CustomPicker
+                value={typeFilter}
+                onValueChange={(v) => setTypeFilter(v)}
+                options={[
+                  { label: 'All', value: 'all' },
+                  { label: 'Events', value: 'event' },
+                  { label: 'Activities', value: 'activity' },
+                ]}
+                placeholder="Filter by Type"
+              />
+            </View>
+
             <ScrollView style={styles.volunteerLogScrollView}>
               {loadingVolunteers ? (
                 <View style={styles.volunteerLogEmptyContainer}>
@@ -607,7 +625,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
                   <Text style={styles.volunteerLogEmptyText}>Loading your events...</Text>
                 </View>
               ) : (() => {
-                // Filter records based on statusFilter
+                // Filter records based on statusFilter and typeFilter
                 const now = new Date();
                 now.setHours(0, 0, 0, 0);
                 
@@ -621,9 +639,18 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
                   const isPast = eventDate < now;
                   const isToday = eventDate.getTime() === now.getTime();
                   
-                  if (statusFilter === 'finished') return isPast;
-                  if (statusFilter === 'ongoing') return isToday;
-                  if (statusFilter === 'registered') return eventDate > now;
+                  // Filter by status
+                  let statusMatch = false;
+                  if (statusFilter === 'finished') statusMatch = isPast;
+                  else if (statusFilter === 'ongoing') statusMatch = isToday;
+                  else if (statusFilter === 'registered') statusMatch = eventDate > now;
+                  
+                  if (!statusMatch) return false;
+                  
+                  // Filter by type
+                  if (typeFilter === 'all') return true;
+                  if (typeFilter === 'event') return event.type === 'event';
+                  if (typeFilter === 'activity') return event.type === 'activity';
                   return true;
                 });
 
@@ -764,18 +791,26 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
                   <View style={styles.volunteerLogEmptyContainer}>
                     <Ionicons name="people-outline" size={48} color="#ccc" style={{ marginBottom: 10 }} />
                     <Text style={styles.volunteerLogEmptyText}>
-                      {statusFilter === 'finished'
-                        ? 'No finished volunteer activities found.'
-                        : statusFilter === 'ongoing'
-                        ? 'No ongoing volunteer activities found.'
-                        : 'No registered volunteer activities found.'}
+                      {(() => {
+                        const statusText = statusFilter === 'finished'
+                          ? 'finished'
+                          : statusFilter === 'ongoing'
+                          ? 'ongoing'
+                          : 'registered';
+                        const typeText = typeFilter === 'all'
+                          ? 'activities'
+                          : typeFilter === 'event'
+                          ? 'events'
+                          : 'activities';
+                        return `No ${statusText} ${typeText} found.`;
+                      })()}
                     </Text>
                     <Text style={styles.volunteerLogEmptySubtext}>
                       {statusFilter === 'finished'
-                        ? "Activities you've completed as a volunteer."
+                        ? `You haven't completed any ${typeFilter === 'all' ? 'activities or events' : typeFilter === 'event' ? 'events' : 'activities'} yet.`
                         : statusFilter === 'ongoing'
-                        ? "Activities currently happening that you're volunteering for."
-                        : "Upcoming activities you're registered to volunteer for."}
+                        ? `You're not currently volunteering for any ${typeFilter === 'all' ? 'activities or events' : typeFilter === 'event' ? 'events' : 'activities'}.`
+                        : `You're not registered for any upcoming ${typeFilter === 'all' ? 'activities or events' : typeFilter === 'event' ? 'events' : 'activities'}.`}
                     </Text>
                   </View>
                 );
