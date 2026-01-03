@@ -632,22 +632,28 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
                 const filteredRecords = volunteerRecords.filter(item => {
                   const event = item.event || {};
                   const eventDate = event.date ? new Date(event.date) : null;
+                  const volunteerStatus = item.status || 'pending';
                   
                   if (!eventDate) return false;
                   
                   eventDate.setHours(0, 0, 0, 0);
                   const isPast = eventDate < now;
                   const isToday = eventDate.getTime() === now.getTime();
+                  const isFuture = eventDate > now;
                   
-                  // Filter by status
                   let statusMatch = false;
-                  if (statusFilter === 'finished') statusMatch = isPast;
-                  else if (statusFilter === 'ongoing') statusMatch = isToday;
-                  else if (statusFilter === 'registered') statusMatch = eventDate > now;
+                  if (statusFilter === 'finished') {
+                    statusMatch = isPast;
+
+                  } else if (statusFilter === 'ongoing') {
+                    statusMatch = volunteerStatus === 'confirmed' || isToday;
+
+                  } else if (statusFilter === 'registered') {
+                    statusMatch = isFuture && volunteerStatus !== 'confirmed';
+                  }
                   
                   if (!statusMatch) return false;
                   
-                  // Filter by type
                   if (typeFilter === 'all') return true;
                   if (typeFilter === 'event') return event.type === 'event';
                   if (typeFilter === 'activity') return event.type === 'activity';
@@ -675,15 +681,18 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
                   nowForStatus.setHours(0, 0, 0, 0);
                   const isPast = eventDateForStatus && eventDateForStatus < nowForStatus;
                   const isToday = eventDateForStatus && eventDateForStatus.getTime() === nowForStatus.getTime();
+                  const volunteerStatus = item.status || 'pending';
                   
                   let statusText = '';
                   let statusColor = '#666';
                   if (isPast) {
                     statusText = 'Finished';
                     statusColor = '#999';
-                  } else if (isToday) {
+                    
+                  } else if (volunteerStatus === 'confirmed' || isToday) {
                     statusText = 'Ongoing';
                     statusColor = '#4CAF50';
+                    
                   } else {
                     statusText = 'Registered';
                     statusColor = '#2196F3';
