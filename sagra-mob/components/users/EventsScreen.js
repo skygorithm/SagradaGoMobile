@@ -217,16 +217,6 @@ export default function EventsScreen({ onNavigate }) {
               Past
             </Text>
           </TouchableOpacity>
-          {!authUser?.is_priest && (
-            <TouchableOpacity
-              style={[styles.tab, selectedTab === "volunteer" && styles.tabActive]}
-              onPress={() => setSelectedTab("volunteer")}
-            >
-              <Text style={[styles.tabText, selectedTab === "volunteer" && styles.tabTextActive]}>
-                Volunteer
-              </Text>
-            </TouchableOpacity>
-          )}
         </View>
 
         {selectedTab === "volunteer" ? (
@@ -417,7 +407,16 @@ export default function EventsScreen({ onNavigate }) {
                         </TouchableOpacity>
                       )}
                       <TouchableOpacity
-                        style={[styles.cardVolunteerBtn, { flex: event.type === "event" ? 1 : 1, marginLeft: event.type === "event" ? 5 : 0 }]}
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          backgroundColor: '#424242',
+                          paddingVertical: 10,
+                          paddingHorizontal: 12,
+                          borderRadius: 10,
+                          justifyContent: 'center',
+                          flex: 1,
+                        }}
                         onPress={() => {
                           setSelectedEvent(event);
                           setRegistrationType('volunteer');
@@ -425,7 +424,12 @@ export default function EventsScreen({ onNavigate }) {
                         }}
                       >
                         <Ionicons name="hand-left-outline" size={20} color="#fff" />
-                        <Text style={styles.cardVolunteerText}>Volunteer</Text>
+                        <Text style={{
+                          color: '#fff',
+                          fontFamily: 'Poppins_600SemiBold',
+                          marginLeft: 6,
+                          fontSize: 15
+                        }}>Volunteer</Text>
                       </TouchableOpacity>
                     </View>
                   )}
