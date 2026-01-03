@@ -692,17 +692,19 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
                   return (
                     <View key={item._id || item.id || index} style={styles.volunteerLogItem}>
                       <View style={styles.volunteerLogItemHeader}>
-                        <Ionicons 
-                          name={event.type === "activity" ? "hand-left-outline" : "calendar-outline"} 
-                          size={20} 
-                          color="#FFC942" 
-                          style={{ marginRight: 8 }} 
-                        />
                         <View style={{ flex: 1 }}>
-                          <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
-                            <Text style={[styles.volunteerLogItemName, { flex: 1, marginRight: 8 }]}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                            <Ionicons 
+                              name={event.type === "activity" ? "hand-left-outline" : "calendar-outline"} 
+                              size={20} 
+                              color="#FFC942" 
+                              style={{ marginRight: 8 }} 
+                            />
+                            <Text style={styles.volunteerLogItemName}>
                               {event.title || item.eventTitle || 'General Volunteer'}
                             </Text>
+                          </View>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', marginTop: 6 }}>
                             <View style={{ 
                               backgroundColor: statusColor + '20', 
                               paddingHorizontal: 8, 
@@ -718,6 +720,35 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
                                 {statusText}
                               </Text>
                             </View>
+                            {/* Role Badge - Participant or Volunteer */}
+                            {(() => {
+                              const isActivity = event.type === "activity";
+                              const isEvent = event.type === "event";
+
+                              const roleType = item.role || item.registration_type || 
+                                (isActivity ? "volunteer" : (isEvent ? "participant" : "volunteer"));
+                              
+                              const roleText = roleType === "volunteer" ? "Volunteer" : "Participant";
+                              const roleColor = roleType === "volunteer" ? "#FFC942" : "#9C27B0";
+                              
+                              return (
+                                <View style={{ 
+                                  backgroundColor: roleColor + '20', 
+                                  paddingHorizontal: 8, 
+                                  paddingVertical: 2, 
+                                  borderRadius: 12,
+                                  marginRight: 8
+                                }}>
+                                  <Text style={{ 
+                                    fontSize: 12, 
+                                    fontFamily: 'Poppins_600SemiBold', 
+                                    color: roleColor 
+                                  }}>
+                                    {roleText}
+                                  </Text>
+                                </View>
+                              );
+                            })()}
                             {event.type && (
                               <View style={{ 
                                 backgroundColor: event.type === "event" ? '#2196F320' : '#4CAF5020', 
@@ -738,30 +769,34 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
                         </View>
                       </View>
                       
-                      {eventDate && (
-                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-                          <Ionicons name="calendar-outline" size={16} color="#666" style={{ marginRight: 6 }} />
-                          <Text style={styles.volunteerLogItemEvent}>
-                            {eventDate.toLocaleDateString('en-US', {
-                              weekday: 'short',
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric'
-                            })}
-                          </Text>
-                        </View>
-                      )}
-                      
-                      {(event.time_start || event.time_end) && (
-                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-                          <Ionicons name="time-outline" size={16} color="#666" style={{ marginRight: 6 }} />
-                          <Text style={styles.volunteerLogItemEvent}>
-                            {event.time_start && event.time_end
-                              ? `${event.time_start} - ${event.time_end}`
-                              : event.time_start
-                              ? `${event.time_start} -`
-                              : `- ${event.time_end}`}
-                          </Text>
+                      {(eventDate || event.time_start || event.time_end) && (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, flexWrap: 'wrap' }}>
+                          {eventDate && (
+                            <>
+                              <Ionicons name="calendar-outline" size={16} color="#666" style={{ marginRight: 6 }} />
+                              <Text style={styles.volunteerLogItemEvent}>
+                                {eventDate.toLocaleDateString('en-US', {
+                                  weekday: 'short',
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric'
+                                })}
+                              </Text>
+                            </>
+                          )}
+                          {(event.time_start || event.time_end) && (
+                            <>
+                              {eventDate && <Text style={[styles.volunteerLogItemEvent, { marginHorizontal: 8 }]}>•</Text>}
+                              <Ionicons name="time-outline" size={16} color="#666" style={{ marginRight: 6 }} />
+                              <Text style={styles.volunteerLogItemEvent}>
+                                {event.time_start && event.time_end
+                                  ? `${event.time_start} - ${event.time_end}`
+                                  : event.time_start
+                                  ? `${event.time_start} -`
+                                  : `- ${event.time_end}`}
+                              </Text>
+                            </>
+                          )}
                         </View>
                       )}
                       
