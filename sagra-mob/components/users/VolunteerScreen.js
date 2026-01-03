@@ -12,23 +12,13 @@ import {
   Modal
 } from 'react-native';
 import styles from '../../styles/users/VolunteerStyle';
-import CustomPicker from '../../customs/CustomPicker';
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from '../../contexts/AuthContext';
-
-const volunteerRoles = [
-  { label: 'Choir Member', value: 'Choir Member' },
-  { label: 'Usher', value: 'Usher' },
-  { label: 'Catechist', value: 'Catechist' },
-  { label: 'Tech Team', value: 'Tech Team' },
-  { label: 'Others', value: 'Others' },
-];
 
 export default function VolunteerScreen({ visible, onClose, event }) {
   const { user: authUser, addVolunteer, loading } = useAuth();
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
-  const [role, setRole] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -51,7 +41,7 @@ export default function VolunteerScreen({ visible, onClose, event }) {
   }, [authUser]);
 
   const handleSubmit = async () => {
-    if (!name || !contact || !role) {
+    if (!name || !contact) {
       setErrorMessage('Please fill all required fields.');
       return;
     }
@@ -66,7 +56,6 @@ export default function VolunteerScreen({ visible, onClose, event }) {
     const newVolunteer = {
       name: name,
       contact: contact,
-      role: role,
       eventTitle: event?.title || 'General Volunteer',
       eventId: event?._id || null,
       user_id: authUser?.id || authUser?._id,
@@ -77,12 +66,11 @@ export default function VolunteerScreen({ visible, onClose, event }) {
     if (result.success) {
       Alert.alert(
         'Success',
-        `Thank you ${name}! You've signed up as ${role}${event?.title ? ` for ${event.title}` : ''}.`,
+        `Thank you ${name}! You've signed up to volunteer${event?.title ? ` for ${event.title}` : ''}.`,
         [
           {
             text: 'OK',
             onPress: () => {
-              setRole('');
               setErrorMessage('');
 
               if (authUser) {
@@ -182,13 +170,6 @@ export default function VolunteerScreen({ visible, onClose, event }) {
                 keyboardType="phone-pad"
               />
             </View>
-
-            <CustomPicker
-              value={role}
-              onValueChange={setRole}
-              options={volunteerRoles}
-              placeholder="Role"
-            />
 
             <TouchableOpacity
               style={[styles.submitButton, (isSubmitting || loading) && { opacity: 0.6 }]}

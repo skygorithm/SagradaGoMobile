@@ -528,7 +528,6 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
                         <Ionicons name="person-outline" size={20} color="#FFC942" style={{ marginRight: 8 }} />
                         <Text style={styles.volunteerLogItemName}>{currentFullName || item.name}</Text>
                       </View>
-                      <Text style={styles.volunteerLogItemRole}>Role: {item.role}</Text>
                       {item.eventTitle && (
                         <Text style={styles.volunteerLogItemEvent}>Event: {item.eventTitle}</Text>
                       )}
