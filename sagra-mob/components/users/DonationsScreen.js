@@ -578,7 +578,10 @@ export default function DonationsScreen({ user, onNavigate }) {
             <Text style={styles.modalTitle}>Make a Donation</Text>
 
             <TextInput
-              style={styles.modalInput}
+              style={[
+                styles.modalInput,
+                paymentMethod === 'In Kind' && { color: '#333', opacity: 0.7 }
+              ]}
               placeholder="Enter Amount"
               placeholderTextColor="#999"
               value={amount}

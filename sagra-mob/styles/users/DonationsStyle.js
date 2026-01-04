@@ -317,6 +317,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Poppins_400Regular',
     backgroundColor: '#f9f9f9',
+    color: '#333',
   },
 
   modalInputMultiline: {
