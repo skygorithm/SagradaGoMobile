@@ -66,6 +66,7 @@ export const AuthProvider = ({ children }) => {
             await saveUserToStorage(updatedUserData);
             userData.is_active = updatedUserData.is_active;
           }
+          
         } catch (verifyError) {
           console.error('Error verifying user status:', verifyError);
           // If verification fails, still allow login with cached data
