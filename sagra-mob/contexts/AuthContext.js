@@ -2,6 +2,8 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../config/API';
 import { registerForPushNotificationsAsync } from '../utils/RegisterPushToken';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../config/FireBaseConfig';
 
 const AuthContext = createContext();
 
@@ -139,6 +141,40 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setLoading(true);
+      
+      // First, authenticate with Firebase Auth to get the token
+      // This ensures password changes via Firebase Auth work correctly
+      let firebaseToken = null;
+      try {
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          email.trim(),
+          password
+        );
+        // Get Firebase ID token for backend verification
+        firebaseToken = await userCredential.user.getIdToken();
+        console.log('[AuthContext] Firebase Auth successful, token obtained');
+      } catch (firebaseError) {
+        // If Firebase Auth fails, still try backend login with password only
+        // This handles cases where user might not be in Firebase Auth yet
+        console.log('[AuthContext] Firebase Auth login failed, trying backend login with password only:', firebaseError.code);
+        
+        // If it's a wrong password error, return early with clear message
+        if (firebaseError.code === 'auth/wrong-password' || firebaseError.code === 'auth/invalid-credential') {
+          return { 
+            success: false, 
+            message: 'Invalid email or password.' 
+          };
+        }
+        
+        // If user not found in Firebase Auth, continue to backend login
+        // (Backend might have the user in MongoDB)
+        if (firebaseError.code !== 'auth/user-not-found') {
+          // For other Firebase errors, log but continue
+          console.warn('[AuthContext] Firebase Auth error:', firebaseError.code);
+        }
+      }
+      
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
         headers: {
@@ -147,6 +183,7 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({
           email: email.trim(),
           password: password,
+          firebaseToken: firebaseToken, // Send Firebase token if available
         }),
       });
 
@@ -192,7 +229,19 @@ export const AuthProvider = ({ children }) => {
         return { success: true, user: userData, message: data.message };
 
       } else {
-        return { success: false, message: data.message || 'Invalid email or password' };
+        // Enhanced error message for password-related issues
+        let errorMessage = data.message || 'Invalid email or password';
+        
+        // If it's a 401 and the message suggests password issue, provide more context
+        if (response.status === 401 && (
+          errorMessage.toLowerCase().includes('password') || 
+          errorMessage.toLowerCase().includes('invalid') ||
+          errorMessage.toLowerCase().includes('unauthorized')
+        )) {
+          errorMessage = 'Invalid email or password. If you recently changed your password, please wait a few minutes and try again, or contact support.';
+        }
+        
+        return { success: false, message: errorMessage };
       }
 
     } catch (error) {

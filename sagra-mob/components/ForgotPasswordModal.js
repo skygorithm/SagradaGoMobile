@@ -54,10 +54,11 @@ export default function ForgotPasswordModal({ visible, onClose }) {
 
       console.log('Email exists, sending password reset email...');
       await sendPasswordResetEmail(auth, email.trim());
+    
       
       Alert.alert(
         'Success', 
-        'Password reset email has been sent! Please check your inbox and spam folder for instructions to reset your password.',
+        'Password reset email has been sent! Please check your inbox and spam folder for instructions to reset your password.\n\n⚠️ Note: After resetting your password, you may need to wait a few minutes for the system to sync, or contact support if login issues persist.',
         [
           {
             text: 'OK',
