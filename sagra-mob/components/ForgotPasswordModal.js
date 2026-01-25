@@ -120,7 +120,7 @@ export default function ForgotPasswordModal({ visible, onClose }) {
           </Text>
 
           <TextInput
-            style={styles.modalInput}
+            style={styles.modalInputs}
             placeholder="Email"
             placeholderTextColor="#999"
             value={email}

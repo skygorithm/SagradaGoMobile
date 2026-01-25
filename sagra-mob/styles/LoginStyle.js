@@ -165,6 +165,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#fff',
   },
+  modalInputs: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    marginBottom: 20,
+    fontSize: 16,
+    backgroundColor: '#fff',
+    color: '#424242',
+  },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
