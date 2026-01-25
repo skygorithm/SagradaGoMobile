@@ -27,7 +27,7 @@ export default function DonationsScreen({ user, onNavigate }) {
   const [intercession, setIntercession] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
   const [donations, setDonations] = useState([]);
-  const [allDonations, setAllDonations] = useState([]); // Store all donations for filtering
+  const [allDonations, setAllDonations] = useState([]);
   const [donationStats, setDonationStats] = useState({ totalAmount: 0 });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
