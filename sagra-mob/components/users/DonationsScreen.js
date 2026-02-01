@@ -35,7 +35,7 @@ export default function DonationsScreen({ user, onNavigate }) {
   const [donationImage, setDonationImage] = useState(null);
   const [gcashReceiptImage, setGcashReceiptImage] = useState(null);
 
-  const GCASH_NUMBER = '09123456789';
+  const GCASH_NUMBER = '09776181086';
 
   const paymentMethods = ['GCash', 'Cash', 'In Kind'];
 
