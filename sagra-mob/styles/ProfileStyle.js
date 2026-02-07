@@ -138,6 +138,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 5,
     marginBottom: -5,
+    color: '#333',
   },
 
   subtitle: {
@@ -145,7 +146,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     color: "#666",
-    marginBottom: 20,
+    marginBottom: 5,
   },
 
   inputContainer: {
@@ -172,6 +173,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: "Poppins_500Medium",
     fontSize: 15,
+    color: '#333',
   },
 
   errorText: {
@@ -240,7 +242,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 12,
-    marginBottom: 10,
+    marginBottom: 15,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -363,6 +365,33 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular',
     color: '#999',
     textAlign: 'center',
+  },
+
+  filterButton: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    backgroundColor: '#f2f2f2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+
+  filterButtonActive: {
+    backgroundColor: '#424242',
+    borderColor: '#424242',
+  },
+
+  filterButtonText: {
+    fontSize: 14,
+    fontFamily: 'Poppins_600SemiBold',
+    color: '#666',
+  },
+
+  filterButtonTextActive: {
+    color: '#fff',
   },
 
 });

@@ -14,6 +14,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import styles from '../../styles/users/BookingHistoryStyle';
 import CustomNavbar from '../../customs/CustomNavbar';
+import CustomPicker from '../../customs/CustomPicker';
 import { API_BASE_URL } from '../../config/API';
 
 const SUPABASE_PUBLIC_URL = 'https://qpwoatrmswpkgyxmzkjv.supabase.co/storage/v1/object/public/bookings';
@@ -36,6 +37,8 @@ const mapStatus = (status) => {
 
 export default function BookingHistoryScreen({ user, onNavigate }) {
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [selectedSacrament, setSelectedSacrament] = useState('all');
+  const [selectedMonth, setSelectedMonth] = useState('all');
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
@@ -86,8 +89,9 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                 payment_method: booking.payment_method,
                 amount: booking.amount,
                 proof_of_payment: booking.proof_of_payment,
-                full_name: booking.full_name || booking.candidate_name || booking.deceased_name || 
-                          (booking.groom_name && booking.bride_name ? `${booking.groom_name} & ${booking.bride_name}` : null),
+                admin_comment: booking.admin_comment || null,
+                full_name: booking.full_name || booking.candidate_name || booking.deceased_name ||
+                  (booking.groom_name && booking.bride_name ? `${booking.groom_name} & ${booking.bride_name}` : null),
               });
             });
           }
@@ -119,6 +123,20 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
 
         if (weddingResponse.ok && weddingData.weddings) {
           weddingData.weddings.forEach(wedding => {
+            const weddingDocuments = {};
+            if (wedding.marriage_docu) weddingDocuments.marriage_license = wedding.marriage_docu;
+            if (wedding.marriage_contract) weddingDocuments.marriage_contract = wedding.marriage_contract;
+            if (wedding.groom_baptismal_cert) weddingDocuments.groom_baptismal_cert = wedding.groom_baptismal_cert;
+            if (wedding.bride_baptismal_cert) weddingDocuments.bride_baptismal_cert = wedding.bride_baptismal_cert;
+            if (wedding.groom_confirmation_cert) weddingDocuments.groom_confirmation_cert = wedding.groom_confirmation_cert;
+            if (wedding.bride_confirmation_cert) weddingDocuments.bride_confirmation_cert = wedding.bride_confirmation_cert;
+            if (wedding.groom_cenomar) weddingDocuments.groom_cenomar = wedding.groom_cenomar;
+            if (wedding.bride_cenomar) weddingDocuments.bride_cenomar = wedding.bride_cenomar;
+            if (wedding.groom_banns) weddingDocuments.groom_banns = wedding.groom_banns;
+            if (wedding.bride_banns) weddingDocuments.bride_banns = wedding.bride_banns;
+            if (wedding.groom_permission) weddingDocuments.groom_permission = wedding.groom_permission;
+            if (wedding.bride_permission) weddingDocuments.bride_permission = wedding.bride_permission;
+
             bookings.push({
               id: wedding.transaction_id || wedding._id,
               transaction_id: wedding.transaction_id,
@@ -134,6 +152,16 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               payment_method: wedding.payment_method,
               amount: wedding.amount,
               proof_of_payment: wedding.proof_of_payment,
+              admin_comment: wedding.admin_comment || null,
+              groom_pic: wedding.groom_pic,
+              bride_pic: wedding.bride_pic,
+              groom_first_name: wedding.groom_first_name,
+              groom_middle_name: wedding.groom_middle_name,
+              groom_last_name: wedding.groom_last_name,
+              bride_first_name: wedding.bride_first_name,
+              bride_middle_name: wedding.bride_middle_name,
+              bride_last_name: wedding.bride_last_name,
+              documents: weddingDocuments,
             });
           });
         }
@@ -168,6 +196,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               payment_method: baptism.payment_method,
               amount: baptism.amount,
               proof_of_payment: baptism.proof_of_payment,
+              admin_comment: baptism.admin_comment || null,
               documents: {
                 birth_certificate: baptism.birth_certificate,
                 parents_marriage_certificate: baptism.parents_marriage_certificate,
@@ -208,6 +237,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               payment_method: burial.payment_method,
               amount: burial.amount,
               proof_of_payment: burial.proof_of_payment,
+              admin_comment: burial.admin_comment || null,
               documents: {
                 death_certificate: burial.death_certificate,
                 deceased_baptismal: burial.deceased_baptismal,
@@ -246,6 +276,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               payment_method: communion.payment_method,
               amount: communion.amount,
               proof_of_payment: communion.proof_of_payment,
+              admin_comment: communion.admin_comment || null,
               documents: {
                 baptismal_certificate: communion.baptismal_certificate,
                 communion_preparation: communion.communion_preparation,
@@ -285,6 +316,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               payment_method: anointing.payment_method,
               amount: anointing.amount,
               proof_of_payment: anointing.proof_of_payment,
+              admin_comment: anointing.admin_comment || null,
             });
           });
         }
@@ -319,6 +351,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               payment_method: confirmation.payment_method,
               amount: confirmation.amount,
               proof_of_payment: confirmation.proof_of_payment,
+              admin_comment: confirmation.admin_comment || null,
               documents: {
                 baptismal_certificate: confirmation.baptismal_certificate,
                 first_communion_certificate: confirmation.first_communion_certificate,
@@ -358,6 +391,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
             payment_method: confession.payment_method,
             amount: confession.amount,
             proof_of_payment: confession.proof_of_payment,
+            admin_comment: confession.admin_comment || null,
           });
         });
       }
@@ -393,6 +427,13 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
     }
   }, [user?.uid]);
 
+  // Reset filter to 'all' if priest has a removed filter selected
+  useEffect(() => {
+    if (user?.is_priest && ['approved', 'pending', 'rejected'].includes(selectedFilter)) {
+      setSelectedFilter('all');
+    }
+  }, [user?.is_priest, selectedFilter]);
+
   const sacramentMap = {
     Wedding: "Wedding",
     Baptism: "Baptism",
@@ -403,30 +444,71 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
     Confession: "Confession",
   };
 
+  const sacramentOptions = [
+    { label: 'Sacraments', value: 'all' },
+    { label: 'Anointing of the Sick', value: 'Anointing of the Sick' },
+    { label: 'Baptism', value: 'Baptism' },
+    { label: 'Burial', value: 'Burial' },
+    { label: 'Confession', value: 'Confession' },
+    { label: 'Confirmation', value: 'Confirmation' },
+    { label: 'First Communion', value: 'First Communion' },
+    { label: 'Wedding', value: 'Wedding' },
+  ];
+
+  const monthOptions = [
+    { label: 'All Months', value: 'all' },
+    { label: 'January', value: '0' },
+    { label: 'February', value: '1' },
+    { label: 'March', value: '2' },
+    { label: 'April', value: '3' },
+    { label: 'May', value: '4' },
+    { label: 'June', value: '5' },
+    { label: 'July', value: '6' },
+    { label: 'August', value: '7' },
+    { label: 'September', value: '8' },
+    { label: 'October', value: '9' },
+    { label: 'November', value: '10' },
+    { label: 'December', value: '11' },
+  ];
+
   const filteredBookings = useMemo(() => {
-    if (selectedFilter === 'all') {
-      return allBookings;
+    let filtered = allBookings;
+
+
+    if (selectedFilter !== 'all') {
+      const statusMap = {
+        'approved': 'confirmed',
+        'pending': 'pending',
+        'rejected': 'cancelled',
+        'cancelled': 'cancelled',
+      };
+
+      filtered = filtered.filter(booking => {
+        const bookingStatus = booking.status.toLowerCase();
+        if (selectedFilter === 'approved') {
+          return bookingStatus === 'approved' || bookingStatus === 'confirmed';
+        }
+        return bookingStatus === selectedFilter.toLowerCase();
+      });
     }
 
-    const statusMap = {
-      'approved': 'confirmed',
-      'pending': 'pending',
-      'rejected': 'cancelled',
-      'cancelled': 'cancelled',
-    };
+    if (selectedSacrament !== 'all') {
+      filtered = filtered.filter(booking => booking.sacrament === selectedSacrament);
+    }
 
-    const backendStatus = statusMap[selectedFilter] || selectedFilter;
+    if (selectedMonth !== 'all') {
+      filtered = filtered.filter(booking => {
+        if (!booking.date) return false;
+        const bookingDate = new Date(booking.date);
 
-    return allBookings.filter(booking => {
-      const bookingStatus = booking.status.toLowerCase();
-      if (selectedFilter === 'approved') {
-        return bookingStatus === 'approved' || bookingStatus === 'confirmed';
-      }
+        if (isNaN(bookingDate.getTime())) return false;
+        return bookingDate.getMonth() === parseInt(selectedMonth);
+      });
+    }
 
-      return bookingStatus === selectedFilter.toLowerCase();
-    });
+    return filtered;
 
-  }, [selectedFilter, allBookings]);
+  }, [selectedFilter, selectedSacrament, selectedMonth, allBookings]);
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -463,11 +545,11 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
 
   const getSupabasePublicUrl = (path) => {
     if (!path) return null;
-    
+
     if (path.startsWith('http')) {
       return path;
     }
-    
+
     const cleanPath = path.startsWith('/') ? path.substring(1) : path;
     return `${SUPABASE_PUBLIC_URL}/${cleanPath}`;
   };
@@ -481,7 +563,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
     try {
       const url = getSupabasePublicUrl(documentPath);
       console.log('Opening document:', documentName, 'URL:', url);
-      
+
       if (!url) {
         Alert.alert('Error', 'Unable to construct document URL');
         return;
@@ -494,7 +576,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
       } else {
         Alert.alert('Error', `Cannot open this document: ${documentName}`);
       }
-      
+
     } catch (error) {
       console.error('Error opening document:', error);
       Alert.alert('Error', 'Failed to open document. Please try again.');
@@ -512,13 +594,13 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
       proof_of_payment_type: typeof booking.proof_of_payment,
       documents: booking.documents,
     });
-    
+
     setSelectedBooking(booking);
     setIsModalVisible(true);
 
     setProofOfPaymentUrl(null);
     setLoadingProofOfPayment(false);
-    
+
     if (booking.payment_method === 'gcash' && booking.proof_of_payment) {
       console.log('Fetching proof of payment for GCash booking:', booking.proof_of_payment);
 
@@ -542,7 +624,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
             console.warn('No URL in response:', data);
             setLoadingProofOfPayment(false);
           }
-          
+
         } catch (error) {
           console.error('Error fetching proof of payment URL:', error);
           setLoadingProofOfPayment(false);
@@ -625,38 +707,71 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
         </Text>
 
         <Text style={styles.subtitle}>
-          {user?.is_priest 
-            ? 'View your assigned bookings and schedule' 
+          {user?.is_priest
+            ? 'View your assigned bookings and schedule'
             : 'View your past and upcoming bookings'}
         </Text>
       </View>
 
+      {/* Status Filter */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.filterContainer}
-        contentContainerStyle={{ paddingRight: 20, marginHorizontal: 20, gap: 10, height: 40, marginTop: 20, marginBottom: 0}}
+        contentContainerStyle={{ paddingRight: 20, marginHorizontal: 20, gap: 10, height: 40, marginTop: 20 }}
       >
-        {['all', 'approved', 'pending', 'rejected', 'cancelled'].map((filter) => (
-          <TouchableOpacity
-            key={filter}
-            style={[
-              styles.filterButton,
-              selectedFilter === filter && styles.filterButtonActive
-            ]}
-            onPress={() => setSelectedFilter(filter)}
-          >
-            <Text
+        {(() => {
+          // For priests, only show 'all' filter. For regular users, show all filters.
+          const allFilters = ['all', 'approved', 'pending', 'rejected', 'cancelled'];
+          const filtersToShow = user?.is_priest 
+            ? ['all']
+            : allFilters;
+          
+          return filtersToShow.map((filter) => (
+            <TouchableOpacity
+              key={filter}
               style={[
-                styles.filterButtonText,
-                selectedFilter === filter && styles.filterButtonTextActive
+                styles.filterButton,
+                selectedFilter === filter && styles.filterButtonActive
               ]}
+              onPress={() => setSelectedFilter(filter)}
             >
-              {filter.charAt(0).toUpperCase() + filter.slice(1)}
-            </Text>
-          </TouchableOpacity>
-        ))}
+              <Text
+                style={[
+                  styles.filterButtonText,
+                  selectedFilter === filter && styles.filterButtonTextActive
+                ]}
+              >
+                {filter.charAt(0).toUpperCase() + filter.slice(1)}
+              </Text>
+            </TouchableOpacity>
+          ));
+        })()}
       </ScrollView>
+
+      {/* Sacrament and Month Filters */}
+      <View style={[styles.additionalFiltersContainer, { marginTop: -360 }]}>
+        <View style={styles.pickerContainer}>
+          <CustomPicker
+            value={sacramentOptions.find(opt => opt.value === selectedSacrament)?.label}
+            onValueChange={(value) => setSelectedSacrament(value)}
+            options={sacramentOptions}
+            placeholder="Sacraments"
+            iconName="water-outline"
+            style={[styles.customPicker]}
+          />
+        </View>
+        <View style={styles.pickerContainer}>
+          <CustomPicker
+            value={monthOptions.find(opt => opt.value === selectedMonth)?.label}
+            onValueChange={(value) => setSelectedMonth(value)}
+            options={monthOptions}
+            placeholder="All Months"
+            iconName="calendar-outline"
+            style={[styles.customPicker]}
+          />
+        </View>
+      </View>
 
       <ScrollView
         style={styles.scrollView}
@@ -712,19 +827,19 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
 
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
                 <View style={styles.detailRow}>
-                  <Ionicons name="calendar-outline" size={16} color="#666" style={{ marginRight: 6 }} />
+                  <Ionicons name="calendar-outline" size={16} color="#bdbdbdff" style={{ marginRight: 6 }} />
                   <Text style={styles.detailText}>{formatDate(booking.date)}</Text>
                 </View>
                 <View style={styles.detailRow}>
-                  <Ionicons name="time-outline" size={16} color="#666" style={{ marginRight: 6 }} />
+                  <Ionicons name="time-outline" size={16} color="#bdbdbdff" style={{ marginRight: 6 }} />
                   <Text style={styles.detailText}>{formatTime(booking.time)}</Text>
                 </View>
               </View>
 
               {booking.full_name && user?.is_priest && (
-                <View style={{ marginTop: 8, flexDirection: 'row', alignItems: 'center' }}>
-                  <Ionicons name="person-outline" size={16} color="#666" style={{ marginRight: 6 }} />
-                  <Text style={{ fontSize: 13, color: '#666', fontFamily: 'Poppins_500Medium' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Ionicons name="person-outline" size={16} color="#bdbdbdff" style={{ marginRight: 6 }} />
+                  <Text style={{ fontSize: 14, color: '#666', fontFamily: 'Poppins_500Medium' }}>
                     {booking.full_name}
                   </Text>
                 </View>
@@ -733,16 +848,16 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
               {booking.priest_name && !user?.is_priest && booking.status === 'approved' && (
                 <View style={{ marginTop: 8, flexDirection: 'row', alignItems: 'center' }}>
                   <Ionicons name="person-outline" size={16} color="#4CAF50" style={{ marginRight: 6 }} />
-                  <Text style={{ fontSize: 13, color: '#4CAF50', fontFamily: 'Poppins_500Medium' }}>
+                  <Text style={{ fontSize: 14, color: '#4CAF50', fontFamily: 'Poppins_500Medium' }}>
                     Priest: {booking.priest_name}
                   </Text>
                 </View>
               )}
-              
+
               {booking.contact_number && user?.is_priest && (
                 <View style={{ marginTop: 6, flexDirection: 'row', alignItems: 'center' }}>
-                  <Ionicons name="call-outline" size={16} color="#666" style={{ marginRight: 6 }} />
-                  <Text style={{ fontSize: 13, color: '#666', fontFamily: 'Poppins_400Regular' }}>
+                  <Ionicons name="call-outline" size={16} color="#bdbdbdff" style={{ marginRight: 6 }} />
+                  <Text style={{ fontSize: 14, color: '#666', fontFamily: 'Poppins_400Regular' }}>
                     {booking.contact_number}
                   </Text>
                 </View>
@@ -755,8 +870,8 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
             <Text style={styles.emptyText}>
               {selectedFilter !== 'all'
                 ? `No ${selectedFilter} bookings found.`
-                : user?.is_priest 
-                  ? 'No bookings assigned to you yet.' 
+                : user?.is_priest
+                  ? 'No bookings assigned to you yet.'
                   : 'No bookings yet. Book a sacrament to get started!'}
             </Text>
           </View>
@@ -801,21 +916,31 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                     { label: "Status", value: selectedBooking.status.charAt(0).toUpperCase() + selectedBooking.status.slice(1) },
                     { label: "Date", value: formatDate(selectedBooking.date), icon: "calendar-outline" },
                     { label: "Time", value: formatTime(selectedBooking.time), icon: "time-outline" },
-                    ...(selectedBooking.full_name && user?.is_priest ? [{ label: "Participant", value: selectedBooking.full_name, icon: "person-outline" }] : []),
+                    ...(selectedBooking.sacrament === 'Wedding' && selectedBooking.groom_first_name ? [{
+                      label: "Groom Name",
+                      value: `${selectedBooking.groom_first_name || ''} ${selectedBooking.groom_middle_name || ''} ${selectedBooking.groom_last_name || ''}`.trim(),
+                      icon: "person-outline"
+                    }] : []),
+                    ...(selectedBooking.sacrament === 'Wedding' && selectedBooking.bride_first_name ? [{
+                      label: "Bride Name",
+                      value: `${selectedBooking.bride_first_name || ''} ${selectedBooking.bride_middle_name || ''} ${selectedBooking.bride_last_name || ''}`.trim(),
+                      icon: "person-outline"
+                    }] : []),
+                    ...(selectedBooking.full_name && user?.is_priest && selectedBooking.sacrament !== 'Wedding' ? [{ label: "Participant", value: selectedBooking.full_name, icon: "person-outline" }] : []),
                     { label: "Attendees", value: selectedBooking.attendees ? `${selectedBooking.attendees} people` : 'N/A', icon: "people-outline" },
                     ...(selectedBooking.contact_number && user?.is_priest ? [{ label: "Contact Number", value: selectedBooking.contact_number, icon: "call-outline" }] : []),
                     { label: "Transaction ID", value: selectedBooking.transaction_id || selectedBooking.id, icon: "receipt-outline" },
                     { label: "Booked on", value: formatDate(selectedBooking.bookingDate), icon: "calendar-outline" },
                     ...(selectedBooking.priest_name && !user?.is_priest ? [{ label: "Assigned Priest", value: selectedBooking.priest_name, icon: "person-outline" }] : []),
-                    ...(selectedBooking.payment_method ? [{ 
-                      label: "Payment Method", 
-                      value: selectedBooking.payment_method === 'gcash' ? 'GCash' : (selectedBooking.payment_method === 'in_person' ? 'In-Person Payment' : selectedBooking.payment_method), 
-                      icon: selectedBooking.payment_method === 'gcash' ? "phone-portrait-outline" : "person-outline" 
+                    ...(selectedBooking.payment_method ? [{
+                      label: "Payment Method",
+                      value: selectedBooking.payment_method === 'gcash' ? 'GCash' : (selectedBooking.payment_method === 'in_person' ? 'In-Person Payment' : selectedBooking.payment_method),
+                      icon: selectedBooking.payment_method === 'gcash' ? "phone-portrait-outline" : "person-outline"
                     }] : []),
-                    ...(selectedBooking.amount && parseFloat(selectedBooking.amount) > 0 ? [{ 
-                      label: "Amount", 
-                      value: `₱${parseFloat(selectedBooking.amount).toLocaleString()}`, 
-                      icon: "wallet-outline" 
+                    ...(selectedBooking.amount && parseFloat(selectedBooking.amount) > 0 ? [{
+                      label: "Amount",
+                      value: `₱${parseFloat(selectedBooking.amount).toLocaleString()}`,
+                      icon: "wallet-outline"
                     }] : []),
                     ...(selectedBooking.notes ? [{ label: "Notes", value: selectedBooking.notes, icon: "document-text-outline" }] : []),
                   ].map((item, idx) => (
@@ -835,6 +960,25 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                     <View style={styles.modalNotesContainer}>
                       <Text style={styles.modalLabel}>Notes</Text>
                       <Text style={styles.modalNotes}>{selectedBooking.notes}</Text>
+                    </View>
+                  )}
+
+                  {/* Admin Comment Section - Show if booking has admin comment */}
+                  {selectedBooking.admin_comment && (selectedBooking.status === 'approved' || selectedBooking.status === 'confirmed' || selectedBooking.status === 'cancelled') && (
+                    <View style={styles.modalNotesContainer}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                        <Ionicons name="chatbubble-outline" size={18} color="#666" style={{ marginRight: 6 }} />
+                        <Text style={styles.modalLabel}>Admin Comment</Text>
+                      </View>
+                      <View style={{
+                        padding: 12,
+                        backgroundColor: '#f5f5f5',
+                        borderRadius: 8,
+                        borderWidth: 1,
+                        borderColor: '#d9d9d9',
+                      }}>
+                        <Text style={styles.modalNotes}>{selectedBooking.admin_comment}</Text>
+                      </View>
                     </View>
                   )}
 
@@ -879,6 +1023,56 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                     </View>
                   )}
 
+                  {/* Wedding Images Section */}
+                  {selectedBooking.sacrament === 'Wedding' && (selectedBooking.groom_pic || selectedBooking.bride_pic) && (
+                    <View style={styles.modalNotesContainer}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                        <Ionicons name="images-outline" size={18} color="#666" style={{ marginRight: 6 }} />
+                        <Text style={styles.modalLabel}>Photos</Text>
+                      </View>
+                      <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap' }}>
+                        {selectedBooking.groom_pic && (
+                          <View style={{ flex: 1, minWidth: '45%' }}>
+                            <Text style={[styles.modalNotes, { marginBottom: 5, fontSize: 12 }]}>Groom Photo</Text>
+                            <Image
+                              source={{ uri: getSupabasePublicUrl(selectedBooking.groom_pic) }}
+                              style={{
+                                width: '100%',
+                                height: 150,
+                                borderRadius: 8,
+                                borderWidth: 1,
+                                borderColor: '#ddd',
+                              }}
+                              resizeMode="cover"
+                              onError={(error) => {
+                                console.error('Error loading groom photo:', error);
+                              }}
+                            />
+                          </View>
+                        )}
+                        {selectedBooking.bride_pic && (
+                          <View style={{ flex: 1, minWidth: '45%' }}>
+                            <Text style={[styles.modalNotes, { marginBottom: 5, fontSize: 12 }]}>Bride Photo</Text>
+                            <Image
+                              source={{ uri: getSupabasePublicUrl(selectedBooking.bride_pic) }}
+                              style={{
+                                width: '100%',
+                                height: 150,
+                                borderRadius: 8,
+                                borderWidth: 1,
+                                borderColor: '#ddd',
+                              }}
+                              resizeMode="cover"
+                              onError={(error) => {
+                                console.error('Error loading bride photo:', error);
+                              }}
+                            />
+                          </View>
+                        )}
+                      </View>
+                    </View>
+                  )}
+
                   {/* Documents Section */}
                   {selectedBooking.documents && Object.keys(selectedBooking.documents).filter(key => selectedBooking.documents[key]).length > 0 && (
                     <View style={styles.modalNotesContainer}>
@@ -888,8 +1082,9 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                       </View>
                       {Object.entries(selectedBooking.documents).map(([key, path]) => {
                         if (!path) return null;
-                        
+
                         const documentLabels = {
+                          // Baptism
                           baptismal_certificate: 'Baptismal Certificate',
                           communion_preparation: 'Communion Preparation',
                           parent_consent: 'Parent Consent',
@@ -897,15 +1092,31 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
                           parents_marriage_certificate: 'Parents Marriage Certificate',
                           godparent_confirmation: 'Godparent Confirmation',
                           baptismal_seminar: 'Baptismal Seminar',
+                          // Burial
                           death_certificate: 'Death Certificate',
                           deceased_baptismal: 'Deceased Baptismal',
+                          // Communion
                           first_communion_certificate: 'First Communion Certificate',
+                          // Confirmation
                           confirmation_preparation: 'Confirmation Preparation',
                           sponsor_certificate: 'Sponsor Certificate',
+                          // Wedding
+                          marriage_license: 'Marriage License',
+                          marriage_contract: 'Marriage Contract',
+                          groom_baptismal_cert: 'Groom Baptismal Certificate',
+                          bride_baptismal_cert: 'Bride Baptismal Certificate',
+                          groom_confirmation_cert: 'Groom Confirmation Certificate',
+                          bride_confirmation_cert: 'Bride Confirmation Certificate',
+                          groom_cenomar: 'Groom CENOMAR',
+                          bride_cenomar: 'Bride CENOMAR',
+                          groom_banns: 'Groom Banns',
+                          bride_banns: 'Bride Banns',
+                          groom_permission: 'Groom Parental Permission',
+                          bride_permission: 'Bride Parental Permission',
                         };
-                        
+
                         const label = documentLabels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                        
+
                         return (
                           <TouchableOpacity
                             key={key}

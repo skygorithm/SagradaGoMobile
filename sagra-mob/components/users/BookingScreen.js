@@ -9,6 +9,7 @@ import {
   Alert
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import dayjs from 'dayjs';
 import styles from '../../styles/users/BookingStyle';
 import CustomNavbar from '../../customs/CustomNavbar';
 import CustomPicker from '../../customs/CustomPicker';
@@ -17,14 +18,39 @@ import CustomBookingForm from '../../customs/CustomBookingForm';
 import { useAuth } from '../../contexts/AuthContext';
 import { sacramentRequirements } from '../../utils/sacramentRequirements';
 
+const getMinimumBookingDateDisplay = (sacrament) => {
+  const today = dayjs();
+  let minDate;
+  
+  switch (sacrament) {
+    case 'Baptism':
+    case 'Wedding':
+      minDate = today.add(2, 'months');
+      break;
+    case 'Burial':
+      minDate = today.add(1, 'week');
+      break;
+    case 'First Communion':
+    case 'Confession':
+    case 'Anointing of the Sick':
+    case 'Confirmation':
+      minDate = today.add(1, 'day');
+      break;
+    default:
+      minDate = today;
+  }
+  
+  return minDate.format('MMMM D, YYYY');
+};
+
 const sacraments = [
-  { name: 'Wedding', minDate: 'October 17, 2025' },
-  { name: 'Baptism', minDate: 'November 1, 2025' },
-  { name: 'Confession', minDate: 'September 19, 2025' },
-  { name: 'Anointing of the Sick', minDate: 'September 18, 2025' },
-  { name: 'First Communion', minDate: 'November 16, 2025' },
-  { name: 'Burial', minDate: 'September 20, 2025' },
-  { name: 'Confirmation', minDate: 'November 16, 2025' },
+  { name: 'Wedding', minDate: getMinimumBookingDateDisplay('Wedding') },
+  { name: 'Baptism', minDate: getMinimumBookingDateDisplay('Baptism') },
+  { name: 'Confession', minDate: getMinimumBookingDateDisplay('Confession') },
+  { name: 'Anointing of the Sick', minDate: getMinimumBookingDateDisplay('Anointing of the Sick') },
+  { name: 'First Communion', minDate: getMinimumBookingDateDisplay('First Communion') },
+  { name: 'Burial', minDate: getMinimumBookingDateDisplay('Burial') },
+  { name: 'Confirmation', minDate: getMinimumBookingDateDisplay('Confirmation') },
 ];
 
 export default function BookingScreen({ user: userProp, onNavigate }) {
@@ -82,7 +108,6 @@ export default function BookingScreen({ user: userProp, onNavigate }) {
         // return;
         setIsMiddleNameModalVisible(true);
         return;
-
       }
     }
 

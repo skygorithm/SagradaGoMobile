@@ -3,6 +3,7 @@ import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import { useState, useEffect } from 'react';
 
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import notificationHandler from './utils/NotificationHandler';
 import GetStartedScreen from './components/GetStarted';
 import LoginScreen from './components/LoginScreen';
 import SignUpScreen from './components/SignUpScreen';
@@ -54,6 +55,18 @@ function AppContent() {
   });
 
   useEffect(() => {
+    notificationHandler.initialize()
+      .then(() => {
+        console.log('App: NotificationHandler initialized');
+      })
+      .catch(err => {
+        console.error('Failed to initialize notification handler:', err);
+      });
+    
+    notificationHandler.setNavigationRef(handleNavigate);
+  }, []);
+
+  useEffect(() => {
     if (isAuthenticated && user) {
       setCurrentUser(user);
       setIsLoggedIn(true);
@@ -68,7 +81,9 @@ function AppContent() {
     }
   }, [isAuthenticated, user]);
 
-  if (!fontsLoaded || authLoading) {
+  const isOnLoginScreen = currentScreen === 'LoginScreen';
+  
+  if (!fontsLoaded || (authLoading && !isOnLoginScreen)) {
     return (
       <View style={{
         flex: 1, justifyContent: 'center',

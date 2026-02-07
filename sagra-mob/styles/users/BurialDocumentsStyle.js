@@ -60,6 +60,31 @@ const styles = StyleSheet.create({
     color: '#1a1a1a',
     fontFamily: 'Poppins_600SemiBold',
   },
+  inputWrapper: {
+    marginBottom: 15,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontFamily: 'Poppins_600SemiBold',
+    color: '#333',
+    marginBottom: 8,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 15,
+    fontFamily: 'Poppins_400Regular',
+    color: '#333',
+  },
 });
 
 export default styles;

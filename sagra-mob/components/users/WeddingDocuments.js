@@ -56,36 +56,31 @@ export default function WeddingDocuments({ weddingForm, setWeddingForm }) {
           },
         });
       }
-      
+
     } catch (error) {
       Alert.alert('Error', 'Failed to pick image. Please try again.');
       console.error('Image picker error:', error);
     }
   };
 
+  const nameFields = [
+    { key: 'groom_first_name', label: 'Groom First Name', type: 'text' },
+    { key: 'groom_middle_name', label: 'Groom Middle Name', type: 'text' },
+    { key: 'groom_last_name', label: 'Groom Last Name', type: 'text' },
+    { key: 'bride_first_name', label: 'Bride First Name', type: 'text' },
+    { key: 'bride_middle_name', label: 'Bride Middle Name', type: 'text' },
+    { key: 'bride_last_name', label: 'Bride Last Name', type: 'text' },
+  ];
+
   const documentFields = [
-    { key: 'groom_fullname', label: 'Groom Full Name', type: 'text' },
-    { key: 'bride_fullname', label: 'Bride Full Name', type: 'text' },
-    { key: 'marriage_license', label: 'Marriage License', type: 'file' },
-    { key: 'marriage_contract', label: 'Marriage Contract', type: 'file' },
     { key: 'groom_1x1', label: 'Groom 1x1 Photo', type: 'file' },
     { key: 'bride_1x1', label: 'Bride 1x1 Photo', type: 'file' },
-    { key: 'groom_baptismal_cert', label: 'Groom Baptismal Certificate', type: 'file' },
-    { key: 'bride_baptismal_cert', label: 'Bride Baptismal Certificate', type: 'file' },
-    { key: 'groom_confirmation_cert', label: 'Groom Confirmation Certificate', type: 'file' },
-    { key: 'bride_confirmation_cert', label: 'Bride Confirmation Certificate', type: 'file' },
-    { key: 'groom_cenomar', label: 'Groom CENOMAR', type: 'file' },
-    { key: 'bride_cenomar', label: 'Bride CENOMAR', type: 'file' },
-    { key: 'groom_banns', label: 'Groom Banns', type: 'file' },
-    { key: 'bride_banns', label: 'Bride Banns', type: 'file' },
-    { key: 'groom_permission', label: 'Groom Permission', type: 'file' },
-    { key: 'bride_permission', label: 'Bride Permission', type: 'file' },
   ];
 
   return (
     <View style={styles.sacramentFormContainer}>
       <Text style={styles.sacramentFormTitle}>Wedding Information</Text>
-      
+
       <View style={styles.inputWrapper}>
         <Text style={styles.inputLabel}>Contact Number</Text>
         <View style={styles.inputContainer}>
@@ -97,10 +92,27 @@ export default function WeddingDocuments({ weddingForm, setWeddingForm }) {
             placeholder="09XX-XXX-XXXX"
             keyboardType="phone-pad"
             maxLength={13}
+            placeholderTextColor="#999"
           />
         </View>
         <Text style={styles.inputHelperText}>Enter 11-digit PH mobile number (e.g., 09171234567)</Text>
       </View>
+
+      {nameFields.map((field) => (
+        <View key={field.key} style={styles.inputWrapper}>
+          <Text style={styles.inputLabel}>{field.label}</Text>
+          <View style={styles.inputContainer}>
+            <Ionicons name="person-outline" size={20} color="#999" style={{ marginRight: 10 }} />
+            <TextInput
+              style={styles.textInput}
+              value={weddingForm[field.key] || ''}
+              onChangeText={(text) => setWeddingForm({ ...weddingForm, [field.key]: text })}
+              placeholder={`Enter ${field.label.toLowerCase()}`}
+              placeholderTextColor="#999"
+            />
+          </View>
+        </View>
+      ))}
 
       {documentFields.map((field) => (
         <View key={field.key} style={styles.inputWrapper}>
@@ -113,6 +125,7 @@ export default function WeddingDocuments({ weddingForm, setWeddingForm }) {
                 value={weddingForm[field.key] || ''}
                 onChangeText={(text) => setWeddingForm({ ...weddingForm, [field.key]: text })}
                 placeholder={`Enter ${field.label.toLowerCase()}`}
+                placeholderTextColor="#999"
               />
             </View>
           ) : (
@@ -120,18 +133,18 @@ export default function WeddingDocuments({ weddingForm, setWeddingForm }) {
               style={styles.fileUploadButton}
               onPress={() => pickImage(field.key)}
             >
-              <Ionicons 
-                name={weddingForm[field.key] ? "checkmark-circle" : "document-attach-outline"} 
-                size={20} 
-                color={weddingForm[field.key] ? "#4CAF50" : "#666"} 
-                style={{ marginRight: 10 }} 
+              <Ionicons
+                name={weddingForm[field.key] ? "checkmark-circle" : "document-attach-outline"}
+                size={20}
+                color={weddingForm[field.key] ? "#4CAF50" : "#666"}
+                style={{ marginRight: 10 }}
               />
               <Text style={[
                 styles.fileUploadText,
                 weddingForm[field.key] && styles.fileUploadTextSelected
               ]}>
-                {weddingForm[field.key] 
-                  ? weddingForm[field.key].fileName || 'File Selected' 
+                {weddingForm[field.key]
+                  ? weddingForm[field.key].fileName || 'File Selected'
                   : `Upload ${field.label}`}
               </Text>
             </TouchableOpacity>

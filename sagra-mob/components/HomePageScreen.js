@@ -16,6 +16,10 @@ import CustomCalendar from '../customs/CustomCalendar';
 import NotificationBadge from './NotificationBadge';
 import { useAuth } from '../contexts/AuthContext';
 
+import banner1 from "../assets/SAGRADA-FAMILIA-PARISH.jpg";
+import banner2 from "../assets/christmas.jpg";
+import banner3 from "../assets/dyd.jpg";
+
 export default function HomePageScreen({ user, onLogout, onNavigate }) {
   const [selectedSection, setSelectedSection] = useState('Quick Access');
   const [events, setEvents] = useState([]);
@@ -35,7 +39,7 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
       screen: 'DonationsScreen',
       color: '#FFC942',
       hints: ['Help a family', 'Support a cause'],
-      image: 'https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwz2-2x2nNm-1Y0wXm4sTfRp-ZOsbo5xWEitpsAKPSuK52hB1ymCI4WykGQaNIhNLJSIrrq4-8XHwjT4ACHKaEXcD8YnT_Po4M9M39IjcjCz4xRQXjkSJ4HVudItvbaPbjGDPdF=s680-w680-h510-rw',
+      image: banner2,
     },
     {
       id: 'announcement',
@@ -44,7 +48,7 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
       screen: 'AnnouncementsScreen',
       color: '#d89d09ff',
       hints: ['News & Updates', 'Community Alerts'],
-      image: 'https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwwN85yC8vouPT69D5Kjz8RTchXeOyMbQ-dSmI4ui25OH7_XpPsGW0yWPWjtArSTSwAFuvAk7ODktcYtGTIu0NeFIAY7glt9p6mblqIwQlpy6PziibLSAQiyQK87jhB1iVmPU8=s680-w680-h510-rw',
+      image: banner3,
     },
     {
       id: 'virtualtour',
@@ -53,18 +57,19 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
       screen: 'VirtualTourScreen',
       color: '#705104ff',
       hints: ['Explore Locations', '360° Experience'],
-      image: 'https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzL4AseRFcztDs3mM7aDc-Y0GOre4wu4KSxaFDllXAqoeL1e0YYe9qFAOfZImXr5qkFKHVQpLMBgCya3ia4j49QwGxTAC3qtjWiHDc6ljGnA7PEBCt8o9iqcF7fs7NiVG1Tg1lIqQ=s680-w680-h510-rw',
+      image: banner1,
     },
   ];
 
   const getUserName = () => {
     if (user) {
+      const capitalize = (str) =>
+        str ? str.trim().charAt(0).toUpperCase() + str.trim().slice(1).toLowerCase() : '';
+
       const fullName = [
-        user.first_name?.trim() || '',
-        user.last_name?.trim() || ''
-      ]
-        .filter(Boolean)
-        .join(' ');
+        capitalize(currentUser?.first_name),
+        // capitalize(currentUser?.last_name)
+      ].filter(Boolean).join(' ');
 
       if (user.is_priest) {
         return `Father ${fullName || ''}`.trim();
@@ -176,11 +181,28 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
     (event) => dayjs(event.date).format('YYYY-MM-DD') === selectedDate
   );
 
-  const bookingsForSelectedDate = bookings.filter((booking) => {
-    if (!booking.date) return false;
-    const bookingDate = dayjs(booking.date).format('YYYY-MM-DD');
-    return bookingDate === selectedDate;
-  });
+  const bookingsForSelectedDate = bookings
+    .filter((booking) => {
+      if (!booking.date) return false;
+      const bookingDate = dayjs(booking.date).format('YYYY-MM-DD');
+      return bookingDate === selectedDate;
+    })
+    .sort((a, b) => {
+      if (user && user.is_priest) {
+        const timeA = a.time ? (dayjs(a.time).isValid() ? dayjs(a.time) : null) : null;
+        const timeB = b.time ? (dayjs(b.time).isValid() ? dayjs(b.time) : null) : null;
+
+        if (timeA && timeB) {
+          return timeA.valueOf() - timeB.valueOf();
+        }
+
+        if (timeA && !timeB) return -1;
+        if (!timeA && timeB) return 1;
+        return 0;
+      }
+
+      return 0;
+    });
 
   const handleShortcutPress = (screen) => {
     if (onNavigate) {
@@ -266,13 +288,8 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
             <CustomCalendar
               selectedDate={selectedDate}
               onDateSelect={(date) => setSelectedDate(dayjs(date).format('YYYY-MM-DD'))}
-              markedDates={bookings
-                .filter((booking) => booking.date)
-                .map((booking) => {
-                  const date = dayjs(booking.date);
-                  return date.isValid() ? date.toDate() : null;
-                })
-                .filter(Boolean)}
+              markedDates={bookings.filter((booking) => booking.date)}
+              isPriestView={true}
             />
 
             {/* Bookings for Selected Date */}
@@ -287,7 +304,7 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
                   style={[styles.eventCard, { marginBottom: 15 }]}
                 >
                   <View style={{ padding: 15 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <View style={{ flex: 1 }}>
                         <Text style={[styles.eventTitle, { fontSize: 18, marginBottom: 5 }]}>{booking.sacrament || booking.type}</Text>
                         <Text style={styles.eventDate}>
@@ -307,18 +324,18 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
                     </View>
 
                     {booking.groom_name && booking.bride_name && (
-                      <Text style={{ fontSize: 14, fontFamily: 'Poppins_400Regular', color: '#555', marginBottom: 5 }}>
+                      <Text style={{ fontSize: 14, fontFamily: 'Poppins_400Regular', color: '#555' }}>
                         {booking.groom_name} & {booking.bride_name}
                       </Text>
                     )}
                     {(booking.full_name || booking.candidate_name || booking.deceased_name) && (
-                      <Text style={{ fontSize: 14, fontFamily: 'Poppins_400Regular', color: '#555', marginBottom: 5 }}>
+                      <Text style={{ fontSize: 14, fontFamily: 'Poppins_400Regular', color: '#555', marginBottom: 5, borderTopColor: '#eee', borderTopWidth: 1, paddingTop: 15 }}>
                         {booking.full_name || booking.candidate_name || booking.deceased_name}
                       </Text>
                     )}
 
                     {booking.attendees && (
-                      <Text style={{ fontSize: 13, fontFamily: 'Poppins_400Regular', color: '#777', marginTop: 5 }}>
+                      <Text style={{ fontSize: 13, fontFamily: 'Poppins_400Regular', color: '#777' }}>
                         {booking.attendees} attendee{booking.attendees !== 1 ? 's' : ''}
                       </Text>
                     )}
@@ -415,8 +432,18 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
                       </View>
 
                       {shortcut.image && (
+                        // <Image
+                        //   source={{ uri: shortcut.image }}
+                        //   style={{ width: '100%', height: 120, borderRadius: 10, marginBottom: 8 }}
+                        //   resizeMode="cover"
+                        // />
+
                         <Image
-                          source={{ uri: shortcut.image }}
+                          source={
+                            typeof shortcut.image === 'string'
+                              ? { uri: shortcut.image }   // remote image
+                              : shortcut.image            // local require/import
+                          }
                           style={{ width: '100%', height: 120, borderRadius: 10, marginBottom: 8 }}
                           resizeMode="cover"
                         />
@@ -508,12 +535,14 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
 
       <CustomNavbar currentScreen="HomePageScreen" onNavigate={onNavigate} />
 
-      <TouchableOpacity
-        style={styles.floatingButton}
-        onPress={() => handleShortcutPress('ChatBotScreen')}
-      >
-        <Ionicons name="chatbubble-ellipses-outline" size={24} color="#424242" />
-      </TouchableOpacity>
+      {!user?.is_priest && (
+        <TouchableOpacity
+          style={styles.floatingButton}
+          onPress={() => handleShortcutPress('ChatBotScreen')}
+        >
+          <Ionicons name="chatbubble-ellipses-outline" size={24} color="#424242" />
+        </TouchableOpacity>
+      )}
 
     </View>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,12 +11,16 @@ import {
   Image,
   Modal
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../styles/LoginStyle';
 import ForgotPasswordModal from './ForgotPasswordModal';
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginScreen({ onLoginSuccess, onSwitchToSignUp, onBack }) {
+  const emailRef = useRef('');
+  const passwordRef = useRef('');
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -27,26 +31,94 @@ export default function LoginScreen({ onLoginSuccess, onSwitchToSignUp, onBack }
   const [errorModalVisible, setErrorModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  useEffect(() => {
+    emailRef.current = email;
+  }, [email]);
+
+  useEffect(() => {
+    passwordRef.current = password;
+  }, [password]);
+
+  useEffect(() => {
+    const restoreValues = async () => {
+      try {
+        const savedEmail = await AsyncStorage.getItem('login_email_temp');
+        const savedPassword = await AsyncStorage.getItem('login_password_temp');
+        
+        if (savedEmail) {
+          setEmail(savedEmail);
+          emailRef.current = savedEmail;
+        }
+
+        if (savedPassword) {
+          setPassword(savedPassword);
+          passwordRef.current = savedPassword;
+        }
+
+      } catch (error) {
+        console.error('Error restoring login values:', error);
+      }
+    };
+    
+    restoreValues();
+  }, []);
+
   // Conntected to MongoDB Atlas - temporarily disabled for testing
   const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
-      // Alert.alert('Error', 'Please enter both email and password');
+    const currentEmail = email.trim();
+    const currentPassword = password.trim();
+    
+    if (!currentEmail || !currentPassword) {
       setErrorMessage('Please enter both email and password. Thank you!');
       setErrorModalVisible(true);
       return;
     }
 
-    const result = await login(email, password);
+    emailRef.current = currentEmail;
+    passwordRef.current = currentPassword;
+    
+    try {
+      await AsyncStorage.setItem('login_email_temp', currentEmail);
+      await AsyncStorage.setItem('login_password_temp', currentPassword);
+
+    } catch (error) {
+      console.error('Error saving login values:', error);
+    }
+
+    const result = await login(currentEmail, currentPassword);
 
     if (result.success) {
+      emailRef.current = '';
+      passwordRef.current = '';
       setEmail('');
       setPassword('');
+
+      try {
+        await AsyncStorage.removeItem('login_email_temp');
+        await AsyncStorage.removeItem('login_password_temp');
+
+      } catch (error) {
+        console.error('Error clearing login values:', error);
+      }
+
       if (onLoginSuccess) {
         onLoginSuccess(result.user);
       }
 
     } else {
-      // Alert.alert('Login Failed', result.message || 'Invalid email or password');
+      emailRef.current = currentEmail;
+      passwordRef.current = currentPassword;
+      setEmail(currentEmail);
+      setPassword(currentPassword);
+
+      try {
+        await AsyncStorage.setItem('login_email_temp', currentEmail);
+        await AsyncStorage.setItem('login_password_temp', currentPassword);
+
+      } catch (error) {
+        console.error('Error saving login values:', error);
+      }
+      
       setErrorMessage(result.message || 'Invalid email or password.');
       setErrorModalVisible(true);
     }

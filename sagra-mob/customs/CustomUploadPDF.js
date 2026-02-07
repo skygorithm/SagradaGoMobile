@@ -20,9 +20,20 @@ export default function CustomUploadPDF({
   uploadedDocs = {},
   onUpload,
   onRemove,
+  isCivillyMarried = false,
 }) {
 
-  const requirements = sacramentRequirements[sacrament] || [];
+  let requirements = sacramentRequirements[sacrament] || [];
+
+  if (sacrament === 'Wedding') {
+    requirements = requirements.filter((req) => {
+      if (req.onlyIfCivillyMarried) {
+        return isCivillyMarried === true || isCivillyMarried === 'yes';
+      }
+      
+      return true;
+    });
+  }
 
   const handlePickDocument = async (requirement) => {
     try {
@@ -56,11 +67,16 @@ export default function CustomUploadPDF({
     if (!requirement.requiresUpload) return null;
 
     const uploadedFile = uploadedDocs[requirement.id];
+    const isOptional = (requirement.optionalIfCivillyMarried && (isCivillyMarried === true || isCivillyMarried === 'yes')) ||
+                       requirement.optionalIfApplicable;
 
     return (
       <View key={requirement.id} style={styles.uploadRequirementItem}>
         <View style={styles.uploadRequirementInfo}>
-          <Text style={styles.inputLabel}>{requirement.label}</Text>
+          <Text style={styles.inputLabel}>
+            {requirement.label}
+            {isOptional && <Text style={{ color: '#666', fontSize: 12 }}> (Optional)</Text>}
+          </Text>
 
           {uploadedFile ? (
             <View style={styles.uploadFileInfo}>

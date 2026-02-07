@@ -37,9 +37,23 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-# generated native folders
+# Native folders - commit source files, ignore build artifacts
 /ios
-/android
+/android/app/build/
+/android/build/
+/android/.gradle/
+/android/local.properties
+/android/app/debug.keystore
+/android/app/google-services.json
+# But DO commit:
+# - /android/app/src/
+# - /android/app/build.gradle
+# - /android/build.gradle
+# - /android/gradle/
+# - /android/gradle.properties
+# - /android/settings.gradle
+# - /android/gradlew
+# - /android/gradlew.bat
 
 #backend
 /backend/

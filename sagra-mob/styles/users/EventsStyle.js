@@ -37,6 +37,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 16,
     fontFamily: 'Poppins_500Medium',
+    color: '#000',
   },
 
   title: {
@@ -75,7 +76,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 20,
     width: 250,
-    height: 300,
+    height: '85%',
     marginRight: 40,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -125,6 +126,52 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_600SemiBold',
     marginLeft: 6,
     fontSize: 15,
+  },
+
+  tabContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 30,
+    marginBottom: 10,
+    gap: 10,
+  },
+
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    backgroundColor: '#f2f2f2',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  tabActive: {
+    backgroundColor: '#424242',
+  },
+
+  tabText: {
+    fontSize: 16,
+    fontFamily: 'Poppins_600SemiBold',
+    color: '#666',
+  },
+
+  tabTextActive: {
+    color: '#fff',
+  },
+
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+    paddingHorizontal: 30,
+  },
+
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
+    fontFamily: 'Poppins_500Medium',
+    textAlign: 'center',
   },
 
 });

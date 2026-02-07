@@ -12,23 +12,13 @@ import {
   Modal
 } from 'react-native';
 import styles from '../../styles/users/VolunteerStyle';
-import CustomPicker from '../../customs/CustomPicker';
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from '../../contexts/AuthContext';
 
-const volunteerRoles = [
-  { label: 'Choir Member', value: 'Choir Member' },
-  { label: 'Usher', value: 'Usher' },
-  { label: 'Catechist', value: 'Catechist' },
-  { label: 'Tech Team', value: 'Tech Team' },
-  { label: 'Others', value: 'Others' },
-];
-
-export default function VolunteerScreen({ visible, onClose, event }) {
+export default function VolunteerScreen({ visible, onClose, event, registrationType = 'volunteer' }) {
   const { user: authUser, addVolunteer, loading } = useAuth();
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
-  const [role, setRole] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,11 +29,11 @@ export default function VolunteerScreen({ visible, onClose, event }) {
         authUser.middle_name || '',
         authUser.last_name || ''
       ].filter(Boolean).join(' ').trim();
-      
+
       if (fullName) {
         setName(fullName);
       }
-      
+
       if (authUser.contact_number) {
         setContact(authUser.contact_number);
       }
@@ -51,7 +41,7 @@ export default function VolunteerScreen({ visible, onClose, event }) {
   }, [authUser]);
 
   const handleSubmit = async () => {
-    if (!name || !contact || !role) {
+    if (!name || !contact) {
       setErrorMessage('Please fill all required fields.');
       return;
     }
@@ -66,10 +56,10 @@ export default function VolunteerScreen({ visible, onClose, event }) {
     const newVolunteer = {
       name: name,
       contact: contact,
-      role: role,
       eventTitle: event?.title || 'General Volunteer',
-      eventId: event?._id || null, 
+      eventId: event?._id || null,
       user_id: authUser?.id || authUser?._id,
+      registration_type: registrationType, // 'participant' or 'volunteer'
     };
 
     const result = await addVolunteer(newVolunteer);
@@ -77,12 +67,11 @@ export default function VolunteerScreen({ visible, onClose, event }) {
     if (result.success) {
       Alert.alert(
         'Success',
-        `Thank you ${name}! You've signed up as ${role}${event?.title ? ` for ${event.title}` : ''}.`,
+        `Thank you ${name}! You've signed up to volunteer${event?.title ? ` for ${event.title}` : ''}.`,
         [
           {
             text: 'OK',
             onPress: () => {
-              setRole('');
               setErrorMessage('');
 
               if (authUser) {
@@ -91,11 +80,11 @@ export default function VolunteerScreen({ visible, onClose, event }) {
                   authUser.middle_name || '',
                   authUser.last_name || ''
                 ].filter(Boolean).join(' ').trim();
-                
+
                 if (fullName) {
                   setName(fullName);
                 }
-                
+
                 if (authUser.contact_number) {
                   setContact(authUser.contact_number);
                 }
@@ -108,7 +97,7 @@ export default function VolunteerScreen({ visible, onClose, event }) {
           },
         ]
       );
-      
+
     } else {
       setErrorMessage(result.message || 'Failed to save volunteer information. Please try again.');
       Alert.alert('Error', result.message || 'Failed to save volunteer information. Please try again.');
@@ -152,7 +141,28 @@ export default function VolunteerScreen({ visible, onClose, event }) {
                 resizeMode="contain"
               />
               {event && event.title ? (
-                <Text style={styles.subtitle}>Volunteering for: {event.title}</Text>
+                <>
+                  <Text style={styles.subtitle}>Volunteering for: {event.title}</Text>
+                  {event.date && (
+                    <Text style={[styles.subtitle, { fontSize: 14, marginTop: 5, color: '#666' }]}>
+                      {new Date(event.date).toDateString()}
+                    </Text>
+                  )}
+                  {(event.time_start || event.time_end) && (
+                    <Text style={[styles.subtitle, { fontSize: 14, marginTop: 2, color: '#666' }]}>
+                      {event.time_start && event.time_end
+                        ? `${event.time_start} - ${event.time_end}`
+                        : event.time_start
+                        ? `${event.time_start} -`
+                        : `- ${event.time_end}`}
+                    </Text>
+                  )}
+                  {event.location && (
+                    <Text style={[styles.subtitle, { fontSize: 14, marginTop: 2, color: '#666' }]}>
+                      📍 {event.location}
+                    </Text>
+                  )}
+                </>
               ) : (
                 <Text style={styles.subtitle}>Fill in all necessary information.</Text>
               )}
@@ -167,6 +177,7 @@ export default function VolunteerScreen({ visible, onClose, event }) {
                 placeholder="Name"
                 value={name}
                 onChangeText={setName}
+                placeholderTextColor="#999"
               />
             </View>
 
@@ -175,21 +186,15 @@ export default function VolunteerScreen({ visible, onClose, event }) {
               <TextInput
                 style={styles.input}
                 placeholder="Contact"
+                placeholderTextColor="#999"
                 value={contact}
                 onChangeText={setContact}
                 keyboardType="phone-pad"
               />
             </View>
 
-            <CustomPicker
-              value={role}
-              onValueChange={setRole}
-              options={volunteerRoles}
-              placeholder="Role"
-            />
-
-            <TouchableOpacity 
-              style={[styles.submitButton, (isSubmitting || loading) && { opacity: 0.6 }]} 
+            <TouchableOpacity
+              style={[styles.submitButton, (isSubmitting || loading) && { opacity: 0.6 }]}
               onPress={handleSubmit}
               disabled={isSubmitting || loading}
             >

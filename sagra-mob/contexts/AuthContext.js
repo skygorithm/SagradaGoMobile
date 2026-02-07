@@ -1,6 +1,9 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../config/API';
+import { registerForPushNotificationsAsync } from '../utils/RegisterPushToken';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../config/FireBaseConfig';
 
 const AuthContext = createContext();
 
@@ -23,6 +26,62 @@ export const AuthProvider = ({ children }) => {
       if (storedUser) {
         const userData = JSON.parse(storedUser);
         
+        // Check if account is disabled (even if cached)
+        if (userData.is_active === false) {
+          // Account was disabled, clear storage and don't authenticate
+          await removeUserFromStorage();
+          setUser(null);
+          setIsAuthenticated(false);
+          setLoading(false);
+          return;
+        }
+        
+        // Verify user status with backend to ensure account is still active
+        try {
+          const response = await fetch(`${API_BASE_URL}/findUser`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ uid: userData.uid }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            const currentUserData = data.user;
+            
+            // Check if account is disabled on backend
+            if (currentUserData.is_active === false) {
+              await removeUserFromStorage();
+              setUser(null);
+              setIsAuthenticated(false);
+              setLoading(false);
+              return;
+            }
+            
+            // Update cached user data with latest from backend
+            const updatedUserData = {
+              ...userData,
+              ...currentUserData,
+              is_active: currentUserData.is_active !== false,
+            };
+            await saveUserToStorage(updatedUserData);
+            userData.is_active = updatedUserData.is_active;
+          }
+          
+        } catch (verifyError) {
+          console.error('Error verifying user status:', verifyError);
+          // If verification fails, still allow login with cached data
+          // but check the cached is_active value
+          if (userData.is_active === false) {
+            await removeUserFromStorage();
+            setUser(null);
+            setIsAuthenticated(false);
+            setLoading(false);
+            return;
+          }
+        }
+        
         // if (!userData.profilePicture && userData.gender) {
         //   const gender = userData.gender.toLowerCase();
 
@@ -38,6 +97,17 @@ export const AuthProvider = ({ children }) => {
         
         setUser(userData);
         setIsAuthenticated(true);
+
+        // Register for push notifications when user is loaded from storage
+        try {
+          console.log('[AuthContext] Registering for push notifications (from storage)...');
+          const userForFCM = { id: userData.uid };
+          await registerForPushNotificationsAsync(userForFCM, userData.uid, userData.is_admin ? 'Admin' : 'User');
+          console.log('[AuthContext] Push notification registration completed (from storage)');
+        } catch (fcmError) {
+          console.error('[AuthContext] Error registering for push notifications (from storage):', fcmError);
+          // Don't fail if FCM registration fails
+        }
       }
 
     } catch (error) {
@@ -71,6 +141,40 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setLoading(true);
+      
+      // First, authenticate with Firebase Auth to get the token
+      // This ensures password changes via Firebase Auth work correctly
+      let firebaseToken = null;
+      try {
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          email.trim(),
+          password
+        );
+        // Get Firebase ID token for backend verification
+        firebaseToken = await userCredential.user.getIdToken();
+        console.log('[AuthContext] Firebase Auth successful, token obtained');
+      } catch (firebaseError) {
+        // If Firebase Auth fails, still try backend login with password only
+        // This handles cases where user might not be in Firebase Auth yet
+        console.log('[AuthContext] Firebase Auth login failed, trying backend login with password only:', firebaseError.code);
+        
+        // If it's a wrong password error, return early with clear message
+        if (firebaseError.code === 'auth/wrong-password' || firebaseError.code === 'auth/invalid-credential') {
+          return { 
+            success: false, 
+            message: 'Invalid email or password.' 
+          };
+        }
+        
+        // If user not found in Firebase Auth, continue to backend login
+        // (Backend might have the user in MongoDB)
+        if (firebaseError.code !== 'auth/user-not-found') {
+          // For other Firebase errors, log but continue
+          console.warn('[AuthContext] Firebase Auth error:', firebaseError.code);
+        }
+      }
+      
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
         headers: {
@@ -79,6 +183,7 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({
           email: email.trim(),
           password: password,
+          firebaseToken: firebaseToken, // Send Firebase token if available
         }),
       });
 
@@ -86,6 +191,14 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         const userData = data.user;
+
+        // Check if account is disabled
+        if (userData.is_active === false) {
+          return { 
+            success: false, 
+            message: 'Your account has been disabled. Please contact the administrator for assistance.' 
+          };
+        }
 
         // if (!userData.profilePicture && userData.gender) {
         //   const gender = userData.gender.toLowerCase();
@@ -101,10 +214,34 @@ export const AuthProvider = ({ children }) => {
         await saveUserToStorage(userData);
         setUser(userData);
         setIsAuthenticated(true);
+
+        // Register for push notifications after successful login
+        try {
+          console.log('[AuthContext] Registering for push notifications...');
+          const userForFCM = { id: userData.uid }; // FCM registration expects { id: uid }
+          await registerForPushNotificationsAsync(userForFCM, userData.uid, userData.is_admin ? 'Admin' : 'User');
+          console.log('[AuthContext] Push notification registration completed');
+        } catch (fcmError) {
+          console.error('[AuthContext] Error registering for push notifications:', fcmError);
+          // Don't fail login if FCM registration fails
+        }
+
         return { success: true, user: userData, message: data.message };
 
       } else {
-        return { success: false, message: data.message || 'Invalid email or password' };
+        // Enhanced error message for password-related issues
+        let errorMessage = data.message || 'Invalid email or password';
+        
+        // If it's a 401 and the message suggests password issue, provide more context
+        if (response.status === 401 && (
+          errorMessage.toLowerCase().includes('password') || 
+          errorMessage.toLowerCase().includes('invalid') ||
+          errorMessage.toLowerCase().includes('unauthorized')
+        )) {
+          errorMessage = 'Invalid email or password. If you recently changed your password, please wait a few minutes and try again, or contact support.';
+        }
+        
+        return { success: false, message: errorMessage };
       }
 
     } catch (error) {
@@ -344,7 +481,7 @@ export const AuthProvider = ({ children }) => {
   const addVolunteer = async (volunteerData) => {
     try {
       setLoading(true);
-      
+
       if (!user || !user.uid) {
         return { success: false, message: 'User not found. Please login again.' };
       }
@@ -355,39 +492,32 @@ export const AuthProvider = ({ children }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          uid: user.uid,
-          volunteer: volunteerData,
+          name: volunteerData.name,
+          contact: volunteerData.contact,
+          user_id: user.uid,
+          eventId: volunteerData.eventId || volunteerData.event_id || null,
+          eventTitle: volunteerData.eventTitle || volunteerData.event_title || 'General Volunteer',
+          registration_type: volunteerData.registration_type || 'volunteer',
         }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        const updatedUser = data.user;
-
-        if (!updatedUser.profilePicture && updatedUser.gender) {
-          const gender = updatedUser.gender.toLowerCase();
-
-          if (gender === 'female') {
-            updatedUser.profilePicture = 'female-avatar';
-            
-          } else if (gender === 'male') {
-            updatedUser.profilePicture = 'male-avatar';
-          }
-        }
-        
-        await saveUserToStorage(updatedUser);
-        setUser(updatedUser);
-        return { success: true, user: updatedUser, message: data.message || 'Volunteer information saved successfully.' };
-
+        return {
+          success: true,
+          volunteer: data.volunteer,
+          message: data.message || 'Volunteer information saved successfully.',
+        };
       } else {
-        return { success: false, message: data.message || 'Failed to save volunteer information. Please try again.' };
+        return {
+          success: false,
+          message: data.message || 'Failed to save volunteer information. Please try again.',
+        };
       }
-
     } catch (error) {
       console.error('Add volunteer error:', error);
       return { success: false, message: 'Network error. Please check your connection and try again.' };
-
     } finally {
       setLoading(false);
     }

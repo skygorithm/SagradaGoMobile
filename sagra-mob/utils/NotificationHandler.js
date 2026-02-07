@@ -1,15 +1,18 @@
-import { Platform, Alert, Linking } from 'react-native';
-import * as Notifications from 'expo-notifications';
-import firestore from '@react-native-firebase/firestore';
-import firebase from '@react-native-firebase/app';
+import { Platform, Alert, Linking, NativeModules } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
+import * as Notifications from 'expo-notifications';
+import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import app from '../config/FireBaseConfig';
 
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
+  handleNotification: async () => {
+    console.log('NotificationHandler: Expo notification handler called');
+    return {
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+    };
+  },
 });
 
 class NotificationHandler {
@@ -23,21 +26,30 @@ class NotificationHandler {
   }
 
   async initialize() {
-    if (this.initialized) return;
+    if (this.initialized) {
+      console.log('NotificationHandler: Already initialized, skipping...');
+      return;
+    }
 
     try {
+      console.log('NotificationHandler: Starting initialization...');
       await this.requestPermissions();
 
-      this.setupBackgroundMessageHandler();
+      await this.createNotificationChannel();
+
       this.setupForegroundMessageHandler();
       this.setupNotificationOpenedHandlers();
       this.setupExpoNotificationHandlers();
 
       this.initialized = true;
-      console.log('NotificationHandler: Initialized successfully');
+      console.log('NotificationHandler: ✅ Initialized successfully');
+
+      console.log('NotificationHandler: Testing message handler registration...');
+      console.log('NotificationHandler: onMessage handler should be active now');
 
     } catch (error) {
-      console.error('NotificationHandler: Error initializing:', error);
+      console.error('NotificationHandler: ❌ Error initializing:', error);
+      console.error('NotificationHandler: Error stack:', error.stack);
     }
   }
 
@@ -71,31 +83,71 @@ class NotificationHandler {
     }
   }
 
-  setupBackgroundMessageHandler() {
-    try {
-      messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-        console.log('NotificationHandler: Background message received:', remoteMessage);
-
-        await this.saveNotificationToFirestore(remoteMessage);
-      });
-
-    } catch (error) {
-      console.error('NotificationHandler: Error setting up background message handler:', error);
-    }
-  }
-
   setupForegroundMessageHandler() {
     try {
-      messaging().onMessage(async (remoteMessage) => {
-        console.log('NotificationHandler: Foreground message received:', remoteMessage);
+      console.log('NotificationHandler: Setting up foreground message handler...');
+
+      if (this.foregroundUnsubscribe) {
+        console.log('NotificationHandler: Removing existing foreground handler...');
+        this.foregroundUnsubscribe();
+        this.foregroundUnsubscribe = null;
+      }
+
+      console.log('NotificationHandler: Registering onMessage handler...');
+      this.foregroundUnsubscribe = messaging().onMessage(async (remoteMessage) => {
+        console.log('🔔🔔🔔 NotificationHandler: Foreground message received! 🔔🔔🔔');
+        console.log('🔔 NotificationHandler: Message ID:', remoteMessage?.messageId);
+        console.log('🔔 NotificationHandler: Has notification:', !!remoteMessage?.notification);
+        console.log('🔔 NotificationHandler: Has data:', !!remoteMessage?.data);
+        console.log('🔔 NotificationHandler: Full message:', JSON.stringify(remoteMessage, null, 2));
         
-        await this.showLocalNotification(remoteMessage);
+        const notificationTitle = remoteMessage?.notification?.title || remoteMessage?.data?.title;
+        const notificationBody = remoteMessage?.notification?.body || remoteMessage?.data?.body;
         
-        await this.saveNotificationToFirestore(remoteMessage);
+        console.log('🔔 NotificationHandler: Title:', notificationTitle);
+        console.log('🔔 NotificationHandler: Body:', notificationBody);
+        
+        if (remoteMessage?.data) {
+          console.log('🔔 NotificationHandler: Data payload:', JSON.stringify(remoteMessage.data, null, 2));
+        }
+  
+        const shouldShow = remoteMessage?.data?.showNotification === "true" || !!remoteMessage?.notification;
+        
+        if (shouldShow) {
+          console.log('🔔 NotificationHandler: Calling showLocalNotification...');
+
+          try {
+            await this.showLocalNotification(remoteMessage);
+            console.log('🔔 NotificationHandler: ✅ showLocalNotification completed');
+
+          } catch (showError) {
+            console.error('🔔 NotificationHandler: ❌ Error in showLocalNotification:', showError);
+            console.error('🔔 NotificationHandler: Error stack:', showError.stack);
+          }
+
+        } else {
+          console.log('🔔 NotificationHandler: Skipping notification display (showNotification flag not set)');
+        }
+
+        try {
+          await this.saveNotificationToFirestore(remoteMessage);
+
+        } catch (saveError) {
+          console.log('NotificationHandler: Could not save to Firestore (non-critical):', saveError.message);
+        }
       });
       
+      console.log('NotificationHandler: ✅ Foreground message handler set up successfully');
+      console.log('NotificationHandler: Handler is now listening for messages...');
+      console.log('NotificationHandler: onMessage handler registered:', !!this.foregroundUnsubscribe);
+
+      if (!this.foregroundUnsubscribe) {
+        console.error('NotificationHandler: ⚠️ WARNING - onMessage handler returned null!');
+      }
+      
     } catch (error) {
-      console.error('NotificationHandler: Error setting up foreground message handler:', error);
+      console.error('NotificationHandler: ❌ Error setting up foreground message handler:', error);
+      console.error('NotificationHandler: Error stack:', error.stack);
     }
   }
 
@@ -120,36 +172,69 @@ class NotificationHandler {
     }
   }
 
-  setupExpoNotificationHandlers() {
-    Notifications.addNotificationReceivedListener((notification) => {
-      console.log('NotificationHandler: Expo notification received:', notification);
-    });
-
-
-    Notifications.addNotificationResponseReceivedListener((response) => {
-      console.log('NotificationHandler: Expo notification response:', response);
-      this.handleExpoNotificationResponse(response);
-    });
-  }
 
   async showLocalNotification(remoteMessage) {
     try {
+      console.log('NotificationHandler: showLocalNotification called with:', JSON.stringify(remoteMessage, null, 2));
+      
       const { notification, data } = remoteMessage;
       
-      if (notification) {
-        await Notifications.scheduleNotificationAsync({
-          content: {
-            title: notification.title || 'New Notification',
-            body: notification.body || 'You have a new message',
-            data: data || {},
-            sound: true,
-          },
-          trigger: null, 
+      const title = notification?.title || data?.title || 'New Notification';
+      const body = notification?.body || data?.body || data?.message || 'You have a new message';
+      
+      console.log('NotificationHandler: 📱 Showing notification:', title, body);
+      console.log('NotificationHandler: Notification data:', JSON.stringify(data, null, 2));
+      
+      let parsedData = data || {};
+      if (typeof data === 'object' && data !== null) {
+        parsedData = {};
+        Object.keys(data).forEach(key => {
+          try {
+            if (typeof data[key] === 'string' && (data[key].startsWith('{') || data[key].startsWith('['))) {
+              parsedData[key] = JSON.parse(data[key]);
+
+            } else {
+              parsedData[key] = data[key];
+            }
+
+          } catch {
+            parsedData[key] = data[key];
+          }
         });
       }
 
+      const notificationId = await Notifications.scheduleNotificationAsync({
+        content: {
+          title: title,
+          body: body,
+          data: parsedData,
+          sound: true,
+          priority: Notifications.AndroidNotificationPriority.HIGH,
+        },
+        trigger: null,
+      });
+      
+      console.log('NotificationHandler: ✅ Notification displayed successfully with ID:', notificationId);
+
     } catch (error) {
-      console.error('NotificationHandler: Error showing local notification:', error);
+      console.error('NotificationHandler: ❌ Error showing local notification:', error);
+      console.error('NotificationHandler: Error stack:', error.stack);
+
+      if (remoteMessage?.notification || remoteMessage?.data) {
+        try {
+          const title = remoteMessage.notification?.title || remoteMessage.data?.title || 'Notification';
+          const body = remoteMessage.notification?.body || remoteMessage.data?.body || remoteMessage.data?.message || 'You have a new message';
+          
+          console.log('NotificationHandler: Using Alert fallback:', title, body);
+          Alert.alert(
+            title,
+            body,
+            [{ text: 'OK' }]
+          );
+        } catch (fallbackError) {
+          console.error('NotificationHandler: Fallback Alert also failed:', fallbackError);
+        }
+      }
     }
   }
 
@@ -158,27 +243,33 @@ class NotificationHandler {
       const { notification, data } = remoteMessage;
       
       if (!notification) return;
+      
+      try {
+        const db = getFirestore(app);
+        const notificationData = {
+          title: notification.title || 'New Notification',
+          body: notification.body || 'You have a new message',
+          data: data || {},
+          timestamp: serverTimestamp(),
+          type: data?.type || 'general',
+          read: false,
+          source: 'fcm',
+        };
 
-      const notificationData = {
-        title: notification.title || 'New Notification',
-        body: notification.body || 'You have a new message',
-        data: data || {},
-        timestamp: firestore.FieldValue.serverTimestamp(),
-        type: data?.type || 'general',
-        read: false,
-        source: 'fcm',
-      };
+        await addDoc(collection(db, 'allNotifications'), notificationData);
 
-      await firestore().collection('allNotifications').add(notificationData);
+        if (data?.userId) {
+          await addDoc(collection(db, 'accounts', data.userId, 'userNotifications'), notificationData);
+        }
 
-      if (data?.userId) {
-        await firestore().collection('accounts').doc(data.userId).collection('userNotifications').add(notificationData);
+        console.log('NotificationHandler: Notification saved to Firestore');
+
+      } catch (firestoreError) {
+        console.log('NotificationHandler: Could not save to Firestore (likely security rules) - this is OK, backend handles storage');
       }
 
-      console.log('NotificationHandler: Notification saved to Firestore');
-
     } catch (error) {
-      console.error('NotificationHandler: Error saving notification to Firestore:', error);
+      console.log('NotificationHandler: Skipping Firestore save (permissions or rules)');
     }
   }
 
@@ -190,28 +281,15 @@ class NotificationHandler {
     setTimeout(() => {
       try {
         switch (data.type) {
-          case 'request_approved':
-            this.navigationRef.navigate('OrdersScreen');
-            break;
+          case 'chat_message':
+            if (this.navigationRef) {
+              if (typeof this.navigationRef === 'function') {
+                this.navigationRef('ChatBotScreen');
 
-          case 'new_request':
-            this.navigationRef.navigate('PendingRequestScreen');
-            break;
-
-          case 'request_rejected':
-            this.navigationRef.navigate('OrdersScreen');
-            break;
-
-          case 'inventory_update':
-            this.navigationRef.navigate('InventoryStocks');
-            break;
-
-          case 'capex_approved':
-            this.navigationRef.navigate('CapexRequestScreen');
-            break;
-
-          case 'capex_rejected':
-            this.navigationRef.navigate('CapexRequestScreen');
+              } else if (this.navigationRef.navigate) {
+                this.navigationRef.navigate('ChatBotScreen');
+              }
+            }
             break;
 
           default:
@@ -225,6 +303,23 @@ class NotificationHandler {
     }, 1000);
   }
 
+  setupExpoNotificationHandlers() {
+    try {
+      // Handle notification received in foreground
+      Notifications.addNotificationReceivedListener((notification) => {
+        console.log('NotificationHandler: Expo notification received:', notification);
+      });
+
+      // Handle notification response (when user taps notification)
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        console.log('NotificationHandler: Expo notification response:', response);
+        this.handleExpoNotificationResponse(response);
+      });
+    } catch (error) {
+      console.error('NotificationHandler: Error setting up Expo notification handlers:', error);
+    }
+  }
+
   handleExpoNotificationResponse(response) {
     const { notification } = response;
     const data = notification.request.content.data;
@@ -236,26 +331,32 @@ class NotificationHandler {
 
   async createNotificationChannel() {
     if (Platform.OS === 'android') {
-      await Notifications.setNotificationChannelAsync('default', {
-        name: 'Default',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
-      });
+      try {
+        await Notifications.setNotificationChannelAsync('default', {
+          name: 'Default',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#FF231F7C',
+        });
 
-      await Notifications.setNotificationChannelAsync('requests', {
-        name: 'Request Notifications',
-        importance: Notifications.AndroidImportance.HIGH,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
-      });
+        await Notifications.setNotificationChannelAsync('requests', {
+          name: 'Request Notifications',
+          importance: Notifications.AndroidImportance.HIGH,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#FF231F7C',
+        });
 
-      await Notifications.setNotificationChannelAsync('inventory', {
-        name: 'Inventory Notifications',
-        importance: Notifications.AndroidImportance.HIGH,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
-      });
+        await Notifications.setNotificationChannelAsync('inventory', {
+          name: 'Inventory Notifications',
+          importance: Notifications.AndroidImportance.HIGH,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#FF231F7C',
+        });
+
+        console.log('NotificationHandler: ✅ Notification channels created');
+      } catch (error) {
+        console.error('NotificationHandler: Error creating notification channels:', error);
+      }
     }
   }
 
@@ -270,7 +371,7 @@ class NotificationHandler {
         },
         trigger: null,
       });
-
+      console.log('NotificationHandler: ✅ Test notification sent');
     } catch (error) {
       console.error('NotificationHandler: Error sending test notification:', error);
     }
@@ -298,6 +399,26 @@ class NotificationHandler {
       return { fcm: false, expo: false };
     }
   }
+
+  // async testHandler() {
+  //   console.log('NotificationHandler: Testing handler registration...');
+  //   console.log('NotificationHandler: Initialized:', this.initialized);
+  //   console.log('NotificationHandler: Foreground unsubscribe exists:', !!this.foregroundUnsubscribe);
+    
+  //   try {
+  //     await Notifications.scheduleNotificationAsync({
+  //       content: {
+  //         title: 'Test Handler',
+  //         body: 'If you see this, expo-notifications is working',
+  //         data: { test: true },
+  //       },
+  //       trigger: null,
+  //     });
+  //     console.log('NotificationHandler: ✅ Test notification sent via expo-notifications');
+  //   } catch (error) {
+  //     console.error('NotificationHandler: ❌ Test notification failed:', error);
+  //   }
+  // }
 }
 
 const notificationHandler = new NotificationHandler();
