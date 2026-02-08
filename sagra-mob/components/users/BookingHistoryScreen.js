@@ -616,6 +616,7 @@ export default function BookingHistoryScreen({ user, onNavigate }) {
           const response = await fetch(`${API_BASE_URL}/getProofOfPayment?path=${encodeURIComponent(booking.proof_of_payment)}`);
           const data = await response.json();
           console.log('Proof of payment response:', data);
+          
           if (data.url) {
             setProofOfPaymentUrl(data.url);
             setLoadingProofOfPayment(false);
