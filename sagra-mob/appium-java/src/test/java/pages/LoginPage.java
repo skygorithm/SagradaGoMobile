@@ -4,10 +4,12 @@ import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -63,34 +65,40 @@ public class LoginPage {
     }
 
     public void fillLoginForm(String email, String password) {
+        ensureOnLoginScreen();
         log("Filling login form...");
-        WebElement emailField = wait.until(ExpectedConditions.presenceOfElementLocated(
+
+        WebElement emailField = waitForAnyElement(
+                AppiumBy.accessibilityId("login-email-input"),
+                AppiumBy.accessibilityId("Email"),
                 AppiumBy.androidUIAutomator("new UiSelector().className(\"android.widget.EditText\").instance(0)")
-        ));
-        pause();
-        emailField.click();
-        emailField.clear();
+        );
+        setFieldText(emailField, email);
         if (email != null && !email.isEmpty()) {
-            emailField.sendKeys(email);
             log("Entered email.");
         }
         pause();
 
-        WebElement passwordField = driver.findElement(
+        WebElement passwordField = waitForAnyElement(
+                AppiumBy.accessibilityId("login-password-input"),
+                AppiumBy.accessibilityId("Password"),
                 AppiumBy.androidUIAutomator("new UiSelector().className(\"android.widget.EditText\").instance(1)")
         );
-        passwordField.click();
-        passwordField.clear();
+        setFieldText(passwordField, password);
         if (password != null && !password.isEmpty()) {
-            passwordField.sendKeys(password);
             log("Entered password.");
         }
         pause();
+
+        hideKeyboardIfShown();
     }
 
     public void tapLogin() {
+        ensureOnLoginScreen();
+        hideKeyboardIfShown();
         log("Tapping Login button...");
         clickFirstVisible(
+                AppiumBy.accessibilityId("login-submit-button"),
                 AppiumBy.accessibilityId("Login"),
                 By.xpath("//*[@text='Login']"),
                 AppiumBy.androidUIAutomator("new UiSelector().text(\"Login\")")
@@ -99,6 +107,7 @@ public class LoginPage {
     }
 
     public void assertEmptyFieldsError() {
+        ensureOnLoginScreen();
         log("Checking empty-fields validation...");
         shortWait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//*[@text='Login Error']")
@@ -112,7 +121,9 @@ public class LoginPage {
 
     public void dismissErrorModal() {
         log("Dismissing error modal...");
-        List<WebElement> okButtons = driver.findElements(AppiumBy.accessibilityId("OK"));
+        List<WebElement> okButtons = driver.findElements(
+                By.xpath("//*[@text='OK' or @content-desc='OK']")
+        );
         for (WebElement ok : okButtons) {
             if (ok.isDisplayed()) {
                 ok.click();
@@ -129,6 +140,48 @@ public class LoginPage {
         ));
         log("Login successful — home screen displayed.");
         pause(3000);
+    }
+
+    private void setFieldText(WebElement element, String text) {
+        String elementId = ((RemoteWebElement) element).getId();
+        Map<String, Object> args = new HashMap<>();
+        args.put("elementId", elementId);
+        args.put("text", text == null ? "" : text);
+        driver.executeScript("mobile: replaceElementValue", args);
+    }
+
+    private void ensureOnLoginScreen() {
+        int attempts = 0;
+        while (isOnKeyboardSettings() && attempts < 3) {
+            log("Leaving keyboard settings screen...");
+            driver.navigate().back();
+            pause(1000);
+            attempts++;
+        }
+
+        if (!isOnLoginScreen() && isOnKeyboardSettings()) {
+            throw new RuntimeException("Stuck on keyboard settings — could not return to login screen.");
+        }
+    }
+
+    private void hideKeyboardIfShown() {
+        try {
+            if (driver.isKeyboardShown()) {
+                driver.hideKeyboard();
+                pause(500);
+            }
+        } catch (Exception ignored) {
+            if (isOnKeyboardSettings()) {
+                driver.navigate().back();
+                pause(500);
+            }
+        }
+    }
+
+    private boolean isOnKeyboardSettings() {
+        List<WebElement> preferences = driver.findElements(By.xpath("//*[@text='Preferences']"));
+        List<WebElement> languages = driver.findElements(By.xpath("//*[@text='Languages']"));
+        return !preferences.isEmpty() && !languages.isEmpty();
     }
 
     private void acceptNotificationPermission() {
@@ -180,6 +233,20 @@ public class LoginPage {
 
     private boolean isOnGetStartedScreen() {
         return !driver.findElements(By.xpath("//*[@text='SagradaGo']")).isEmpty();
+    }
+
+    private WebElement waitForAnyElement(By... selectors) {
+        long deadline = System.currentTimeMillis() + 20_000;
+        while (System.currentTimeMillis() < deadline) {
+            for (By selector : selectors) {
+                List<WebElement> elements = driver.findElements(selector);
+                if (!elements.isEmpty()) {
+                    return elements.get(0);
+                }
+            }
+            pause(500);
+        }
+        throw new RuntimeException("Expected element not found on screen.");
     }
 
     private void clickFirstVisible(By... selectors) {

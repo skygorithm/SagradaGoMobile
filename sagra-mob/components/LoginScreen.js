@@ -168,6 +168,8 @@ export default function LoginScreen({ onLoginSuccess, onSwitchToSignUp, onBack }
             autoCapitalize="none"
             autoCorrect={false}
             editable={!loading}
+            testID="login-email-input"
+            accessibilityLabel="Email"
           />
         </View>
 
@@ -183,6 +185,8 @@ export default function LoginScreen({ onLoginSuccess, onSwitchToSignUp, onBack }
             secureTextEntry={!showPassword}
             autoCapitalize="none"
             editable={!loading}
+            testID="login-password-input"
+            accessibilityLabel="Password"
           />
 
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
@@ -199,6 +203,8 @@ export default function LoginScreen({ onLoginSuccess, onSwitchToSignUp, onBack }
           style={[styles.yellowButton, loading && styles.buttonDisabled]}
           onPress={handleLogin}
           disabled={loading}
+          testID="login-submit-button"
+          accessibilityLabel="Login"
         >
           {loading ? (
             <ActivityIndicator color="#fff" />

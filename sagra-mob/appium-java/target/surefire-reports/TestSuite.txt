@@ -1,13 +1,13 @@
 -------------------------------------------------------------------------------
 Test set: TestSuite
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 44.67 s <<< FAILURE! -- in TestSuite
-tests.LoginTest.loginFlow -- Time elapsed: 36.81 s <<< FAILURE!
-org.openqa.selenium.TimeoutException: Expected condition failed: waiting for presence of element located by: By.xpath: //*[@text='Login Error'] (tried for 10 second(s) with 500 milliseconds interval)
+Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 58.38 s <<< FAILURE! -- in TestSuite
+tests.LoginTest.loginFlow -- Time elapsed: 51.92 s <<< FAILURE!
+org.openqa.selenium.TimeoutException: Expected condition failed: waiting for presence of element located by: By.xpath: //*[contains(@text,'Welcome,')] (tried for 20 second(s) with 500 milliseconds interval)
 	at org.openqa.selenium.support.ui.WebDriverWait.timeoutException(WebDriverWait.java:84)
 	at org.openqa.selenium.support.ui.FluentWait.until(FluentWait.java:230)
-	at pages.LoginPage.assertEmptyFieldsError(LoginPage.java:103)
-	at tests.LoginTest.loginFlow(LoginTest.java:23)
+	at pages.LoginPage.assertLoginSuccess(LoginPage.java:138)
+	at tests.LoginTest.loginFlow(LoginTest.java:30)
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
 	at org.testng.internal.invokers.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:141)
@@ -44,9 +44,9 @@ For documentation on this error, please visit: https://www.selenium.dev/document
 Build info: version: '4.13.0', revision: 'ba948ece5b*'
 System info: os.name: 'Windows 11', os.arch: 'amd64', os.version: '10.0', java.version: '22.0.2'
 Driver info: io.appium.java_client.android.AndroidDriver
-Command: [5b3d50c5-a0a3-4faa-bc5f-2be2a4f2ec49, findElement {using=xpath, value=//*[@text='Login Error']}]
+Command: [7f7f1aab-dbcc-43fe-a8e4-8bf29b771f9f, findElement {using=xpath, value=//*[contains(@text,'Welcome,')]}]
 Capabilities {appium:appActivity: com.sagradago.sagramob.Main..., appium:appPackage: com.sagradago.sagramob, appium:automationName: UiAutomator2, appium:databaseEnabled: false, appium:desired: {appActivity: com.sagradago.sagramob.Main..., appPackage: com.sagradago.sagramob, automationName: UiAutomator2, deviceName: Android Emulator, noReset: true, platformName: ANDROID}, appium:deviceApiLevel: 35, appium:deviceManufacturer: Google, appium:deviceModel: sdk_gphone64_x86_64, appium:deviceName: emulator-5554, appium:deviceScreenDensity: 420, appium:deviceScreenSize: 1080x2400, appium:deviceUDID: emulator-5554, appium:javascriptEnabled: true, appium:locationContextEnabled: false, appium:networkConnectionEnabled: true, appium:noReset: true, appium:pixelRatio: 2.625, appium:platformVersion: 15, appium:statBarHeight: 63, appium:takesScreenshot: true, appium:viewportRect: {height: 2337, left: 0, top: 63, width: 1080}, appium:warnings: {}, appium:webStorageEnabled: false, platformName: ANDROID}
-Session ID: 5b3d50c5-a0a3-4faa-bc5f-2be2a4f2ec49
+Session ID: 7f7f1aab-dbcc-43fe-a8e4-8bf29b771f9f
 	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
 	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
 	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
