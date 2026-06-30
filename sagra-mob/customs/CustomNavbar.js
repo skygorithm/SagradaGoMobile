@@ -55,6 +55,7 @@ export default function CustomNavbar({ currentScreen, onNavigate }) {
             style={styles.navItem}
             onPress={() => onNavigate(item.screen)}
             activeOpacity={0.7}
+            accessibilityLabel={`navbar-${item.id}`}
           >
             <Animated.View
               style={[

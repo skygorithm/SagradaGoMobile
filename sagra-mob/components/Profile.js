@@ -311,6 +311,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
         <TouchableOpacity
           style={styles.circularButton}
           onPress={() => setShowLogoutModal(true)}
+          accessibilityLabel="profile-logout-button"
         >
           <Ionicons name="log-out" size={24} color="#424242" />
         </TouchableOpacity>
@@ -337,8 +338,8 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
           </View>
         </View>
 
-        <Text style={styles.title}>{fullName}</Text>
-        <Text style={styles.subtitle}>{currentUser?.email || ""}</Text>
+        <Text style={styles.title} accessibilityLabel="profile-full-name">{fullName}</Text>
+        <Text style={styles.subtitle} accessibilityLabel="profile-email-text">{currentUser?.email || ""}</Text>
 
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           <View style={[styles.inputContainer, { flex: 1, marginRight: 10 }, errors.first_name && styles.inputContainerError]}>
@@ -351,6 +352,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
               value={formData.first_name}
               onChangeText={(v) => handleInputChange("first_name", v)}
               onBlur={() => handleBlur("first_name")}
+              accessibilityLabel="profile-first-name-input"
             />
           </View>
 
@@ -366,6 +368,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
                 handleInputChange("middle_name", v.charAt(0).toUpperCase() + v.slice(1))
               }
               onBlur={() => handleBlur("middle_name")}
+              accessibilityLabel="profile-middle-name-input"
             />
           </View>
 
@@ -381,6 +384,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
                 handleInputChange("last_name", v.charAt(0).toUpperCase() + v.slice(1))
               }
               onBlur={() => handleBlur("last_name")}
+              accessibilityLabel="profile-last-name-input"
             />
           </View>
         </View>
@@ -400,6 +404,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
             value={formData.contact_number}
             onChangeText={(v) => handleInputChange("contact_number", v)}
             onBlur={() => handleBlur("contact_number")}
+            accessibilityLabel="profile-contact-input"
           />
         </View>
 
@@ -444,6 +449,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
             value={formData.email}
             onChangeText={(v) => handleInputChange("email", v)}
             onBlur={() => handleBlur("email")}
+            accessibilityLabel="profile-email-input"
           />
         </View>
 
@@ -453,6 +459,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
           <TouchableOpacity
             style={styles.darkButton}
             onPress={() => setIsEditing(true)}
+            accessibilityLabel="profile-edit-button"
           >
             <Text style={styles.darkButtonText}>Edit Profile</Text>
           </TouchableOpacity>
@@ -462,6 +469,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
               style={[styles.darkButton, { flex: 1 }]}
               onPress={handleCancel}
               disabled={isSaving}
+              accessibilityLabel="profile-cancel-button"
             >
               <Text style={styles.darkButtonText}>Cancel</Text>
             </TouchableOpacity>
@@ -469,6 +477,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
               style={[styles.yellowButton, { flex: 1 }, isSaving && { opacity: 0.6 }]}
               onPress={handleSave}
               disabled={isSaving}
+              accessibilityLabel="profile-save-button"
             >
               {isSaving ? (
                 <ActivityIndicator size="small" color="#424242" />
@@ -484,6 +493,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
           <TouchableOpacity
             style={[styles.bookingHistoryButton, { marginTop: 20 }]}
             onPress={() => onNavigate && onNavigate('BookingHistoryScreen')}
+            accessibilityLabel="profile-booking-history-button"
           >
             <Ionicons name="time-outline" size={20} color="#424242" style={{ marginRight: 8 }} />
             <Text style={styles.bookingHistoryButtonText}>Booking History</Text>
@@ -496,6 +506,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
           <TouchableOpacity
             style={styles.bookingHistoryButton}
             onPress={() => setShowVolunteerLogModal(true)}
+            accessibilityLabel="profile-activity-log-button"
           >
             <Ionicons name="people-outline" size={20} color="#424242" style={{ marginRight: 8 }} />
             <Text style={styles.bookingHistoryButtonText}>Activity Log</Text>
@@ -528,6 +539,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
               <TouchableOpacity
                 style={[styles.modalButton, styles.cancelButton]}
                 onPress={() => setShowLogoutModal(false)}
+                accessibilityLabel="logout-cancel-button"
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
@@ -535,6 +547,7 @@ export default function Profile({ user, onNavigate, onLogout, onBack, onSave }) 
               <TouchableOpacity
                 style={[styles.modalButton, styles.logoutConfirmButton]}
                 onPress={handleLogoutConfirm}
+                accessibilityLabel="logout-confirm-button"
               >
                 <Text style={styles.logoutConfirmButtonText}>Logout</Text>
               </TouchableOpacity>

@@ -1,7 +1,11 @@
 C:\Users\Berlene\ReactNativeMobileProg\commisions\SagradaGoMobile\sagra-mob\appium-java\src\test\java\base\BaseTest.java
+C:\Users\Berlene\ReactNativeMobileProg\commisions\SagradaGoMobile\sagra-mob\appium-java\src\test\java\pages\HomePage.java
 C:\Users\Berlene\ReactNativeMobileProg\commisions\SagradaGoMobile\sagra-mob\appium-java\src\test\java\pages\LoginPage.java
+C:\Users\Berlene\ReactNativeMobileProg\commisions\SagradaGoMobile\sagra-mob\appium-java\src\test\java\pages\ProfilePage.java
 C:\Users\Berlene\ReactNativeMobileProg\commisions\SagradaGoMobile\sagra-mob\appium-java\src\test\java\pages\SignUpPage.java
+C:\Users\Berlene\ReactNativeMobileProg\commisions\SagradaGoMobile\sagra-mob\appium-java\src\test\java\tests\HomeTest.java
 C:\Users\Berlene\ReactNativeMobileProg\commisions\SagradaGoMobile\sagra-mob\appium-java\src\test\java\tests\LoginTest.java
+C:\Users\Berlene\ReactNativeMobileProg\commisions\SagradaGoMobile\sagra-mob\appium-java\src\test\java\tests\ProfileTest.java
 C:\Users\Berlene\ReactNativeMobileProg\commisions\SagradaGoMobile\sagra-mob\appium-java\src\test\java\tests\SignUpTest.java
 C:\Users\Berlene\ReactNativeMobileProg\commisions\SagradaGoMobile\sagra-mob\appium-java\src\test\java\utils\DriveManager.java
 C:\Users\Berlene\ReactNativeMobileProg\commisions\SagradaGoMobile\sagra-mob\appium-java\src\test\java\utils\EnvUtils.java
