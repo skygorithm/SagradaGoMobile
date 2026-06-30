@@ -235,7 +235,7 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
                   style={{ width: 35, height: 35, borderRadius: 25, marginRight: 15 }}
                 />
                 <View style={{ flexDirection: 'column' }}>
-                  <Text style={styles.userName}>
+                  <Text style={styles.userName} accessibilityLabel="welcome-text">
                     Welcome, {getUserName()}!
                   </Text>
                   <Text style={styles.appName}>SagradaGo</Text>
@@ -247,6 +247,7 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
                   setTimeout(fetchUnreadCount, 500);
                 }}
                 style={{ padding: 8, position: 'relative' }}
+                accessibilityLabel="notifications-button"
               >
                 <Ionicons name="notifications-outline" size={24} color="#424242" />
                 <NotificationBadge count={unreadCount} />
@@ -370,6 +371,7 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
                   selectedSection === 'Quick Access' && styles.activeSectionButton
                 ]}
                 onPress={() => setSelectedSection('Quick Access')}
+                accessibilityLabel="quick-access-tab"
               >
                 <Ionicons
                   name="flash-outline"
@@ -393,6 +395,7 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
                   selectedSection === 'Upcoming Events' && styles.activeSectionButton
                 ]}
                 onPress={() => setSelectedSection('Upcoming Events')}
+                accessibilityLabel="upcoming-events-tab"
               >
                 <Ionicons
                   name="calendar-outline"
@@ -421,6 +424,7 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
                       key={shortcut.id}
                       style={[styles.shortcutCard, { borderLeftColor: shortcut.color }]}
                       onPress={() => handleShortcutPress(shortcut.screen)}
+                      accessibilityLabel={`shortcut-${shortcut.id}`}
                     >
                       <View style={styles.shortcutArrowContainer}>
                         <Ionicons
@@ -539,6 +543,7 @@ export default function HomePageScreen({ user, onLogout, onNavigate }) {
         <TouchableOpacity
           style={styles.floatingButton}
           onPress={() => handleShortcutPress('ChatBotScreen')}
+          accessibilityLabel="chatbot-button"
         >
           <Ionicons name="chatbubble-ellipses-outline" size={24} color="#424242" />
         </TouchableOpacity>
